@@ -29,7 +29,7 @@ QString FGame::getArgs()
 
 QString FGame::getAbsPath()
 {
-    QString RawString = "%1\%2 %3";
+    QString RawString = "%1/%2 %3";
     return RawString.arg(this->getPath(), this->getExe(), this->getArgs());
 }
 

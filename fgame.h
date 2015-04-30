@@ -1,7 +1,9 @@
+#ifndef QTCORE
+#include <QtCore>
+#endif
+
 #ifndef FGAME_H
 #define FGAME_H
-
-#include <QtCore>
 
 class FGame
 {
