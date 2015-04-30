@@ -11,10 +11,12 @@ TEMPLATE = lib
 
 DEFINES += LIBFUSION_LIBRARY
 
-SOURCES += libfusion.cpp
+SOURCES += libfusion.cpp \
+    fgame.cpp
 
 HEADERS += libfusion.h\
-        libfusion_global.h
+        libfusion_global.h \
+    fgame.h
 
 unix {
     target.path = /usr/lib
