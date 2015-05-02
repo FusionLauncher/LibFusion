@@ -1,12 +1,14 @@
 #include "fgame.h"
 
+enum FGameType { Unknown, Steam, Uplay, Origin, Exe }; //exe means executable, not windows .exe
+
 FGame::FGame()
 {
     this->gameName = "Unknown";
     this->gameExe = "Unknown";
     this->gamePath = "Unknown";
     this->gameArgs = "Unknown";
-    this->gameType = "Unknown";
+    this->gameType = Unknown;
 }
 
 QString FGame::getName() {
@@ -34,7 +36,7 @@ QString FGame::getAbsPath()
     return RawString.arg(this->getPath(), this->getExe(), this->getArgs());
 }
 
-QString FGame::getType()
+FGameType FGame::getType()
 {
     return this->gameType;
 }
@@ -59,7 +61,7 @@ void FGame::setArgs(QString val)
     this->gameArgs = val;
 }
 
-void FGame::setType(QString val)
+void FGame::setType(FGameType val)
 {
     this->gameType = val;
 }
