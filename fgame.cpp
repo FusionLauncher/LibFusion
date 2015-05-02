@@ -1,11 +1,14 @@
 #include "fgame.h"
 
+enum FGameType { NULL, Steam, Uplay, Origin, Executable };
+
 FGame::FGame()
 {
     this->gameName = "Unknown";
     this->gameExe = "Unknown";
     this->gamePath = "Unknown";
     this->gameArgs = "Unknown";
+    this->gameType = NULL;
 }
 
 QString FGame::getName() {
@@ -33,6 +36,11 @@ QString FGame::getAbsPath()
     return RawString.arg(this->getPath(), this->getExe(), this->getArgs());
 }
 
+FGameType FGame::getType()
+{
+    return this->gameType;
+}
+
 void FGame::setName(QString val)
 {
     this->gameName = val;
@@ -51,4 +59,9 @@ void FGame::setPath(QString val)
 void FGame::setArgs(QString val)
 {
     this->gameArgs = val;
+}
+
+void FGame::setType(FGameType val)
+{
+    this->gameType = val;
 }
