@@ -1,6 +1,6 @@
 #include "fgame.h"
 
-enum FGameType { Unknown, Steam, Uplay, Origin, Exe }; //exe means executable, not windows .exe
+enum FGameType { NULL, Steam, Uplay, Origin, Executable };
 
 FGame::FGame()
 {
@@ -8,7 +8,7 @@ FGame::FGame()
     this->gameExe = "Unknown";
     this->gamePath = "Unknown";
     this->gameArgs = "Unknown";
-    this->gameType = Unknown;
+    this->gameType = NULL;
 }
 
 QString FGame::getName() {
