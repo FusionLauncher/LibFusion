@@ -1,6 +1,5 @@
 #include "fgame.h"
 
-<<<<<<< HEAD
 FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args) {
     this->gameName = gName;
     this->gameType = gType;
@@ -9,11 +8,8 @@ FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QSt
     this->gameArgs = args;
 }
 
-FGame::FGame() {
-=======
 FGame::FGame()
 {
->>>>>>> upstream/master
 
 }
 
