@@ -1,12 +1,17 @@
 #include "fgame.h"
 
-FGame::FGame()
-{
-    this->gameName = "Unknown";
-    this->gameExe = "Unknown";
-    this->gamePath = "Unknown";
-    this->gameArgs = "Unknown";
+FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args) {
+    this->gameName = gName;
+    this->gameType = gType;
+    this->gamePath = gDir;
+    this->gameExe = exePath;
+    this->gameArgs = args;
 }
+
+FGame::FGame() {
+
+}
+
 
 QString FGame::getName() {
     return this->gameName;
@@ -17,20 +22,22 @@ QString FGame::getExe()
     return this->gameExe;
 }
 
+FGameType FGame::getType() {
+    return this->gameType;
+}
+
+void FGame::setType(FGameType val) {
+    this->gameType = val;
+}
+
 QString FGame::getPath()
 {
     return this->gamePath;
 }
 
-QString FGame::getArgs()
+QStringList FGame::getArgs()
 {
     return this->gameArgs;
-}
-
-QString FGame::getAbsPath()
-{
-    QString RawString = "%1/%2 %3";
-    return RawString.arg(this->getPath(), this->getExe(), this->getArgs());
 }
 
 void FGame::setName(QString val)
@@ -48,7 +55,7 @@ void FGame::setPath(QString val)
     this->gamePath = val;
 }
 
-void FGame::setArgs(QString val)
+void FGame::setArgs(QStringList val)
 {
     this->gameArgs = val;
 }
