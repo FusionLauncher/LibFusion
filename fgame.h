@@ -5,7 +5,7 @@
 #ifndef FGAME_H
 #define FGAME_H
 
-enum FGameType {Executable, Steam, Origin, Uplay, unknown};
+enum FGameType {unknown, Executable, Steam, Origin, Uplay};
 
 class FGame
 {
