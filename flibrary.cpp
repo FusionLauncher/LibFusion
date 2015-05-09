@@ -1,8 +1,7 @@
 #include "flibrary.h"
 
-FLibrary::FLibrary()
+FLibrary::FLibrary(FDB db)
 {
-
 }
 
 void FLibrary::addGame(FGame game)

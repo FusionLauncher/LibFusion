@@ -1,4 +1,5 @@
 #include "fgame.h"
+#include <QProcess>
 
 FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args) {
     this->gameName = gName;
@@ -59,4 +60,15 @@ void FGame::setPath(QString val)
 void FGame::setArgs(QStringList val)
 {
     this->gameArgs = val;
+}
+
+bool FGame::execute()
+{
+    if(gameExe.isEmpty() || gamePath.isEmpty())
+    {
+        return false;
+    }
+    QProcess *process = new QProcess();
+    process->execute(gamePath+'/'+gameExe, gameArgs);
+
 }
