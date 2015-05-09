@@ -22,6 +22,7 @@ public:
     void setPath(QString val);
     void setArgs(QStringList val);
     void setType(FGameType val);
+    bool execute();
 
 private:
     QString gameName;
