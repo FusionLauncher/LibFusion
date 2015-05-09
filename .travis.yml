@@ -8,7 +8,7 @@ before_install:
 
 script:
  - qmake -project
- - qmake libFusion.pro
+ - qmake LibFusion.pro
  - make
 
  
