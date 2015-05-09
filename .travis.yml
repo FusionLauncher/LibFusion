@@ -1,6 +1,7 @@
 language: cpp
 
 before_install:
+ - sudo apt-get update
  - sudo apt-get install libqt5-dev qt5-qmake libqt5sql5-sqlite
 
 script:
