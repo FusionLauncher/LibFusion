@@ -1,24 +1,27 @@
-#ifndef FGAME_H
-#include "fgame.h"
-#endif
-
-#include "fdb.h"
-
 #ifndef FLIBRARY_H
 #define FLIBRARY_H
 
-class FLibrary
+#include <QObject>
+#include "fdb.h"
+#include "fgame.h"
+
+class FLibrary : public QObject
 {
+    Q_OBJECT
 public:
-    FLibrary(FDB db);
+    explicit FLibrary(FDB db, QObject *parent = 0);
     void addGame(FGame game);
-    void removeGame(int index);
-    FGame gameByIndex(int index);
-    FGame gameByName(QString name);
-    QList<FGame> getGames();
+    void removeGameByIndex(int index);
+    FGame getGameByIndex(int index);
+    QList<FGame> getGameList();
+
 private:
-    QList<FGame> libraryGames;
+    QList<FGame> gameList;
     FDB db;
+
+signals:
+
+public slots:
 };
 
 #endif // FLIBRARY_H
