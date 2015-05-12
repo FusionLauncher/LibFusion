@@ -1,31 +1,26 @@
 #include "flibrary.h"
 
-FLibrary::FLibrary(FDB db)
+FLibrary::FLibrary(FDB db, QObject *parent) : QObject(parent)
 {
+
 }
 
 void FLibrary::addGame(FGame game)
 {
-    this->libraryGames.insert(0, game);
+    gameList.append(game);
 }
 
-void FLibrary::removeGame(int index)
+void FLibrary::removeGameByIndex(int index)
 {
-    this->libraryGames.removeAt(index);
+    gameList.removeAt(index);
 }
 
-FGame FLibrary::gameByIndex(int index)
+FGame FLibrary::getGameByIndex(int index)
 {
-    return FGame();
+    return gameList.at(index);
 }
 
-FGame FLibrary::gameByName(QString name)
+QList<FGame> FLibrary::getGameList()
 {
-    return FGame();
+    return gameList;
 }
-
-QList<FGame> FLibrary::getGames()
-{
-    return this->libraryGames;
-}
-
