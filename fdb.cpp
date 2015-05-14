@@ -105,3 +105,19 @@ int FDB::getGameCount()
     return countQuery.value(0).toInt();
 
 }
+
+QString FDB::getTextPref(QString pref)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("SELECT (text) FROM prefs WHERE key = :key AND valuetype = 1");
+    prefQuery.bindValue(":key", pref);
+    prefQuery.exec();
+    if(!prefQuery.next())
+    {
+        return QString();
+    }
+    else
+    {
+        return prefQuery.value(0).toString();
+    }
+}

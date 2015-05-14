@@ -20,6 +20,7 @@ public:
     QList<FGame> getGameList();
     void resetDatabase();
     int getGameCount();
+    QString getTextPref(QString pref);
 
 
 private:
