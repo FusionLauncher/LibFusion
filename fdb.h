@@ -16,6 +16,7 @@ public:
     explicit FDB(QObject *parent = 0);
     bool init();
     bool addGame(FGame game);
+    bool removeGameById(int id);
     FGame* getGame(int id);
     QList<FGame> getGameList();
     void resetDatabase();

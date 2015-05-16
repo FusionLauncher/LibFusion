@@ -50,6 +50,16 @@ bool FDB::addGame(FGame game)
     return gameQuery.exec();
 }
 
+bool FDB::removeGameById(int id)
+{
+    QSqlQuery removalQuery;
+    removalQuery.prepare("DELETE FROM games WHERE id = :id");
+    removalQuery.bindValue(":id", id);
+    removalQuery.exec();
+    //TODO: return false in case of an error
+    return true;
+}
+
 FGame* FDB::getGame(int id)
 {
     QSqlQuery gameQuery;
@@ -65,6 +75,7 @@ FGame* FDB::getGame(int id)
     //TODO: get the game type
     game->setPath(gameQuery.value(2).toString());
     game->setExe(gameQuery.value(3).toString());
+    game->dbId = id;
     return game;
 }
 
@@ -73,13 +84,15 @@ QList<FGame> FDB::getGameList()
     QList<FGame> gameList;
     QSqlQuery libraryQuery;
     FGame game;
-    libraryQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath FROM games");
+    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id FROM games");
     while(libraryQuery.next())
     {
+        qDebug("Getting game!");
         game.setName(libraryQuery.value(0).toString());
         //TODO: get the game type
         game.setPath(libraryQuery.value(2).toString());
         game.setExe(libraryQuery.value(3).toString());
+        game.dbId = libraryQuery.value(4).toInt();
         gameList.append(game);
     }
     return gameList;

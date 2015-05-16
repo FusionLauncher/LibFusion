@@ -11,7 +11,6 @@ FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QSt
 
 FGame::FGame()
 {
-
 }
 
 
