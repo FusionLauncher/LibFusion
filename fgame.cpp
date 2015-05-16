@@ -68,8 +68,6 @@ bool FGame::execute()
         return false;
     }
     QProcess *process = new QProcess();
-    process->setProgram(gamePath+'/'+gameExe);
-    process->setArguments(gameArgs);
-    process->start();
+    process->start(gamePath+'/'+gameExe, gameArgs);
     return true;
 }
