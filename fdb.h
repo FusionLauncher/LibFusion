@@ -16,12 +16,14 @@ public:
     explicit FDB(QObject *parent = 0);
     bool init();
     bool addGame(FGame game);
+    bool removeGameById(int id);
     FGame* getGame(int id);
     QList<FGame> getGameList();
     void resetDatabase();
     int getGameCount();
     QString getTextPref(QString pref);
-
+    bool addTextPref(QString pref, QString value);
+    bool updateTextPref(QString pref, QString value);
 
 private:
     QSqlDatabase db;

@@ -11,7 +11,6 @@ FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QSt
 
 FGame::FGame()
 {
-
 }
 
 
@@ -64,11 +63,11 @@ void FGame::setArgs(QStringList val)
 
 bool FGame::execute()
 {
-    if(gameExe.isEmpty() || gamePath.isEmpty())
+    if(gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists())
     {
         return false;
     }
     QProcess *process = new QProcess();
-    process->execute(gamePath+'/'+gameExe, gameArgs);
-
+    process->start(gamePath+'/'+gameExe, gameArgs);
+    return true;
 }

@@ -23,6 +23,7 @@ public:
     void setArgs(QStringList val);
     void setType(FGameType val);
     bool execute();
+    int dbId;
 
 private:
     QString gameName;
