@@ -63,11 +63,13 @@ void FGame::setArgs(QStringList val)
 
 bool FGame::execute()
 {
-    if(gameExe.isEmpty() || gamePath.isEmpty())
+    if(gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists())
     {
         return false;
     }
     QProcess *process = new QProcess();
-    process->execute(gamePath+'/'+gameExe, gameArgs);
-
+    process->setProgram(gamePath+'/'+gameExe);
+    process->setArguments(gameArgs);
+    process->start();
+    return true;
 }

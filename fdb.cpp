@@ -134,3 +134,22 @@ QString FDB::getTextPref(QString pref)
         return prefQuery.value(0).toString();
     }
 }
+
+bool FDB::addTextPref(QString pref, QString value)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("INSERT INTO prefs(key, valuetype, number, text) VALUES (:key, 1, 0, :value)");
+    prefQuery.bindValue(":key", pref);
+    prefQuery.bindValue(":value", value);
+    prefQuery.exec();
+}
+
+bool FDB::updateTextPref(QString pref, QString value)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("UPDATE prefs SET text = :value WHERE key = :key");
+    prefQuery.bindValue(":value", value);
+    prefQuery.bindValue(":key", pref);
+    prefQuery.exec();
+
+}

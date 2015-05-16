@@ -22,7 +22,8 @@ public:
     void resetDatabase();
     int getGameCount();
     QString getTextPref(QString pref);
-
+    bool addTextPref(QString pref, QString value);
+    bool updateTextPref(QString pref, QString value);
 
 private:
     QSqlDatabase db;
