@@ -15,15 +15,13 @@ DEFINES += LIBFUSION_LIBRARY
 SOURCES += libfusion.cpp \
     fgame.cpp \
     fdb.cpp \
-    flibrary.cpp \
-    fupdater.cpp
+    flibrary.cpp
 
 HEADERS += libfusion.h\
     libfusion_global.h \
     fgame.h \
     fdb.h \
-    flibrary.h \
-    fupdater.h
+    flibrary.h
 
 unix {
     target.path = /usr/lib
