@@ -141,7 +141,7 @@ bool FDB::addTextPref(QString pref, QString value)
     prefQuery.prepare("INSERT INTO prefs(key, valuetype, number, text) VALUES (:key, 1, 0, :value)");
     prefQuery.bindValue(":key", pref);
     prefQuery.bindValue(":value", value);
-    prefQuery.exec();
+    return prefQuery.exec();
 }
 
 bool FDB::updateTextPref(QString pref, QString value)
@@ -150,6 +150,6 @@ bool FDB::updateTextPref(QString pref, QString value)
     prefQuery.prepare("UPDATE prefs SET text = :value WHERE key = :key");
     prefQuery.bindValue(":value", value);
     prefQuery.bindValue(":key", pref);
-    prefQuery.exec();
+    return prefQuery.exec();
 
 }
