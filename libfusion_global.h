@@ -1,0 +1,12 @@
+#ifndef LIBFUSION_GLOBAL_H
+#define LIBFUSION_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(LIBFUSION_LIBRARY)
+#  define LIBFUSIONSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define LIBFUSIONSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // LIBFUSION_GLOBAL_H
