@@ -47,6 +47,7 @@ bool FDB::addGame(FGame game)
     gameQuery.bindValue(":gameType", game.getType());
     gameQuery.bindValue(":gameDirectory", game.getPath());
     gameQuery.bindValue(":relExecutablePath", game.getExe());
+    qDebug("Game Added: " + game.getName().toLatin1());
     return gameQuery.exec();
 }
 
@@ -93,6 +94,7 @@ QList<FGame> FDB::getGameList()
         game.setPath(libraryQuery.value(2).toString());
         game.setExe(libraryQuery.value(3).toString());
         game.dbId = libraryQuery.value(4).toInt();
+        game.setType((FGameType)libraryQuery.value(1).toInt());
         gameList.append(game);
     }
     return gameList;
@@ -180,5 +182,37 @@ QList<QDir> FDB::getWatchedFoldersList() {
         result.append(QDir(folderqQueue.value(0).toString()));
     }
     return result;
+
+}
+
+//These two speed up mainly insert-queries, sice SQLite does not write to disk after every command, but after the endTransaction()
+
+//DON'T FROGET TO RUN endTransaction() AFTERWARDS!
+//DON'T FROGET TO RUN endTransaction() AFTERWARDS!
+bool FDB::beginTransaction()
+{
+    QSqlQuery q;
+    return q.exec("BEGIN TRANSACTION;");
+}
+
+bool FDB::endTransaction()
+{
+    QSqlQuery q;
+    return q.exec("END TRANSACTION;");
+}
+
+bool FDB::gameExists(FGame game)
+{
+    QSqlQuery query;
+    query.prepare("SELECT count(*) FROM games WHERE gameName = :Name AND relExecutablePath = :Exe");
+    query.bindValue(":Name", game.getName());
+    query.bindValue(":Exe", game.getExe());
+    query.exec();
+    query.next();
+
+    if(query.value(0).toInt()>0)
+        return true;
+    else
+        return false;
 
 }
