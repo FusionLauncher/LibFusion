@@ -84,7 +84,7 @@ QList<FGame> FDB::getGameList()
     QList<FGame> gameList;
     QSqlQuery libraryQuery;
     FGame game;
-    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id FROM games");
+    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id FROM games ORDER BY gameName ASC");
     while(libraryQuery.next())
     {
         qDebug("Getting game!");
