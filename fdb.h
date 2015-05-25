@@ -24,7 +24,8 @@ public:
     QString getTextPref(QString pref);
     bool addTextPref(QString pref, QString value);
     bool updateTextPref(QString pref, QString value);
-
+    bool updateWatchedFolders(QList<QDir> data);
+    QList<QDir> getWatchedFoldersList();
 private:
     QSqlDatabase db;
     QSqlQuery query;

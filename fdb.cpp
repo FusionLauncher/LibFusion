@@ -153,3 +153,32 @@ bool FDB::updateTextPref(QString pref, QString value)
     return prefQuery.exec();
 
 }
+
+bool FDB::updateWatchedFolders(QList<QDir> data)
+{
+    QSqlQuery updateQuery;
+    updateQuery.prepare("DELETE FROM watchedFolders");
+    updateQuery.exec();
+
+        QSqlQuery insertQuery;
+        insertQuery.prepare("INSERT INTO watchedFolders (path) VALUES(:folder)");
+
+    for(QDir dir : data) {
+        insertQuery.bindValue(":folder", dir.absolutePath());
+        insertQuery.exec();
+        qDebug("Add Lib: " + dir.absolutePath().toLatin1());
+    }
+}
+
+QList<QDir> FDB::getWatchedFoldersList() {
+    QList<QDir> result;
+    QSqlQuery folderqQueue;
+    folderqQueue.exec("SELECT path FROM watchedFolders");
+    while(folderqQueue.next())
+    {
+        qDebug("Getting Folders!");
+        result.append(QDir(folderqQueue.value(0).toString()));
+    }
+    return result;
+
+}
