@@ -175,7 +175,7 @@ bool FDB::updateWatchedFolders(QList<QDir> data)
 QList<QDir> FDB::getWatchedFoldersList() {
     QList<QDir> result;
     QSqlQuery folderqQueue;
-    folderqQueue.exec("SELECT path FROM watchedFolders");
+    folderqQueue.exec("SELECT path FROM watchedFolders ORDER BY path ASC");
     while(folderqQueue.next())
     {
         qDebug("Getting Folders!");
