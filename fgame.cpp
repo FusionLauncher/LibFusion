@@ -65,7 +65,12 @@ void FGame::setArgs(QStringList val)
 
 bool FGame::execute()
 {
-    if(gameType != FGameType::Steam) {
+
+   if(gameType == FGameType::Steam) {
+         return QDesktopServices::openUrl ( "steam://rungameid/" + gameExe );
+   } else if (gameType == FGameType::Origin) {
+        return QDesktopServices::openUrl ( "origin://launchgame/" + gameExe );
+   } else {
         if(gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists())
         {
             return false;
@@ -73,9 +78,6 @@ bool FGame::execute()
 
         QProcess *process = new QProcess();
         process->start(gamePath+'/'+gameExe, gameArgs);
-    }
-    else {
-         return QDesktopServices::openUrl ( "steam://rungameid/" + gameExe );
     }
     return true;
 }
