@@ -54,6 +54,10 @@ void FCrawler::getOriginGames() {
 
     QFile oLogFile;
     oLogFile.setFileName(file);
+
+    if(!oLogFile.exists())
+        return;
+
     oLogFile.open(QIODevice::ReadOnly|QIODevice::Text);
     QString fileContent = oLogFile.readAll();
     QStringList fileLines = fileContent.split("\n");
