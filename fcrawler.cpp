@@ -22,6 +22,10 @@ void FCrawler::scanAllFolders()
         scanFolder(folder.at(i));
     }
 
+    //Origin only on Windows
+    #if OS == Windows
+        getOriginGames();
+    #endif
     db.endTransaction();
 }
 
@@ -46,6 +50,53 @@ FGameType FCrawler::getType(QDir folder) {
         return FGameType::Steam;
 
     return FGameType::unknown;
+}
+
+
+void FCrawler::getOriginGames() {
+
+    QString file = "C:\\ProgramData\\Origin\\Logs\\Client_Log.txt";
+    QList<QString> doneIDs;
+
+    QFile oLogFile;
+    oLogFile.setFileName(file);
+    oLogFile.open(QIODevice::ReadOnly|QIODevice::Text);
+    QString fileContent = oLogFile.readAll();
+    QStringList fileLines = fileContent.split("\n");
+    oLogFile.close();
+
+    //Example-String:
+    // 457    May 26 17:59:46.363 Event     Origin::Downloader::ContentProtocolPackage::InitializeVerified              7460      [Game Title: Mass Effect 2 Digital Art Books][ProductID:OXX-MASS:57404]CRC Calculation Complete.
+    for(int i=0;i<fileLines.length();++i){
+        QString line = fileLines[i];
+        if(line.contains("][ProductID:")) {
+
+            int gamenameLength = line.indexOf(']', 138)-138;
+            QString gameName = line.mid(138, gamenameLength);
+
+            int idStart = 138+gamenameLength+12;
+            int idLength = line.indexOf(']', idStart)-idStart;
+            QString gameID = line.mid(idStart, idLength);
+
+            if(!doneIDs.contains(gameID)) {
+                FGame g;
+                g.setPath("-");
+                g.setName(gameName);
+                g.setType(FGameType::Origin);
+                g.setExe(gameID);
+
+                doneIDs.append(gameID);
+
+                if(!db.gameExists(g)){
+                   if(!db.addGame(g))
+                       qDebug() << "Error on insert Game!";
+                }
+                else
+                    qDebug() << "Game exists: " << g.getName();
+            }
+        }
+
+    }
 }
 
 

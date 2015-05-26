@@ -18,6 +18,7 @@ private:
     void scanFolder(QDir folder);
     FGameType getType(QDir folder);
     void getSteamGames(QDir folder);
+    void getOriginGames();
 };
 
 #endif // FCRAWLER_H
