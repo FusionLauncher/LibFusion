@@ -7,8 +7,8 @@ class FUpdater
 {
 public:
     FUpdater();
-    void getLibraryVersion();
-    void getClientVersion();
+    QString getLibraryVersion();
+    QString getClientVersion();
     bool isCurrentLibrary(QString thisLibrary);
     bool isCurrentClient(QString thisClient);
     //TODO: Add functions to download things.
