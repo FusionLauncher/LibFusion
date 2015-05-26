@@ -36,6 +36,10 @@ bool FDB::init()
     query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL)");
     //queryGames.exec("SELECT * FROM games");
     //TODO: add everything to list
+
+
+    query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255) );");
+
     return true;
 }
 
