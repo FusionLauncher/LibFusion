@@ -15,7 +15,6 @@ public:
     void scanAllFolders();
 private:
     FDB db;
-    void scanFolder(QDir folder);
     FGameType getType(QDir folder);
     void getSteamGames(QDir folder);
     void getOriginGames();
