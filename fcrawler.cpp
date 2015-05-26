@@ -19,25 +19,19 @@ void FCrawler::scanAllFolders()
 
     QList<QDir> folder =db.getWatchedFoldersList();
     for(int i=0;i<folder.length();++i) {
-        scanFolder(folder.at(i));
+        FGameType folderType = getType(folder.at(i));
+        if(folderType==FGameType::Steam) {
+            getSteamGames(folder.at(i));
+        }
     }
 
     //Origin only on Windows
     #if OS == Windows
         getOriginGames();
     #endif
+
     db.endTransaction();
 }
-
-
-
-void FCrawler::scanFolder(QDir folder) {
-    FGameType folderType = getType(folder);
-    if(folderType==FGameType::Steam) {
-        getSteamGames(folder);
-    }
-}
-
 
 
 FGameType FCrawler::getType(QDir folder) {
