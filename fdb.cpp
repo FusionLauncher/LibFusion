@@ -36,6 +36,10 @@ bool FDB::init()
     query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL)");
     //queryGames.exec("SELECT * FROM games");
     //TODO: add everything to list
+
+
+    query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255) );");
+
     return true;
 }
 
@@ -47,6 +51,7 @@ bool FDB::addGame(FGame game)
     gameQuery.bindValue(":gameType", game.getType());
     gameQuery.bindValue(":gameDirectory", game.getPath());
     gameQuery.bindValue(":relExecutablePath", game.getExe());
+    qDebug("Game Added: " + game.getName().toLatin1());
     return gameQuery.exec();
 }
 
@@ -84,7 +89,7 @@ QList<FGame> FDB::getGameList()
     QList<FGame> gameList;
     QSqlQuery libraryQuery;
     FGame game;
-    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id FROM games");
+    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id FROM games ORDER BY gameName ASC");
     while(libraryQuery.next())
     {
         qDebug("Getting game!");
@@ -93,6 +98,7 @@ QList<FGame> FDB::getGameList()
         game.setPath(libraryQuery.value(2).toString());
         game.setExe(libraryQuery.value(3).toString());
         game.dbId = libraryQuery.value(4).toInt();
+        game.setType((FGameType)libraryQuery.value(1).toInt());
         gameList.append(game);
     }
     return gameList;
@@ -151,5 +157,66 @@ bool FDB::updateTextPref(QString pref, QString value)
     prefQuery.bindValue(":value", value);
     prefQuery.bindValue(":key", pref);
     return prefQuery.exec();
+
+}
+
+bool FDB::updateWatchedFolders(QList<QDir> data)
+{
+    QSqlQuery updateQuery;
+    updateQuery.prepare("DELETE FROM watchedFolders");
+    updateQuery.exec();
+
+        QSqlQuery insertQuery;
+        insertQuery.prepare("INSERT INTO watchedFolders (path) VALUES(:folder)");
+
+    for(QDir dir : data) {
+        insertQuery.bindValue(":folder", dir.absolutePath());
+        insertQuery.exec();
+        qDebug("Add Lib: " + dir.absolutePath().toLatin1());
+    }
+}
+
+QList<QDir> FDB::getWatchedFoldersList() {
+    QList<QDir> result;
+    QSqlQuery folderqQueue;
+    folderqQueue.exec("SELECT path FROM watchedFolders ORDER BY path ASC");
+    while(folderqQueue.next())
+    {
+        qDebug("Getting Folders!");
+        result.append(QDir(folderqQueue.value(0).toString()));
+    }
+    return result;
+
+}
+
+//These two speed up mainly insert-queries, sice SQLite does not write to disk after every command, but after the endTransaction()
+
+//DON'T FROGET TO RUN endTransaction() AFTERWARDS!
+//DON'T FROGET TO RUN endTransaction() AFTERWARDS!
+bool FDB::beginTransaction()
+{
+    QSqlQuery q;
+    return q.exec("BEGIN TRANSACTION;");
+}
+
+bool FDB::endTransaction()
+{
+    QSqlQuery q;
+    return q.exec("END TRANSACTION;");
+}
+
+bool FDB::gameExists(FGame game)
+{
+    QSqlQuery query;
+    query.prepare("SELECT count(*) FROM games WHERE gameName = :Name AND relExecutablePath = :Exe");
+    query.bindValue(":Name", game.getName());
+    query.bindValue(":Exe", game.getExe());
+    query.exec();
+    query.next();
+
+    if(query.value(0).toInt()>0)
+        return true;
+    else
+        return false;
 
 }

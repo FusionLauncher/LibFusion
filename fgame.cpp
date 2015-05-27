@@ -1,5 +1,7 @@
 #include "fgame.h"
 #include <QProcess>
+#include <QDesktopServices>
+
 
 FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args) {
     this->gameName = gName;
@@ -63,11 +65,19 @@ void FGame::setArgs(QStringList val)
 
 bool FGame::execute()
 {
-    if(gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists())
-    {
-        return false;
+
+   if(gameType == FGameType::Steam) {
+         return QDesktopServices::openUrl ( "steam://rungameid/" + gameExe );
+   } else if (gameType == FGameType::Origin) {
+        return QDesktopServices::openUrl ( "origin://launchgame/" + gameExe );
+   } else {
+        if(gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists())
+        {
+            return false;
+        }
+
+        QProcess *process = new QProcess();
+        process->start(gamePath+'/'+gameExe, gameArgs);
     }
-    QProcess *process = new QProcess();
-    process->start(gamePath+'/'+gameExe, gameArgs);
     return true;
 }

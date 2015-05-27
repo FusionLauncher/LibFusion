@@ -24,7 +24,11 @@ public:
     QString getTextPref(QString pref);
     bool addTextPref(QString pref, QString value);
     bool updateTextPref(QString pref, QString value);
-
+    bool updateWatchedFolders(QList<QDir> data);
+    QList<QDir> getWatchedFoldersList();
+    bool beginTransaction();
+    bool endTransaction();
+    bool gameExists(FGame game);
 private:
     QSqlDatabase db;
     QSqlQuery query;
