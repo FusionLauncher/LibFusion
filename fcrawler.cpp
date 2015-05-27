@@ -25,11 +25,6 @@ void FCrawler::scanAllFolders()
         }
     }
 
-    //Origin only on Windows
-    #if OS == Windows
-        getOriginGames();
-    #endif
-
     db.endTransaction();
 }
 
@@ -47,16 +42,17 @@ FGameType FCrawler::getType(QDir folder) {
 }
 
 
-void FCrawler::getOriginGames() {
+QList<FGame> FCrawler::getOriginGames() {
 
     QString file = "C:\\ProgramData\\Origin\\Logs\\Client_Log.txt";
     QList<QString> doneIDs;
+    QList<FGame> result;
 
     QFile oLogFile;
     oLogFile.setFileName(file);
 
     if(!oLogFile.exists())
-        return;
+        return result;
 
     oLogFile.open(QIODevice::ReadOnly|QIODevice::Text);
     QString fileContent = oLogFile.readAll();
@@ -85,16 +81,14 @@ void FCrawler::getOriginGames() {
 
                 doneIDs.append(gameID);
 
-                if(!db.gameExists(g)){
-                   if(!db.addGame(g))
-                       qDebug() << "Error on insert Game!";
-                }
-                else
-                    qDebug() << "Game exists: " << g.getName();
+                result.append(g);
+
             }
         }
 
     }
+
+    return result;
 }
 
 

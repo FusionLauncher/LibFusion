@@ -17,6 +17,12 @@ public:
     QString getPath();
     QStringList getArgs();
     FGameType getType();
+
+    friend bool operator==(FGame &g1, FGame &g2)
+    {
+         return (g1.getName()==g2.getName() && g1.getExe()==g2.getExe());
+    }
+
     void setName(QString val);
     void setExe(QString val);
     void setPath(QString val);
