@@ -12,8 +12,9 @@ class FGame
 public:
     FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args);
     FGame();
-    QString getName() const;
-    QString getExe() const;
+
+    QString getName();
+    QString getExe();
     QString getPath();
     QStringList getArgs();
     FGameType getType();
