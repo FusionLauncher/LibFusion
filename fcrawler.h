@@ -13,11 +13,11 @@ public:
     FCrawler();
     ~FCrawler();
     void scanAllFolders();
-    QList<FGame> getOriginGames();
 private:
     FDB db;
     FGameType getType(QDir folder);
     void getSteamGames(QDir folder);
+    void getOriginGames();
 };
 
 #endif // FCRAWLER_H

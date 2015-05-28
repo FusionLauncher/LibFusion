@@ -31,6 +31,13 @@ public:
     bool execute();
     int dbId;
 
+
+    friend bool operator==(const  FGame &g1, const  FGame &g2)
+    {
+         return (g1.getName()==g2.getName() && g1.getExe()==g2.getExe());
+    }
+
+
 private:
     QString gameName;
     FGameType gameType;

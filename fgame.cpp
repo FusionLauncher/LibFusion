@@ -16,11 +16,11 @@ FGame::FGame()
 }
 
 
-QString FGame::getName() {
+QString FGame::getName() const {
     return this->gameName;
 }
 
-QString FGame::getExe()
+QString FGame::getExe() const
 {
     return this->gameExe;
 }

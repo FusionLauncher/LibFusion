@@ -25,6 +25,11 @@ void FCrawler::scanAllFolders()
         }
     }
 
+    //Origin only on Windows
+    #if OS == Windows
+        getOriginGames();
+    #endif
+
     db.endTransaction();
 }
 
@@ -42,17 +47,16 @@ FGameType FCrawler::getType(QDir folder) {
 }
 
 
-QList<FGame> FCrawler::getOriginGames() {
+void FCrawler::getOriginGames() {
 
     QString file = "C:\\ProgramData\\Origin\\Logs\\Client_Log.txt";
     QList<QString> doneIDs;
-    QList<FGame> result;
 
     QFile oLogFile;
     oLogFile.setFileName(file);
 
     if(!oLogFile.exists())
-        return result;
+        return;
 
     oLogFile.open(QIODevice::ReadOnly|QIODevice::Text);
     QString fileContent = oLogFile.readAll();
@@ -63,14 +67,12 @@ QList<FGame> FCrawler::getOriginGames() {
     // 457    May 26 17:59:46.363 Event     Origin::Downloader::ContentProtocolPackage::InitializeVerified              7460      [Game Title: Mass Effect 2 Digital Art Books][ProductID:OXX-MASS:57404]CRC Calculation Complete.
     for(int i=0;i<fileLines.length();++i){
         QString line = fileLines[i];
-        if(line.contains("][ProductID:")) {
+        if(line.contains("Finished: ")) {
 
-            int gamenameLength = line.indexOf(']', 138)-138;
-            QString gameName = line.mid(138, gamenameLength);
+            int gamenameLength = line.indexOf(", ctid:", 135)-135;
+            QString gameName = line.mid(135, gamenameLength);
 
-            int idStart = 138+gamenameLength+12;
-            int idLength = line.indexOf(']', idStart)-idStart;
-            QString gameID = line.mid(idStart, idLength);
+            QString gameID = line.right(7);
 
             if(!doneIDs.contains(gameID)) {
                 FGame g;
@@ -81,14 +83,16 @@ QList<FGame> FCrawler::getOriginGames() {
 
                 doneIDs.append(gameID);
 
-                result.append(g);
-
+                if(!db.gameExists(g)){
+                   if(!db.addGame(g))
+                       qDebug() << "Error on insert Game!";
+                }
+                else
+                    qDebug() << "Game exists: " << g.getName();
             }
         }
 
     }
-
-    return result;
 }
 
 
