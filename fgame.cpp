@@ -77,6 +77,7 @@ bool FGame::execute()
         }
 
         QProcess *process = new QProcess();
+        process->setWorkingDirectory(gamePath);
         process->start(gamePath+'/'+gameExe, gameArgs);
     }
     return true;
