@@ -6,6 +6,7 @@
 
 QT       += gui
 QT	 += sql
+QT       += webkit webkitwidgets
 
 TARGET = LibFusion
 TEMPLATE = lib
