@@ -19,7 +19,8 @@ SOURCES += libfusion.cpp \
     fdb.cpp \
     flibrary.cpp \
     fupdater.cpp \
-    fcrawler.cpp
+    fcrawler.cpp \
+    fartmanager.cpp
 
 HEADERS += libfusion.h\
     libfusion_global.h \
@@ -27,7 +28,8 @@ HEADERS += libfusion.h\
     fdb.h \
     flibrary.h \
     fupdater.h \
-    fcrawler.h
+    fcrawler.h \
+    fartmanager.h
 
 unix {
     target.path = /usr/lib
