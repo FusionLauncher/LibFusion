@@ -12,8 +12,8 @@ class FGame
 public:
     FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args);
     FGame();
-    QString getName();
-    QString getExe();
+    QString getName() const;
+    QString getExe() const;
     QString getPath();
     QStringList getArgs();
     FGameType getType();
@@ -26,13 +26,6 @@ public:
     void setType(FGameType val);
     bool execute();
     int dbId;
-
-
-    friend bool operator==(const  FGame &g1, const  FGame &g2)
-    {
-         return (g1.getName()==g2.getName() && g1.getExe()==g2.getExe());
-    }
-
 
 private:
     QString gameName;
