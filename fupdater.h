@@ -3,10 +3,13 @@
 
 #include <QObject>
 
-class FUpdater
+#include "libfusion_global.h"
+
+class LIBFUSIONSHARED_EXPORT FUpdater
 {
 public:
     FUpdater();
+
     QString getLibraryVersion();
     QString getClientVersion();
     bool isCurrentLibrary(QString thisLibrary);

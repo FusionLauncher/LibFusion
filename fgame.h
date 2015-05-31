@@ -7,7 +7,8 @@
 
 enum FGameType {unknown, Executable, Steam, Origin, Uplay};
 
-class FGame
+#include "libfusion_global.h"
+class LIBFUSIONSHARED_EXPORT FGame
 {
 public:
     FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args);
@@ -16,9 +17,9 @@ public:
     QString getName();
     QString getExe();
     QString getPath();
+    QString getArtworkDir();
     QStringList getArgs();
     FGameType getType();
-
 
     void setName(QString val);
     void setExe(QString val);
@@ -26,8 +27,8 @@ public:
     void setArgs(QStringList val);
     void setType(FGameType val);
     bool execute();
-    int dbId;
 
+    int dbId;
 private:
     QString gameName;
     FGameType gameType;

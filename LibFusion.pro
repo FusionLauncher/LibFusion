@@ -6,6 +6,7 @@
 
 QT       += gui
 QT	 += sql
+QT       += network
 QT       += webkit webkitwidgets
 
 TARGET = LibFusion
@@ -20,7 +21,8 @@ SOURCES += libfusion.cpp \
     flibrary.cpp \
     fupdater.cpp \
     fcrawler.cpp \
-    fartmanager.cpp
+    fartmanager.cpp \
+    ffiledownloader.cpp
 
 HEADERS += libfusion.h\
     libfusion_global.h \
@@ -29,7 +31,8 @@ HEADERS += libfusion.h\
     flibrary.h \
     fupdater.h \
     fcrawler.h \
-    fartmanager.h
+    fartmanager.h \
+    ffiledownloader.h
 
 unix {
     target.path = /usr/lib
