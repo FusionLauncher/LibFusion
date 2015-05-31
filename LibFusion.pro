@@ -32,7 +32,8 @@ HEADERS += libfusion.h\
     fupdater.h \
     fcrawler.h \
     fartmanager.h \
-    ffiledownloader.h
+    ffiledownloader.h \
+    thegamedbstorage.h
 
 unix {
     target.path = /usr/lib

@@ -12,7 +12,8 @@ FArtManager::FArtManager()
 
 void FArtManager::getGameData(FGame *g, QString platform = "pc") {
     game = g;
-    QString url = "http://thegamesdb.net/api/GetGame.php?platform="+platform+"&name=" + game->getName();
+    QString gName = g->getName().replace("™", "");
+    QString url = "http://thegamesdb.net/api/GetGame.php?platform="+platform+"&exactname=" + gName;
     m_manager->get(QNetworkRequest(QUrl(url)));
 }
 
@@ -29,52 +30,97 @@ void FArtManager::dataReady(QNetworkReply *pReply)
        return;
    }
 
-   QString webData(data);
 
+    xml = new QXmlStreamReader(data);
+    while(!xml->atEnd())
+    {
+        xml->readNext();
 
-   QXmlStreamReader xml(data);
-      while(!xml.atEnd()) {
-            xml.readNext();
-            if(xml.isStartElement()) {
-                QString name = xml.name().toString();
-
-                if(name=="GameTitle"||name=="id")
-                    qDebug() << "element name: " << name  << ", text: " << xml.readElementText();
-                else if(name=="baseImgUrl")
-                    baseImgUrl = xml.readElementText();
-                else if(name=="clearlogo")
-                    clearartURL = xml.readElementText();
-                else if(name=="boxart")
-                    boxartURL = xml.readElementText();
-              //  else
-                //    xml.skipCurrentElement();
+        if(xml->isStartElement())
+        {
+            QString name = xml->name().toString();
+            if(name=="Game")
+            {
+                processGame();
             }
-      }
-
-      QDir artworkpath(game->getArtworkDir());
-
-      if(clearartURL != NULL) {
-        QUrl clearLogo(baseImgUrl + clearartURL);
-        QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "clearlogo.png");
-        FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);
-      }
-      if(boxartURL != NULL){
-          QUrl clearLogo(baseImgUrl + boxartURL);
-          QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "boxart.png");
-          FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);
         }
+    }
+
+      //Only one Found, assume its the right one
+      if(Games.length()==1)
+      {
+        QDir artworkpath(game->getArtworkDir());
+        QString baseImgUrl = "http://thegamesdb.net/banners/";
+        if(Games[0]->clearartURL != NULL)
+        {
+            emit startedDownload();
+            QUrl clearLogo(baseImgUrl + Games[0]->clearartURL);
+            QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "clearlogo.png");
+            FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);
+            connect(clearartDownloader, SIGNAL(downloaded()), this, SLOT(on_downloadFinished()));
+        }
+        if(Games[0]->boxartURL != NULL)
+        {
+            emit startedDownload();
+            QUrl clearLogo(baseImgUrl + Games[0]->boxartURL);
+            QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "boxart.jpg");
+            FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);
+            connect(clearartDownloader, SIGNAL(downloaded()), this, SLOT(on_downloadFinished()));
+        }
+
+        if(Games[0]->bannerURL != NULL)
+        {
+            emit startedDownload();
+            QUrl clearLogo(baseImgUrl + Games[0]->bannerURL);
+            QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "banner.png");
+            FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);
+            connect(clearartDownloader, SIGNAL(downloaded()), this, SLOT(on_downloadFinished()));
+        }
+      } else if(Games.length()==0) {
+
+          emit finishedDownload();
+      }
 }
 
 
-void FArtManager::processData()
-{
-    qDebug() << "Proc Data: ";
-    xml.readNext();
+void FArtManager::on_downloadFinished() {
+    emit finishedDownload();
+}
 
-        return;
-    while (xml.readNextStartElement()) {
-        qDebug() << xml.name() << ":" << xml.text();
+void FArtManager::processGame()
+{    
+    TheGameDBStorage *gameDBStore = new TheGameDBStorage();
+
+    while(!xml->atEnd()) {
+          xml->readNext();
+
+          if(xml->isStartElement())
+          {
+              QString name = xml->name().toString();
+
+              if(name=="GameTitle")
+                gameDBStore->gameName = xml->readElementText();
+              else if (name=="id")
+                 gameDBStore->gameID = xml->readElementText();
+              else if(name=="baseImgUrl")
+                  gameDBStore->baseImgUrl = xml->readElementText();
+              else if(name=="clearlogo")
+                  gameDBStore->clearartURL = xml->readElementText();
+              else if(name=="boxart")
+                  gameDBStore->boxartURL = xml->readElementText();
+              else if(name=="banner")
+                  gameDBStore->bannerURL = xml->readElementText();
+              else if (name=="Similar")
+                  xml->skipCurrentElement();
+          }
+          else if(xml->isEndElement())
+          {
+              QString name = xml->name().toString();
+              if(name=="Game") {
+                   Games.append(gameDBStore);
+                return;
+              }
+          }
     }
-
 }
 

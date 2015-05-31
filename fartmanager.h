@@ -10,6 +10,7 @@
 
 #include "fgame.h"
 #include "libfusion_global.h"
+#include "thegamedbstorage.h"
 
 class LIBFUSIONSHARED_EXPORT FArtManager: public QObject
 {
@@ -22,20 +23,19 @@ public:
 private:
     QNetworkAccessManager* m_manager;
 
-    void processData();
-    QXmlStreamReader xml;
-    QString baseImgUrl;
-
-    QString clearartURL;
-    QString boxartURL;
-    QList<QString> fanartURLs;
+    void processGame();
+    QXmlStreamReader *xml;
+    QList<TheGameDBStorage*> Games;
     FGame *game;
 private slots:
     void dataReady(QNetworkReply *pReply);
 
 
+    void on_downloadFinished();
 signals:
     void gotData(QString);
+    void startedDownload();
+    void finishedDownload();
 };
 
 #endif // FARTMANAGER_H

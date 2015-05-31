@@ -29,12 +29,14 @@ public:
     bool execute();
 
     int dbId;
+    QPixmap *getBoxart();
 private:
     QString gameName;
     FGameType gameType;
     QString gamePath;
     QString gameExe;
     QStringList gameArgs;
+    QPixmap *Boxart;
 };
 
 #endif // FGAME_H

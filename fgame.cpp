@@ -1,6 +1,7 @@
 #include "fgame.h"
 #include <QProcess>
 #include <QDesktopServices>
+#include <QPixmap>
 
 
 FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args) {
@@ -18,6 +19,18 @@ FGame::FGame()
 
 QString FGame::getName() {
     return this->gameName;
+}
+
+QPixmap* FGame::getBoxart() {
+    if(QFile::exists(getArtworkDir()+ QDir::separator() + "boxart.png"))
+        Boxart = new QPixmap(getArtworkDir()+ QDir::separator() + "boxart.png");
+    else if(QFile::exists(getArtworkDir()+ QDir::separator() + "boxart.jpg"))
+        Boxart = new QPixmap(getArtworkDir()+ QDir::separator() + "boxart.jpg");
+    else
+        Boxart = new QPixmap(":/gfx/FusionLogo.png");
+
+
+    return Boxart;
 }
 
 QString FGame::getExe()
