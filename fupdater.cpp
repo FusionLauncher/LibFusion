@@ -1,52 +1,48 @@
 #include "fupdater.h"
-#include <QWebView>
-#include <QWebPage>
-#include <QWebFrame>
-#include <QUrl>
-#include <QEventLoop>
-#include <QObject>
 
-FUpdater::FUpdater()
+FUpdater::FUpdater(QObject *parent) : QObject(parent)
 {
 
 }
 
-//Get FusionLib version from api.
+//TODO: Make everything run in a seperate thread.
+
+//Compare downloaded library version with library version from api.
 QString FUpdater::getLibraryVersion()
 {
-
-    QWebView *webview = new QWebView();
-
-    webview->load(QUrl("http://pacific-citadel-1552.herokuapp.com/api/version/fusionLib"));
+    manager = new QNetworkAccessManager(this);
     QEventLoop loop;
-    QObject::connect(webview,SIGNAL(loadFinished(bool)),&loop,SLOT(quit()));
+    QObject::connect(manager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
+
+    QNetworkRequest request(QUrl("http://pacific-citadel-1552.herokuapp.com/api/version/fusionLib"));
+    QNetworkReply *reply = manager->get(request);
     loop.exec();
 
-    QString libVer = webview->page()->mainFrame()->toPlainText();
-    libVer.remove('"');
+    QString text = reply->readAll();
+    reply->deleteLater();
+    text.remove('"');
 
-    if ((libVer.isEmpty()) || (libVer.isNull())) { return "NA"; }
-
-    return libVer;
+    if ((text.isEmpty()) || (text.isNull())) { return "NA"; }
+    return text;
 }
 
-//Get FusionClient version from api.
+//Compare downloaded client version with client version from api.
 QString FUpdater::getClientVersion()
 {
-
-    QWebView *webview = new QWebView();
-
-    webview->load(QUrl("http://pacific-citadel-1552.herokuapp.com/api/version/fusionClient"));
+    manager = new QNetworkAccessManager(this);
     QEventLoop loop;
-    QObject::connect(webview,SIGNAL(loadFinished(bool)),&loop,SLOT(quit()));
+    QObject::connect(manager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
+
+    QNetworkRequest request(QUrl("http://pacific-citadel-1552.herokuapp.com/api/version/fusionClient"));
+    QNetworkReply *reply = manager->get(request);
     loop.exec();
 
-    QString clientVer = webview->page()->mainFrame()->toPlainText();
-    clientVer.remove('"');
+    QString text = reply->readAll();
+    reply->deleteLater();
+    text.remove('"');
 
-    if ((clientVer.isEmpty()) || (clientVer.isNull())) { return "NA"; }
-
-    return clientVer;
+    if ((text.isEmpty()) || (text.isNull())) { return "NA"; }
+    return text;
 }
 
 //Compare downloaded library version with library version from api.
