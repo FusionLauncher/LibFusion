@@ -1,6 +1,11 @@
 #include "fgame.h"
 #include <QProcess>
 #include <QDesktopServices>
+#include <QPixmap>
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    #include <QStandardPaths>
+#endif
 
 
 FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args) {
@@ -20,6 +25,18 @@ QString FGame::getName() {
     return this->gameName;
 }
 
+QPixmap* FGame::getBoxart() {
+    if(QFile::exists(getArtworkDir()+ QDir::separator() + "boxart.png"))
+        Boxart = new QPixmap(getArtworkDir()+ QDir::separator() + "boxart.png");
+    else if(QFile::exists(getArtworkDir()+ QDir::separator() + "boxart.jpg"))
+        Boxart = new QPixmap(getArtworkDir()+ QDir::separator() + "boxart.jpg");
+    else
+        Boxart = new QPixmap(":/gfx/FusionLogo.png");
+
+
+    return Boxart;
+}
+
 QString FGame::getExe()
 {
     return this->gameExe;
@@ -36,6 +53,18 @@ void FGame::setType(FGameType val) {
 QString FGame::getPath()
 {
     return this->gamePath;
+}
+
+QString FGame::getArtworkDir()
+{
+    #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
+        QDir path(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    #else
+        QDir path(QStandardPaths::locate(QStandardPaths::ApplicationsLocation, QString(), QStandardPaths::LocateDirectory));
+    #endif
+
+    qDebug(path.absolutePath().toLatin1());
+    return QDir::cleanPath(path.absolutePath() + QDir::separator() + QString::number(dbId) + QDir::separator() + "Artwork");
 }
 
 QStringList FGame::getArgs()
@@ -77,6 +106,7 @@ bool FGame::execute()
         }
 
         QProcess *process = new QProcess();
+        process->setWorkingDirectory(gamePath);
         process->start(gamePath+'/'+gameExe, gameArgs);
     }
     return true;
