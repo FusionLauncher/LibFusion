@@ -2,6 +2,7 @@
 #include <QProcess>
 #include <QDesktopServices>
 #include <QPixmap>
+#include <QStandardPaths>
 
 
 FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args) {
