@@ -2,7 +2,10 @@
 #include <QProcess>
 #include <QDesktopServices>
 #include <QPixmap>
-#include <QStandardPaths>
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    #include <QStandardPaths>
+#endif
 
 
 FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args) {
@@ -54,7 +57,13 @@ QString FGame::getPath()
 
 QString FGame::getArtworkDir()
 {
-    QDir path(QStandardPaths::locate(QStandardPaths::ApplicationsLocation, QString(), QStandardPaths::LocateDirectory));
+    #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
+        QDir path(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    #else
+        QDir path(QStandardPaths::locate(QStandardPaths::ApplicationsLocation, QString(), QStandardPaths::LocateDirectory));
+    #endif
+
+    qDebug(path.absolutePath().toLatin1());
     return QDir::cleanPath(path.absolutePath() + QDir::separator() + QString::number(dbId) + QDir::separator() + "Artwork");
 }
 
