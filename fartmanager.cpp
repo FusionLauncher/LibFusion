@@ -8,12 +8,20 @@ FArtManager::FArtManager()
     m_manager = new QNetworkAccessManager();
     FArtManager *receiver = this;
     QObject::connect(m_manager, SIGNAL(finished(QNetworkReply*)), receiver, SLOT(dataReady(QNetworkReply*)));
+    triedSearch = false;
 }
 
 void FArtManager::getGameData(FGame *g, QString platform = "pc") {
     game = g;
     QString gName = g->getName().replace("™", "");
     QString url = "http://thegamesdb.net/api/GetGame.php?platform="+platform+"&exactname=" + gName;
+    m_manager->get(QNetworkRequest(QUrl(url)));
+}
+
+void FArtManager::getGameData(FGame *g, TheGameDBStorage *gameDBEntry)
+{
+    game = g;
+    QString url = "http://thegamesdb.net/api/GetGame.php?id=" + gameDBEntry->gameID;
     m_manager->get(QNetworkRequest(QUrl(url)));
 }
 
@@ -77,8 +85,17 @@ void FArtManager::dataReady(QNetworkReply *pReply)
             connect(clearartDownloader, SIGNAL(downloaded()), this, SLOT(on_downloadFinished()));
         }
       } else if(Games.length()==0) {
-
-          emit finishedDownload();
+          if(!triedSearch) {
+              QString gName = game->getName().replace("™", "");
+              QString url = "http://thegamesdb.net/api/GetGame.php?platform=pc&name=" + gName;
+              m_manager->get(QNetworkRequest(QUrl(url)));
+              triedSearch = true;
+          }
+          else {
+              emit finishedDownload();
+          }
+      } else if (Games.length()>1) {
+          emit foundMultipleGames(Games);
       }
 }
 

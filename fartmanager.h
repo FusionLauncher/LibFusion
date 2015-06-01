@@ -20,6 +20,7 @@ public:
     FArtManager(QObject *parent) : QObject(parent) { }
 
     void getGameData(FGame *g, QString platform);
+    void getGameData(FGame *g, TheGameDBStorage* gameDBEntry);
 private:
     QNetworkAccessManager* m_manager;
 
@@ -27,6 +28,8 @@ private:
     QXmlStreamReader *xml;
     QList<TheGameDBStorage*> Games;
     FGame *game;
+
+    bool triedSearch;
 private slots:
     void dataReady(QNetworkReply *pReply);
 
@@ -36,6 +39,7 @@ signals:
     void gotData(QString);
     void startedDownload();
     void finishedDownload();
+    void foundMultipleGames(QList<TheGameDBStorage*>);
 };
 
 #endif // FARTMANAGER_H
