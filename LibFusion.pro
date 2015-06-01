@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += gui
+QT      += core
 QT	 += sql
 QT       += network
 QT       += webkit webkitwidgets
