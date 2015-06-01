@@ -2,7 +2,9 @@
 #define THEGAMEDBSTORAGE
 
 #include "libfusion_global.h"
-
+/**
+ * @brief The TheGameDBStorage class Stores informations get from theGamesDB.net
+ */
 class LIBFUSIONSHARED_EXPORT TheGameDBStorage {
     public:
         QString baseImgUrl;
