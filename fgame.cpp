@@ -54,7 +54,7 @@ QString FGame::getPath()
 
 QString FGame::getArtworkDir()
 {
-    QDir path(QStandardPaths::locate(QStandardPaths::AppDataLocation, QString(), QStandardPaths::LocateDirectory));
+    QDir path(QStandardPaths::locate(QStandardPaths::ApplicationsLocation, QString(), QStandardPaths::LocateDirectory));
     return QDir::cleanPath(path.absolutePath() + QDir::separator() + QString::number(dbId) + QDir::separator() + "Artwork");
 }
 
