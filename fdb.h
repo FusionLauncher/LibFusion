@@ -23,9 +23,15 @@ public:
     QList<FGame> getGameList();
     void resetDatabase();
     int getGameCount();
+
     QString getTextPref(QString pref);
     bool addTextPref(QString pref, QString value);
     bool updateTextPref(QString pref, QString value);
+
+    int getIntPref(QString pref);
+    bool addIntPref(QString pref, int value);
+    bool updateIntPref(QString pref, int value);
+
     bool updateWatchedFolders(QList<QDir> data);
     QList<QDir> getWatchedFoldersList();
     bool beginTransaction();

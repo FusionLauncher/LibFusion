@@ -30,13 +30,18 @@ public:
 
     int dbId;
     QPixmap *getBoxart();
+    QString getClearart();
+    QString getFanart();
 private:
     QString gameName;
     FGameType gameType;
     QString gamePath;
     QString gameExe;
     QStringList gameArgs;
+
     QPixmap *Boxart;
+    QPixmap *Clearart;
+    QPixmap *Banner;
 };
 
 #endif // FGAME_H

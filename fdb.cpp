@@ -160,6 +160,40 @@ bool FDB::updateTextPref(QString pref, QString value)
 
 }
 
+int FDB::getIntPref(QString pref)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("SELECT (number) FROM prefs WHERE key = :key AND valuetype = 2");
+    prefQuery.bindValue(":key", pref);
+    prefQuery.exec();
+    if(!prefQuery.next())
+    {
+        return -1;
+    }
+    else
+    {
+        return prefQuery.value(0).toInt();
+    }
+}
+
+bool FDB::addIntPref(QString pref, int value)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("INSERT INTO prefs(key, valuetype, number) VALUES (:key, 2, :value)");
+    prefQuery.bindValue(":key", pref);
+    prefQuery.bindValue(":value", value);
+    return prefQuery.exec();
+}
+
+bool FDB::updateIntPref(QString pref, int value)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("UPDATE prefs SET number = :value WHERE key = :key");
+    prefQuery.bindValue(":value", value);
+    prefQuery.bindValue(":key", pref);
+    return prefQuery.exec();
+}
+
 bool FDB::updateWatchedFolders(QList<QDir> data)
 {
     QSqlQuery updateQuery;
