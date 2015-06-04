@@ -174,6 +174,8 @@ bool FDB::updateWatchedFolders(QList<QDir> data)
         insertQuery.exec();
         qDebug("Add Lib: " + dir.absolutePath().toLatin1());
     }
+
+    return true;
 }
 
 QList<QDir> FDB::getWatchedFoldersList() {

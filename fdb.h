@@ -9,7 +9,9 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 
-class FDB : public QObject
+#include "libfusion_global.h"
+
+class LIBFUSIONSHARED_EXPORT FDB : public QObject
 {
     //Q_OBJECT
 public:

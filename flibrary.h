@@ -5,7 +5,9 @@
 #include "fdb.h"
 #include "fgame.h"
 
-class FLibrary : public QObject
+#include "libfusion_global.h"
+
+class LIBFUSIONSHARED_EXPORT FLibrary : public QObject
 {
     Q_OBJECT
 public:
