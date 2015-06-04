@@ -11,6 +11,19 @@ FArtManager::FArtManager()
     triedSearch = false;
 }
 
+
+
+FArtManager::FArtManager(FGame *g)
+{
+    game = g;
+    m_manager = new QNetworkAccessManager();
+    FArtManager *receiver = this;
+    QObject::connect(m_manager, SIGNAL(finished(QNetworkReply*)), receiver, SLOT(dataReady(QNetworkReply*)));
+    triedSearch = false;
+}
+
+
+
 void FArtManager::getGameData(FGame *g, QString platform = "pc") {
     game = g;
     QString gName = g->getName().replace("™", "");
@@ -23,6 +36,29 @@ void FArtManager::getGameData(FGame *g, TheGameDBStorage *gameDBEntry)
     game = g;
     QString url = "http://thegamesdb.net/api/GetGame.php?id=" + gameDBEntry->gameID;
     m_manager->get(QNetworkRequest(QUrl(url)));
+}
+
+
+
+
+
+void FArtManager::importArtwork(QFileInfo fi, QString destName)
+{
+
+    QString dest = game->getArtworkDir() + QDir::separator() + destName +"."+ fi.suffix();
+    QFile sourceFile(fi.absoluteFilePath());
+    QFileInfo destFile(dest);
+
+
+    if(!destFile.absoluteDir().exists()) {
+        destFile.absoluteDir().mkpath(destFile.absoluteDir().absolutePath());
+    }
+
+    if(destFile.exists())
+        QFile(destFile.absoluteFilePath()).remove();
+
+
+    sourceFile.copy(destFile.absoluteFilePath());
 }
 
 void FArtManager::dataReady(QNetworkReply *pReply)

@@ -17,6 +17,7 @@ class LIBFUSIONSHARED_EXPORT FArtManager: public QObject
 Q_OBJECT
 public:
     FArtManager();
+    FArtManager(FGame *g);
     FArtManager(QObject *parent) : QObject(parent) { }
 
     /**
@@ -32,6 +33,10 @@ public:
      * @param gameDBEntry Used to get Data by stored Game-ID
      */
     void getGameData(FGame *g, TheGameDBStorage* gameDBEntry);
+
+
+
+    void importArtwork(QFileInfo fi, QString destName);
 private:
     QNetworkAccessManager* m_manager;
 
