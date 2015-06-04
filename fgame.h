@@ -31,7 +31,7 @@ public:
 
     int dbId;
 
-    QPixmap *getBoxart();
+    QString getBoxart();
     QString getClearart();
     QString getFanart();
 
@@ -41,10 +41,6 @@ private:
     QString gamePath;
     QString gameExe;
     QStringList gameArgs;
-
-    QPixmap *Boxart;
-    QPixmap *Clearart;
-    QPixmap *Banner;
 };
 
 #endif // FGAME_H

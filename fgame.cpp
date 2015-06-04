@@ -18,9 +18,6 @@ FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QSt
 
 FGame::FGame()
 {
-    this->Boxart = NULL;
-    this->Clearart = NULL;
-    this->Banner = NULL;
 }
 
 
@@ -28,29 +25,27 @@ QString FGame::getName() {
     return this->gameName;
 }
 
-QPixmap* FGame::getBoxart() {
+QString FGame::getBoxart() {
 
-    if(Boxart==NULL) {
         if(QFile::exists(getArtworkDir()+ QDir::separator() + "boxart.png"))
-            Boxart = new QPixmap(getArtworkDir()+ QDir::separator() + "boxart.png");
+            return (getArtworkDir()+ "/boxart.png");
         else if(QFile::exists(getArtworkDir()+ QDir::separator() + "boxart.jpg"))
-            Boxart = new QPixmap(getArtworkDir()+ QDir::separator() + "boxart.jpg");
+            return (getArtworkDir()+ "/boxart.jpg");
         else
-            Boxart = new QPixmap(":/gfx/FusionLogo.png");
-    }
+            return (":/gfx/FusionLogo.png");
 
-    return Boxart;
+
 }
 
 QString FGame::getClearart() {
 
     QString ca = "";
-    if(Clearart==NULL) {
+
         if(QFile::exists(getArtworkDir()+ QDir::separator() + "clearlogo.png"))
             ca = getArtworkDir()+ "/clearlogo.png";
         else if(QFile::exists(getArtworkDir()+ QDir::separator() + "clearlogo.jpg"))
              ca =  getArtworkDir()+"/clearlogo.jpg";
-    }
+
 
     return ca;
 }

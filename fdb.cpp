@@ -156,7 +156,15 @@ bool FDB::updateTextPref(QString pref, QString value)
     prefQuery.prepare("UPDATE prefs SET text = :value WHERE key = :key");
     prefQuery.bindValue(":value", value);
     prefQuery.bindValue(":key", pref);
-    return prefQuery.exec();
+    bool res = prefQuery.exec();
+
+
+    if(prefQuery.numRowsAffected() == 0) {
+        qDebug() << "Added Text-Pref:" << pref;
+        return addTextPref(pref, value);
+    } else {
+        return res;
+    }
 
 }
 
@@ -179,10 +187,11 @@ int FDB::getIntPref(QString pref)
 bool FDB::addIntPref(QString pref, int value)
 {
     QSqlQuery prefQuery;
-    prefQuery.prepare("INSERT INTO prefs(key, valuetype, number) VALUES (:key, 2, :value)");
+    prefQuery.prepare("INSERT INTO prefs(key, valuetype, number, text) VALUES (:key, 2, :value, '')");
     prefQuery.bindValue(":key", pref);
     prefQuery.bindValue(":value", value);
-    return prefQuery.exec();
+    bool res = prefQuery.exec();
+    return res;
 }
 
 bool FDB::updateIntPref(QString pref, int value)
@@ -191,7 +200,15 @@ bool FDB::updateIntPref(QString pref, int value)
     prefQuery.prepare("UPDATE prefs SET number = :value WHERE key = :key");
     prefQuery.bindValue(":value", value);
     prefQuery.bindValue(":key", pref);
-    return prefQuery.exec();
+
+    bool res = prefQuery.exec();
+
+    if(prefQuery.numRowsAffected() == 0) {
+        qDebug() << "Added Int-Pref:" << pref;
+        return addIntPref(pref, value);
+    } else {
+        return res;
+    }
 }
 
 bool FDB::updateWatchedFolders(QList<QDir> data)
