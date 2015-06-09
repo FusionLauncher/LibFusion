@@ -86,8 +86,10 @@ QString FGame::getArtworkDir()
 {
     #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
         QDir path(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-    #else
+    #elif (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
         QDir path(QStandardPaths::locate(QStandardPaths::AppDataLocation, QString(), QStandardPaths::LocateDirectory));
+    #else
+        QDir path(QStandardPaths::locate(QStandardPaths::DataLocation, QString(), QStandardPaths::LocateDirectory));
     #endif
 
  //   qDebug(path.absolutePath().toLatin1());
