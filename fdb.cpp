@@ -125,6 +125,22 @@ int FDB::getGameCount()
 
 }
 
+
+
+QString FDB::getTextPref(QString pref, QString defaultValue)
+{
+    QString val = getTextPref(pref);
+
+    //"" not an optimal result for "not found".
+    //have to find something better here, maybe add a exception
+    if(val != "" || defaultValue == "")
+        return val;
+     else
+        addTextPref(pref, defaultValue);
+
+    return defaultValue;
+}
+
 QString FDB::getTextPref(QString pref)
 {
     QSqlQuery prefQuery;
@@ -166,6 +182,21 @@ bool FDB::updateTextPref(QString pref, QString value)
         return res;
     }
 
+}
+
+
+int FDB::getIntPref(QString pref, int defaultValue)
+{
+    int val = getIntPref(pref);
+
+    //-1 not an optimal result for "not found".
+    //have to find something better here, maybe add a exception
+    if(val != -1 || defaultValue == -1)
+        return val;
+     else
+        addIntPref(pref, defaultValue);
+
+    return defaultValue;
 }
 
 int FDB::getIntPref(QString pref)
