@@ -125,6 +125,22 @@ int FDB::getGameCount()
 
 }
 
+
+
+QString FDB::getTextPref(QString pref, QString defaultValue)
+{
+    QString val = getTextPref(pref);
+
+    //"" not an optimal result for "not found".
+    //have to find something better here, maybe add a exception
+    if(val != "" || defaultValue == "")
+        return val;
+     else
+        addTextPref(pref, defaultValue);
+
+    return defaultValue;
+}
+
 QString FDB::getTextPref(QString pref)
 {
     QSqlQuery prefQuery;
@@ -156,8 +172,74 @@ bool FDB::updateTextPref(QString pref, QString value)
     prefQuery.prepare("UPDATE prefs SET text = :value WHERE key = :key");
     prefQuery.bindValue(":value", value);
     prefQuery.bindValue(":key", pref);
-    return prefQuery.exec();
+    bool res = prefQuery.exec();
 
+
+    if(prefQuery.numRowsAffected() == 0) {
+        qDebug() << "Added Text-Pref:" << pref;
+        return addTextPref(pref, value);
+    } else {
+        return res;
+    }
+
+}
+
+
+int FDB::getIntPref(QString pref, int defaultValue)
+{
+    int val = getIntPref(pref);
+
+    //-1 not an optimal result for "not found".
+    //have to find something better here, maybe add a exception
+    if(val != -1 || defaultValue == -1)
+        return val;
+     else
+        addIntPref(pref, defaultValue);
+
+    return defaultValue;
+}
+
+int FDB::getIntPref(QString pref)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("SELECT (number) FROM prefs WHERE key = :key AND valuetype = 2");
+    prefQuery.bindValue(":key", pref);
+    prefQuery.exec();
+    if(!prefQuery.next())
+    {
+        return -1;
+    }
+    else
+    {
+        return prefQuery.value(0).toInt();
+    }
+}
+
+bool FDB::addIntPref(QString pref, int value)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("INSERT INTO prefs(key, valuetype, number, text) VALUES (:key, 2, :value, '')");
+    prefQuery.bindValue(":key", pref);
+    prefQuery.bindValue(":value", value);
+    bool res = prefQuery.exec();
+    return res;
+}
+
+bool FDB::updateIntPref(QString pref, int value)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("UPDATE prefs SET number = :value WHERE key = :key");
+    prefQuery.bindValue(":value", value);
+    prefQuery.bindValue(":key", pref);
+
+    bool res = prefQuery.exec();
+
+    if(prefQuery.numRowsAffected() == 0) {
+        qDebug() << "Added Int-Pref:" << pref;
+        return addIntPref(pref, value);
+    } else {
+        return res;
+    }
 }
 
 bool FDB::updateWatchedFolders(QList<QDir> data)

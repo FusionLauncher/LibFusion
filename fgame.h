@@ -1,3 +1,4 @@
+
 #ifndef QTCORE
 #include <QtCore>
 #endif
@@ -29,14 +30,17 @@ public:
     bool execute();
 
     int dbId;
-    QPixmap *getBoxart();
+
+    QString getBoxart();
+    QString getClearart();
+    QString getFanart();
+
 private:
     QString gameName;
     FGameType gameType;
     QString gamePath;
     QString gameExe;
     QStringList gameArgs;
-    QPixmap *Boxart;
 };
 
 #endif // FGAME_H
