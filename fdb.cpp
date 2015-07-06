@@ -184,6 +184,14 @@ bool FDB::updateTextPref(QString pref, QString value)
 
 }
 
+bool FDB::deletePref(QString pref)
+{
+    QSqlQuery delQuery;
+    delQuery.prepare("DELETE FROM prefs WHERE key = :key");
+    delQuery.bindValue(":key", pref);
+    return delQuery.exec();
+}
+
 
 int FDB::getIntPref(QString pref, int defaultValue)
 {
