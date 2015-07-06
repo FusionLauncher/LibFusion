@@ -184,7 +184,7 @@ bool FDB::updateTextPref(QString pref, QString value)
 
 }
 
-bool FDB::deleteTextPref(QString pref)
+bool FDB::deletePref(QString pref)
 {
     QSqlQuery delQuery;
     delQuery.prepare("DELETE FROM prefs WHERE key = :key");
