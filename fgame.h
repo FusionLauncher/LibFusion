@@ -1,4 +1,3 @@
-
 #ifndef QTCORE
 #include <QtCore>
 #endif
@@ -6,7 +5,7 @@
 #ifndef FGAME_H
 #define FGAME_H
 
-enum FGameType {unknown, Executable, Steam, Origin, Uplay};
+enum FGameType {unknown, Executable, Steam, Origin, Uplay, Galaxy};
 
 #include "libfusion_global.h"
 class LIBFUSIONSHARED_EXPORT FGame
@@ -31,9 +30,11 @@ public:
 
     int dbId;
 
+    //Artwork-Stuff
     QString getBoxart();
     QString getClearart();
     QString getFanart();
+    QString getBanner();
 
 private:
     QString gameName;

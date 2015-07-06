@@ -53,12 +53,23 @@ QString FGame::getClearart() {
 QString FGame::getFanart() {
 
     QString ca = "";
-        if(QFile::exists(getArtworkDir()+ QDir::separator() + "fanart.png"))
-            ca = getArtworkDir()+ "/fanart.png";
-        else if(QFile::exists(getArtworkDir()+ QDir::separator() + "fanart.jpg"))
-             ca =  getArtworkDir()+"/fanart.jpg";
 
+    if(QFile::exists(getArtworkDir()+ QDir::separator() + "fanart.png"))
+        ca = getArtworkDir()+ "/fanart.png";
+    else if(QFile::exists(getArtworkDir()+ QDir::separator() + "fanart.jpg"))
+         ca =  getArtworkDir()+"/fanart.jpg";
 
+    return ca;
+}
+
+QString FGame::getBanner()
+{
+    QString ca = "";
+
+    if(QFile::exists(getArtworkDir()+ QDir::separator() + "banner.png"))
+        ca = getArtworkDir()+ "/banner.png";
+    else if(QFile::exists(getArtworkDir()+ QDir::separator() + "banner.jpg"))
+         ca =  getArtworkDir()+"/banner.jpg";
     return ca;
 }
 
