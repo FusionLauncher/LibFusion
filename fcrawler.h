@@ -1,7 +1,7 @@
 #ifndef FCRAWLER_H
 #define FCRAWLER_H
 
-#include <fdb.h>
+#include "fdb.h"
 #include <QDir>
 
 
@@ -50,6 +50,7 @@ private:
      *
      */
     void getOriginGames();
+    void getGalaxyGames(QDir folder);
 };
 
 #endif // FCRAWLER_H

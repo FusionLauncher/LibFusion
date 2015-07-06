@@ -19,9 +19,12 @@ void FCrawler::scanAllFolders()
 
     QList<QDir> folder =db.getWatchedFoldersList();
     for(int i=0;i<folder.length();++i) {
+
         FGameType folderType = getType(folder.at(i));
         if(folderType==FGameType::Steam) {
             getSteamGames(folder.at(i));
+        } else if (folderType==FGameType::Galaxy) {
+            getGalaxyGames(folder.at(i));
         }
     }
 
@@ -42,8 +45,33 @@ FGameType FCrawler::getType(QDir folder) {
 
     if(steamFiles.length()>0)
         return FGameType::Steam;
-
+/*
+    folder = folder.absolutePath() + QDir::separator() + "!Downloads";
+    if(folder.exists())
+        return FGameType::Galaxy;
+*/
     return FGameType::unknown;
+}
+
+void FCrawler::getGalaxyGames(QDir folder) {
+    QStringList subfolders = folder.entryList();
+
+    for(int i=0;i<subfolders.length();++i) {
+        if(subfolders[i]=="!Downloads")
+            continue;
+
+        //Get Info-File
+        QStringList filters;
+        filters << "goggame-*.info";
+
+        QDir dir(folder.absolutePath()  + QDir::separator() + subfolders[i]);
+        QStringList InfoFile = dir.entryList(filters);
+        if(InfoFile.length()==1) {
+
+        }
+        else
+            continue;
+    }
 }
 
 

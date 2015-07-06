@@ -5,10 +5,15 @@
 #-------------------------------------------------
 
 QT       += gui
-QT      += core
+QT       += core
 QT	 += sql
 QT       += network
-QT       += webkit webkitwidgets
+QT       += webkit
+
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    QT       += webkitwidgets
+#endif
 
 TARGET = LibFusion
 TEMPLATE = lib
