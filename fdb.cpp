@@ -1,7 +1,7 @@
+#include "fdb.h"
+
 #include <QSqlDatabase>
 #include <QSqlQuery>
-#include <fgame.h>
-#include <fdb.h>
 
 FDB::FDB(QObject *parent)
 {
@@ -39,6 +39,8 @@ bool FDB::init()
 
 
     query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255) );");
+    //query.exec("ALTER TABLE games ADD artwork_searched tinyint default 0");
+
 
     return true;
 }
