@@ -28,6 +28,7 @@ public:
     QString getTextPref(QString pref, QString defaultValue);
     bool addTextPref(QString pref, QString value);
     bool updateTextPref(QString pref, QString value);
+    bool deletePref(QString pref);
 
     int getIntPref(QString pref);
     int getIntPref(QString pref, int defaultValue);
