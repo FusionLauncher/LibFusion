@@ -28,7 +28,7 @@ QString FClientUpdater::getCRClientVersion()
 //Gets downloaded client version from file.
 QString FClientUpdater::getDLClientVersion()
 {
-    if ((clientExists())
+    if (clientExists())
     {
 
         return "0.0.1"; //Read downloaded version from a file.
