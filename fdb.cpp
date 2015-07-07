@@ -252,6 +252,64 @@ bool FDB::updateIntPref(QString pref, int value)
     }
 }
 
+
+
+bool FDB::getBoolPref(QString pref, bool defaultValue)
+{
+    bool val = defaultValue;
+    try  {
+          val = getBoolPref(pref);
+    } catch(int i) {
+
+            addBoolPref(pref, defaultValue);
+            qDebug() << "added Pref: " << pref;
+
+    }
+
+    return val;
+}
+
+bool FDB::getBoolPref(QString pref)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("SELECT (number) FROM prefs WHERE key = :key AND valuetype = 3");
+    prefQuery.bindValue(":key", pref);
+    prefQuery.exec();
+
+    if(!prefQuery.next())
+        throw 20;
+    else
+        return prefQuery.value(0).toBool();
+}
+
+bool FDB::addBoolPref(QString pref, bool value)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("INSERT INTO prefs(key, valuetype, number, text) VALUES (:key, 3, :value, '')");
+    prefQuery.bindValue(":key", pref);
+    prefQuery.bindValue(":value", value);
+    bool res = prefQuery.exec();
+    return res;
+}
+
+bool FDB::updateBoolPref(QString pref, bool value)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("UPDATE prefs SET number = :value WHERE key = :key");
+    prefQuery.bindValue(":value", value);
+    prefQuery.bindValue(":key", pref);
+
+    bool res = prefQuery.exec();
+
+    if(prefQuery.numRowsAffected() == 0) {
+        qDebug() << "Added Int-Pref:" << pref;
+        return addBoolPref(pref, value);
+    } else {
+        return res;
+    }
+}
+
+
 bool FDB::updateWatchedFolders(QList<QDir> data)
 {
     QSqlQuery updateQuery;

@@ -40,6 +40,11 @@ public:
     bool beginTransaction();
     bool endTransaction();
     bool gameExists(FGame game);
+
+    bool updateBoolPref(QString pref, bool value);
+    bool addBoolPref(QString pref, bool value);
+    bool getBoolPref(QString pref);
+    bool getBoolPref(QString pref, bool defaultValue);
 private:
     QSqlDatabase db;
     QSqlQuery query;
