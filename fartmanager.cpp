@@ -99,7 +99,7 @@ void FArtManager::dataReady(QNetworkReply *pReply)
         {
             emit startedDownload();
             QUrl clearLogo(baseImgUrl + Games[0]->clearartURL);
-            QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "clearlogo.png");
+            QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "clearlogo" + Games[0]->clearartURL.right(4));
             FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);
             connect(clearartDownloader, SIGNAL(downloaded()), this, SLOT(on_downloadFinished()));
         }
@@ -107,7 +107,7 @@ void FArtManager::dataReady(QNetworkReply *pReply)
         {
             emit startedDownload();
             QUrl clearLogo(baseImgUrl + Games[0]->boxartURL);
-            QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "boxart.jpg");
+            QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "boxart" + Games[0]->boxartURL.right(4));
             FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);
             connect(clearartDownloader, SIGNAL(downloaded()), this, SLOT(on_downloadFinished()));
         }
@@ -116,7 +116,7 @@ void FArtManager::dataReady(QNetworkReply *pReply)
         {
             emit startedDownload();
             QUrl clearLogo(baseImgUrl + Games[0]->bannerURL);
-            QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "banner.png");
+            QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "banner" + Games[0]->bannerURL.right(4));
             FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);
             connect(clearartDownloader, SIGNAL(downloaded()), this, SLOT(on_downloadFinished()));
         }

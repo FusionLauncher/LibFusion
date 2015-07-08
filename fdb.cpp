@@ -94,7 +94,6 @@ QList<FGame> FDB::getGameList()
     libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id FROM games ORDER BY gameName ASC");
     while(libraryQuery.next())
     {
-        qDebug("Getting game!");
         game.setName(libraryQuery.value(0).toString());
         //TODO: get the game type
         game.setPath(libraryQuery.value(2).toString());
@@ -269,6 +268,19 @@ bool FDB::getBoolPref(QString pref, bool defaultValue)
     return val;
 }
 
+bool FDB::updateGame(FGame *g)
+{
+    QSqlQuery q;
+    q.prepare("UPDATE games SET gameName = :gName, gameDirectory = :gDir, relExecutablePath = :exec WHERE id = :gID");
+    q.bindValue(":gName", g->getName());
+    q.bindValue(":gDir", g->getPath());
+    q.bindValue(":exec", g->getExe());
+    q.bindValue(":gID", g->dbId);
+    return q.exec();
+
+}
+
+
 bool FDB::getBoolPref(QString pref)
 {
     QSqlQuery prefQuery;
@@ -360,8 +372,7 @@ bool FDB::endTransaction()
 bool FDB::gameExists(FGame game)
 {
     QSqlQuery query;
-    query.prepare("SELECT count(*) FROM games WHERE gameName = :Name AND relExecutablePath = :Exe");
-    query.bindValue(":Name", game.getName());
+    query.prepare("SELECT count(*) FROM games WHERE relExecutablePath = :Exe");
     query.bindValue(":Exe", game.getExe());
     query.exec();
     query.next();
