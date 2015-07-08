@@ -270,7 +270,6 @@ bool FDB::getBoolPref(QString pref, bool defaultValue)
 
 bool FDB::updateGame(FGame *g)
 {
-    qDebug() << g->getName() << "," << g->getExe() << "," << g->getPath() << ","<< g->dbId;
     QSqlQuery q;
     q.prepare("UPDATE games SET gameName = :gName, gameDirectory = :gDir, relExecutablePath = :exec WHERE id = :gID");
     q.bindValue(":gName", g->getName());
