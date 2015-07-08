@@ -45,6 +45,9 @@ public:
     bool addBoolPref(QString pref, bool value);
     bool getBoolPref(QString pref);
     bool getBoolPref(QString pref, bool defaultValue);
+
+
+    bool updateGame(FGame *g);
 private:
     QSqlDatabase db;
     QSqlQuery query;

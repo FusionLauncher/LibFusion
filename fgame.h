@@ -36,7 +36,7 @@ public:
     QString getFanart();
     QString getBanner();
 
-private:
+protected:
     QString gameName;
     FGameType gameType;
     QString gamePath;
