@@ -55,7 +55,7 @@ private:
 
 private slots:
     void dataReady(QNetworkReply *pReply); /**< QNetworkAccessManager has finished Downloading */
-    void on_downloadFinished();
+    void downloadFinished(QString);
 signals:
     /**
      * @brief startedDownload Emitted when a Download is started.
