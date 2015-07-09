@@ -14,7 +14,7 @@ FFileDownloader::FFileDownloader(QUrl fileUrl, QObject *parent) :
 
  QNetworkRequest request(fileUrl);
  m_WebCtrl.get(request);
- src = fileUrl.query();
+ src = fileUrl.path();
 }
 
 
@@ -26,7 +26,7 @@ FFileDownloader::FFileDownloader(QUrl fileUrl, QString t, QObject *parent) :
   this, SLOT (fileDownloaded(QNetworkReply*))
   );
  target = t;
- src = fileUrl.query();
+ src = fileUrl.path();
  QNetworkRequest request(fileUrl);
  m_WebCtrl.get(request);
 }
