@@ -1,6 +1,8 @@
 #include "fartmanager.h"
 #include "ffiledownloader.h"
 
+#include <QPixmap>
+
 
 
 FArtManager::FArtManager()
@@ -101,15 +103,16 @@ void FArtManager::dataReady(QNetworkReply *pReply)
             QUrl clearLogo(baseImgUrl + Games[0]->clearartURL);
             QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "clearlogo" + Games[0]->clearartURL.right(4));
             FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);
-            connect(clearartDownloader, SIGNAL(downloaded()), this, SLOT(on_downloadFinished()));
+            connect(clearartDownloader, SIGNAL(srcDownloaded(QString)), this, SLOT(downloadFinished(QString)));
         }
         if(Games[0]->boxartURL != NULL)
         {
             emit startedDownload();
             QUrl clearLogo(baseImgUrl + Games[0]->boxartURL);
             QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "boxart" + Games[0]->boxartURL.right(4));
-            FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);
-            connect(clearartDownloader, SIGNAL(downloaded()), this, SLOT(on_downloadFinished()));
+            FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);            
+            connect(clearartDownloader, SIGNAL(srcDownloaded(QString)), this, SLOT(downloadFinished(QString)));
+      //      connect(clearartDownloader, SIGNAL(downloaded()), this, SLOT(on_downloadFinished()));
         }
 
         if(Games[0]->bannerURL != NULL)
@@ -118,8 +121,9 @@ void FArtManager::dataReady(QNetworkReply *pReply)
             QUrl clearLogo(baseImgUrl + Games[0]->bannerURL);
             QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "banner" + Games[0]->bannerURL.right(4));
             FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);
-            connect(clearartDownloader, SIGNAL(downloaded()), this, SLOT(on_downloadFinished()));
+            connect(clearartDownloader, SIGNAL(srcDownloaded(QString)), this, SLOT(downloadFinished(QString)));
         }
+
       } else if(Games.length()==0) {
           if(!triedSearch) {
               QString gName = game->getName().replace("™", "");
@@ -136,7 +140,17 @@ void FArtManager::dataReady(QNetworkReply *pReply)
 }
 
 
-void FArtManager::on_downloadFinished() {
+void FArtManager::downloadFinished(QString src) {
+    QPixmap p(src);
+    if(p.width()>500) {
+        p = p.scaledToWidth(500);
+
+        QFile file(src);
+        file.open(QIODevice::WriteOnly);
+        p.save(&file);
+        file.close();
+        qDebug() << "Resized " << src;
+    }
     emit finishedDownload();
 }
 

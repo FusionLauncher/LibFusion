@@ -20,14 +20,16 @@ class FFileDownloader : public QObject
   virtual ~FFileDownloader();
   QByteArray downloadedData() const;
 
- signals:
+signals:
   void downloaded();
+  void srcDownloaded(QString);
 
- private slots:
+private slots:
   void fileDownloaded(QNetworkReply* pReply);
 
- private:
+private:
   QString target;
+  QString src;
   QNetworkAccessManager m_WebCtrl;
   QByteArray m_DownloadedData;
 };
