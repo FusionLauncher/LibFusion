@@ -107,6 +107,7 @@ QString FGame::cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType ) 
         if(unCached == "")
             return unCached;
 
+
         QPixmap p(unCached);
         if(fsc == FWidth)
             p= p.scaledToWidth(size, Qt::SmoothTransformation);
@@ -193,7 +194,12 @@ QString FGame::getCacheDir()
     #endif
 
  //   qDebug(path.absolutePath().toLatin1());
-    return QDir::cleanPath(path.absolutePath() + QDir::separator() + "artCache");
+    QString dir(QDir::cleanPath(path.absolutePath() + QDir::separator() + "artCache"));
+
+    if(!(QDir(dir)).exists())
+        (QDir(dir)).mkdir(dir);
+
+    return dir;
 }
 
 QStringList FGame::getArgs()
