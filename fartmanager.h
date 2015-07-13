@@ -53,6 +53,7 @@ private:
 
     bool triedSearch; /**< Flag if search WITHOUT exactname happend. To perevnt loop */
 
+    void downloadImage(QString imgUrl, FGameArt fa);
 private slots:
     void dataReady(QNetworkReply *pReply); /**< QNetworkAccessManager has finished Downloading */
     void downloadFinished(QString);

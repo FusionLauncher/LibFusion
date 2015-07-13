@@ -95,34 +95,16 @@ void FArtManager::dataReady(QNetworkReply *pReply)
       //Only one Found, assume its the right one
       if(Games.length()==1)
       {
-        QDir artworkpath(game->getArtworkDir());
-        QString baseImgUrl = "http://thegamesdb.net/banners/";
         if(Games[0]->clearartURL != NULL)
-        {
-            emit startedDownload();
-            QUrl clearLogo(baseImgUrl + Games[0]->clearartURL);
-            QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "clearlogo" + Games[0]->clearartURL.right(4));
-            FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);
-            connect(clearartDownloader, SIGNAL(srcDownloaded(QString)), this, SLOT(downloadFinished(QString)));
-        }
+            downloadImage(Games[0]->clearartURL, FArtClearart);
+
         if(Games[0]->boxartURL != NULL)
-        {
-            emit startedDownload();
-            QUrl clearLogo(baseImgUrl + Games[0]->boxartURL);
-            QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "boxart" + Games[0]->boxartURL.right(4));
-            FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);            
-            connect(clearartDownloader, SIGNAL(srcDownloaded(QString)), this, SLOT(downloadFinished(QString)));
-      //      connect(clearartDownloader, SIGNAL(downloaded()), this, SLOT(on_downloadFinished()));
-        }
+            downloadImage(Games[0]->boxartURL, FArtBox);
+
 
         if(Games[0]->bannerURL != NULL)
-        {
-            emit startedDownload();
-            QUrl clearLogo(baseImgUrl + Games[0]->bannerURL);
-            QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + "banner" + Games[0]->bannerURL.right(4));
-            FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);
-            connect(clearartDownloader, SIGNAL(srcDownloaded(QString)), this, SLOT(downloadFinished(QString)));
-        }
+            downloadImage(Games[0]->bannerURL, FArtBanner);
+
 
       } else if(Games.length()==0) {
           if(!triedSearch) {
@@ -140,17 +122,19 @@ void FArtManager::dataReady(QNetworkReply *pReply)
 }
 
 
-void FArtManager::downloadFinished(QString src) {
-    QPixmap p(src);
-    if(p.width()>500) {
-        p = p.scaledToWidth(500);
+void FArtManager::downloadImage(QString imgUrl, FGameArt fa) {
+    QDir artworkpath(game->getArtworkDir());
+    QString baseImgUrl = "http://thegamesdb.net/banners/";
 
-        QFile file(src);
-        file.open(QIODevice::WriteOnly);
-        p.save(&file);
-        file.close();
-        qDebug() << "Resized " << src;
-    }
+    emit startedDownload();
+    QUrl clearLogo(baseImgUrl + imgUrl);
+    QString clearartTarget = QDir::cleanPath(artworkpath.absolutePath() + QDir::separator() + FGame::FGameArtToStr(fa) + imgUrl.right(4));
+    FFileDownloader *clearartDownloader = new FFileDownloader(clearLogo, clearartTarget);
+    connect(clearartDownloader, SIGNAL(srcDownloaded(QString)), this, SLOT(downloadFinished(QString)));
+}
+
+
+void FArtManager::downloadFinished(QString src) {
     emit finishedDownload();
 }
 

@@ -73,13 +73,15 @@ FGame* FDB::getGame(int id)
     gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath FROM games WHERE id = :id");
     gameQuery.bindValue(":id", id);
     gameQuery.exec();
+
     if(! gameQuery.next())
     {
         return NULL;
     }
+
     FGame *game = new FGame();
     game->setName(gameQuery.value(0).toString());
-    //TODO: get the game type
+    game->setType((FGameType)gameQuery.value(1).toInt());
     game->setPath(gameQuery.value(2).toString());
     game->setExe(gameQuery.value(3).toString());
     game->dbId = id;
@@ -95,7 +97,6 @@ QList<FGame> FDB::getGameList()
     while(libraryQuery.next())
     {
         game.setName(libraryQuery.value(0).toString());
-        //TODO: get the game type
         game.setPath(libraryQuery.value(2).toString());
         game.setExe(libraryQuery.value(3).toString());
         game.dbId = libraryQuery.value(4).toInt();
