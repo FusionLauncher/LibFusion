@@ -26,84 +26,15 @@ QString FGame::getName() {
 }
 
 QString FGame::getBoxart(bool fromCache, int size, FGameSizeConstrain fsc) {
-
-    if(fromCache) {
-        QString fscI;
-
-        if(fsc == FWidth)
-            fscI = "w_";
-        else
-            fscI = "h_";
-
-        QString fName(QString::number(dbId) + "_Box_" + fscI + QString::number(size) + ".jpg");
-        QString dir = getCacheDir();
-        QString cached = dir + "/" + fName;
-        if(QFile(cached).exists())
-            return cached;
-        else {
-            QString unCached = getBoxart();
-
-            QPixmap p(unCached);
-            if(fsc == FWidth)
-                p= p.scaledToWidth(size, Qt::SmoothTransformation);
-            else
-                p = p.scaledToHeight(size, Qt::SmoothTransformation);
-
-                QFile file(cached);
-                file.open(QIODevice::WriteOnly);
-                p.save(&file, "jpg", 90);
-                file.close();
-                qDebug() << "Resized " << cached;
-                return cached;
-        }
-    }
-    else
-    {
         if(QFile::exists(getArtworkDir()+ QDir::separator() + "boxart.png"))
             return (getArtworkDir()+ "/boxart.png");
         else if(QFile::exists(getArtworkDir()+ QDir::separator() + "boxart.jpg"))
             return (getArtworkDir()+ "/boxart.jpg");
         else
             return (":/gfx/FusionLogo.png");
-    }
-
 }
 
 QString FGame::getClearart(bool fromCache, int size, FGameSizeConstrain fsc ) {
-    if(fromCache) {
-        QString fscI;
-
-        if(fsc == FWidth)
-            fscI = "w_";
-        else
-            fscI = "h_";
-
-        QString fName(QString::number(dbId) + "_Clearart_" + fscI + QString::number(size) + ".jpg");
-        QString dir = getCacheDir();
-        QString cached = dir + "/" + fName;
-        if(QFile(cached).exists())
-            return cached;
-        else {
-            QString unCached = getClearart();
-            if(unCached == "")
-                return unCached;
-
-            QPixmap p(unCached);
-            if(fsc == FWidth)
-                p= p.scaledToWidth(size, Qt::SmoothTransformation);
-            else
-                p = p.scaledToHeight(size, Qt::SmoothTransformation);
-
-                QFile file(cached);
-                file.open(QIODevice::WriteOnly);
-                p.save(&file, "jpg", 90);
-                file.close();
-                qDebug() << "Resized " << cached;
-                return cached;
-        }
-    }
-    else
-    {
         QString ca = "";
 
         if(QFile::exists(getArtworkDir()+ QDir::separator() + "clearlogo.png"))
@@ -113,7 +44,7 @@ QString FGame::getClearart(bool fromCache, int size, FGameSizeConstrain fsc ) {
 
 
         return ca;
-    }
+
 }
 
 QString FGame::FGameArtToStr(FGameArt imgType ) {
@@ -205,40 +136,7 @@ QString FGame::getFanart(bool fromCache, int size, FGameSizeConstrain fsc) {
 
 QString FGame::getBanner(bool fromCache, int size, FGameSizeConstrain fsc)
 {
-    if(fromCache) {
-        QString fscI;
 
-        if(fsc == FWidth)
-            fscI = "w_";
-        else
-            fscI = "h_";
-
-        QString fName(QString::number(dbId) + "_Banner_" + fscI + QString::number(size) + ".jpg");
-        QString dir = getCacheDir();
-        QString cached = dir + "/" + fName;
-        if(QFile(cached).exists())
-            return cached;
-        else {
-            QString unCached = getBanner();
-            if(unCached == "")
-                return unCached;
-
-            QPixmap p(unCached);
-            if(fsc == FWidth)
-                p= p.scaledToWidth(size, Qt::SmoothTransformation);
-            else
-                p = p.scaledToHeight(size, Qt::SmoothTransformation);
-
-                QFile file(cached);
-                file.open(QIODevice::WriteOnly);
-                p.save(&file, "jpg", 90);
-                file.close();
-                qDebug() << "Resized " << cached;
-                return cached;
-        }
-    }
-    else
-    {
         QString ca = "";
 
         if(QFile::exists(getArtworkDir()+ QDir::separator() + "banner.png"))
@@ -246,7 +144,7 @@ QString FGame::getBanner(bool fromCache, int size, FGameSizeConstrain fsc)
         else if(QFile::exists(getArtworkDir()+ QDir::separator() + "banner.jpg"))
              ca =  getArtworkDir()+"/banner.jpg";
         return ca;
-    }
+
 }
 
 
