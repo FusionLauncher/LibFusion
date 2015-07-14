@@ -80,6 +80,7 @@ bool FClientUpdater::isCurrentClient()
 void FClientUpdater::downloadClient()
 {
 
+    qDebug() << "Attempting to download client.";
     manager = new QNetworkAccessManager(this);
 
     connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(clientReplyFinished(QNetworkReply*)));
@@ -106,6 +107,7 @@ void FClientUpdater::clientReplyFinished(QNetworkReply *reply)
     {
 
         FFileDownloader *downloader = new FFileDownloader(clientUrl, clientDirectory); //Change this to client file name later.
+        qDebug() << "Client downloaded.";
     }
 }
 
@@ -142,6 +144,7 @@ void FClientUpdater::restoreClient()
 bool FClientUpdater::clientExists()
 {
 
+    qDebug() << "Client Exists: " << qd->exists(clientDirectory);
     return qd->exists(clientDirectory);
 }
 
@@ -149,6 +152,6 @@ bool FClientUpdater::clientExists()
 bool FClientUpdater::oldClientExists()
 {
 
+    qDebug() << "Old Client Exists: " << qd->exists(oldClientDirectory);
     return qd->exists(oldClientDirectory);
-
 }
