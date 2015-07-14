@@ -39,17 +39,13 @@ private:
     QString restoreClientDirectory = QDir::currentPath() + "/RESTOREFusionClient.txt"; //Change this to client file name later.
     QString versionFileDirectory = QDir::currentPath() + "/fversion.txt";
     QString fusionDirectory = QDir::currentPath();
-    QString clientUrl = "http://pacific-citadel-1552.herokuapp.com/api/version/fusionClient";//Change this to URL of client later.
-
-    int i = 1;
-
+    QString clientUrl = "https://pacific-citadel-1552.herokuapp.com/api/version/fusionClient";//Change this to URL of client later.
 
 signals:
 
 public slots:
 
     void clientReplyFinished(QNetworkReply *reply);
-
 };
 
 #endif // FCLIENTUPDATER_H

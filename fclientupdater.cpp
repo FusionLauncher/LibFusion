@@ -12,8 +12,9 @@ QString FClientUpdater::getCRClientVersion()
     QEventLoop loop;
     QObject::connect(manager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
 
-    QNetworkRequest request(QUrl("http://pacific-citadel-1552.herokuapp.com/api/version/fusionClient"));
+    QNetworkRequest request(QUrl("https://pacific-citadel-1552.herokuapp.com/api/version/fusionClient"));
     QNetworkReply *reply = manager->get(request);
+    reply->ignoreSslErrors();
 
     loop.exec();
 
@@ -91,6 +92,7 @@ void FClientUpdater::downloadClient()
 void FClientUpdater::clientReplyFinished(QNetworkReply *reply)
 {
     reply->deleteLater();
+    reply->ignoreSslErrors();
 
     if(reply->error())
     {
