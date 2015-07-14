@@ -23,6 +23,7 @@ QString FClientUpdater::getCRClientVersion()
     text.remove('"');
 
     if ((text.isEmpty()) || (text.isNull())) { qDebug() << "[ERROR] Client version from API is empty or null. There may be no connection to the API."; return "NA"; }
+    qDebug() << "Current client version: " << text;
     return text;
 }
 
@@ -32,11 +33,13 @@ QString FClientUpdater::getDLClientVersion()
     if (clientExists())
     {
 
+        qDebug() << "Downloaded client version: 0.0.1";
         return "0.0.1"; //Read downloaded version from a file.
     }
     else
     {
 
+        qDebug() << "There is no downloaded client.";
         return "NA";
     }
 }
@@ -117,6 +120,8 @@ void FClientUpdater::clientReplyFinished(QNetworkReply *reply)
 void FClientUpdater::updateClient()
 {
 
+    qDebug() << "Attempting to update client.";
+
     //Rename downloaded client.
     qd->rename(clientDirectory, oldClientDirectory);
     qDebug() << "Renamed CURRENT to OLD";
@@ -128,6 +133,8 @@ void FClientUpdater::updateClient()
 //Restores previous client.
 void FClientUpdater::restoreClient()
 {
+
+    qDebug() << "Attempting to restore client.";
 
     //Rename previous client.
     qd->rename(oldClientDirectory, restoreClientDirectory);
@@ -146,7 +153,7 @@ void FClientUpdater::restoreClient()
 bool FClientUpdater::clientExists()
 {
 
-    qDebug() << "Client Exists: " << qd->exists(clientDirectory);
+    qDebug() << "Client exists: " << qd->exists(clientDirectory);
     return qd->exists(clientDirectory);
 }
 
@@ -154,6 +161,6 @@ bool FClientUpdater::clientExists()
 bool FClientUpdater::oldClientExists()
 {
 
-    qDebug() << "Old Client Exists: " << qd->exists(oldClientDirectory);
+    qDebug() << "Old Client exists: " << qd->exists(oldClientDirectory);
     return qd->exists(oldClientDirectory);
 }
