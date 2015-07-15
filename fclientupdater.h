@@ -24,19 +24,23 @@ public:
     QString getCRClientVersion();
     QString getDLClientVersion();
     bool isCurrentClient();
-    void downloadClient(int i);
+    void downloadLinuxClient();
+    void downloadWindowsClient();
     void updateClient(int i);
-    void restoreClient();
-    bool clientExists();
-    bool oldClientExists();
+    void restoreClient(int i);
+    bool clientExists(int i);
+    bool oldClientExists(int i);
 
 private:
 
     QNetworkAccessManager *manager;
     QDir *qd;
-    QString clientDirectory = QDir::currentPath() + "/FusionClient.txt"; //Change this to client file name later.
-    QString oldClientDirectory = QDir::currentPath() + "/OLDFusionClient.txt"; //Change this to client file name later.
-    QString restoreClientDirectory = QDir::currentPath() + "/RESTOREFusionClient.txt"; //Change this to client file name later.
+    QString clientLinuxDirectory = QDir::currentPath() + "/FusionClient";
+    QString clientWindowsDirectory = QDir::currentPath() + "/FusionClient.exe";
+    QString oldClientLinuxDirectory = QDir::currentPath() + "/OLDFusionClient";
+    QString oldClientWindowsDirectory = QDir::currentPath() + "/OLDFusionClient.exe";
+    QString restoreClientLinuxDirectory = QDir::currentPath() + "/RESTOREFusionClient";
+    QString restoreClientWindowsDirectory = QDir::currentPath() + "/RESTOREFusionClient";
     QString fusionDirectory = QDir::currentPath();
     QString clientLinuxUrl = "http://70.72.248.199/Resources/FusionClient";
     QString clientWindowsUrl = "http://70.72.248.199/Resources/FusionClient.exe";
@@ -45,7 +49,9 @@ signals:
 
 public slots:
 
-    void clientReplyFinished(QNetworkReply *reply, int i);
+    void clientReplyFinishedLinux(QNetworkReply *reply);
+
+    void clientReplyFinishedWindows(QNetworkReply *reply);
 };
 
 #endif // FCLIENTUPDATER_H
