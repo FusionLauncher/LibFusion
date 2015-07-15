@@ -24,8 +24,8 @@ public:
     QString getCRClientVersion();
     QString getDLClientVersion();
     bool isCurrentClient();
-    void downloadClient();
-    void updateClient();
+    void downloadClient(int i);
+    void updateClient(int i);
     void restoreClient();
     bool clientExists();
     bool oldClientExists();
@@ -37,15 +37,15 @@ private:
     QString clientDirectory = QDir::currentPath() + "/FusionClient.txt"; //Change this to client file name later.
     QString oldClientDirectory = QDir::currentPath() + "/OLDFusionClient.txt"; //Change this to client file name later.
     QString restoreClientDirectory = QDir::currentPath() + "/RESTOREFusionClient.txt"; //Change this to client file name later.
-    QString versionFileDirectory = QDir::currentPath() + "/fversion.txt";
     QString fusionDirectory = QDir::currentPath();
-    QString clientUrl = "https://pacific-citadel-1552.herokuapp.com/api/version/fusionClient";//Change this to URL of client later.
+    QString clientLinuxUrl = "http://70.72.248.199/Resources/FusionClient";
+    QString clientWindowsUrl = "http://70.72.248.199/Resources/FusionClient.exe";
 
 signals:
 
 public slots:
 
-    void clientReplyFinished(QNetworkReply *reply);
+    void clientReplyFinished(QNetworkReply *reply, int i);
 };
 
 #endif // FCLIENTUPDATER_H

@@ -81,18 +81,32 @@ bool FClientUpdater::isCurrentClient()
 }
 
 //Downloads current client.
-void FClientUpdater::downloadClient()
+void FClientUpdater::downloadClient(int i)
 {
 
     qDebug() << "Attempting to download client.";
     manager = new QNetworkAccessManager(this);
 
-    connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(clientReplyFinished(QNetworkReply*)));
+    connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(clientReplyFinished(QNetworkReply*, i)));
 
-    manager->get(QNetworkRequest(QUrl(clientUrl)));
+    if (i == 1)
+    {
+
+        manager->get(QNetworkRequest(QUrl(clientLinuxUrl)));
+    }
+    else if (i == 2)
+    {
+
+        manager->get(QNetworkRequest(QUrl(clientWindowsUrl)));
+    }
+    else
+    {
+
+        qDebug() << "Error choosing os.";
+    }
 }
 
-void FClientUpdater::clientReplyFinished(QNetworkReply *reply)
+void FClientUpdater::clientReplyFinished(QNetworkReply *reply, int i)
 {
     reply->deleteLater();
     reply->ignoreSslErrors();
@@ -102,7 +116,7 @@ void FClientUpdater::clientReplyFinished(QNetworkReply *reply)
         qDebug() << "[ERROR] Client download reply error.";
         qDebug() << reply->errorString();
     }
-    else if(reply->url() != clientUrl)
+    else if((reply->url() != clientLinuxUrl) || (reply->url() != clientWindowsUrl))
     {
 
         qDebug() << "[ERROR] Client reply URL does not match real client URL.";
@@ -111,13 +125,30 @@ void FClientUpdater::clientReplyFinished(QNetworkReply *reply)
     else
     {
 
-        FFileDownloader *downloader = new FFileDownloader(clientUrl, clientDirectory); //Change this to client file name later.
-        qDebug() << "Client downloaded.";
+        if (i == 1)
+        {
+
+            FFileDownloader *downloader = new FFileDownloader(clientLinuxUrl, clientDirectory); //Change this to client file name later.
+            qDebug() << "Client downloaded.";
+        }
+
+        else if (i == 2)
+        {
+
+            FFileDownloader *downloader = new FFileDownloader(clientWindowsUrl, clientDirectory); //Change this to client file name later.
+            qDebug() << "Client downloaded.";
+        }
+
+        else
+        {
+
+            qDebug() << "Error downloading client.";
+        }
     }
 }
 
 //Replaces downloaded client with current client.
-void FClientUpdater::updateClient()
+void FClientUpdater::updateClient(int i)
 {
 
     qDebug() << "Attempting to update client.";
@@ -127,7 +158,7 @@ void FClientUpdater::updateClient()
     qDebug() << "Renamed CURRENT to OLD";
 
     //Download current client.
-    downloadClient();
+    downloadClient(i);
 }
 
 //Restores previous client.
