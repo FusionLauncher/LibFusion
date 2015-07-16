@@ -1,6 +1,5 @@
 #include "fgame.h"
 #include <QProcess>
-#include <QDesktopServices>
 #include <QPixmap>
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
@@ -97,7 +96,7 @@ QString FGame::cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType ) 
     else
         fscI = "h_";
 
-    QString fName(QString::number(dbId) + "_" + FGameArtToStr(imgType) + "_" + fscI + QString::number(size) + ".jpg");
+    QString fName(QString::number(dbId) + "_" + FGameArtToStr(imgType) + "_" + fscI + QString::number(size) + ".png");
     QString dir = getCacheDir();
     QString cached = dir + "/" + fName;
     if(QFile(cached).exists())
@@ -116,7 +115,7 @@ QString FGame::cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType ) 
 
             QFile file(cached);
             file.open(QIODevice::WriteOnly);
-            p.save(&file, "jpg", 90);
+            p.save(&file, "png", 90);
             file.close();
             qDebug() << "Resized " << cached;
             return cached;
@@ -231,9 +230,18 @@ bool FGame::execute()
 {
 
    if(gameType == FGameType::Steam) {
-         return QDesktopServices::openUrl ( "steam://rungameid/" + gameExe );
+        #ifdef _WIN32
+            QString cmd("start steam://rungameid/" + gameExe);
+            system(cmd.toStdString().c_str());
+        #else
+           QStringList args;
+           args << "-applaunch" << gameExe;
+           QProcess::startDetached("steam", args);
+        #endif
+
    } else if (gameType == FGameType::Origin) {
-        return QDesktopServices::openUrl ( "origin://launchgame/" + gameExe );
+       QString cmd("start origin://launchgame/" + gameExe);
+       system(cmd.toStdString().c_str());
    } else {
         if(gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists())
         {
