@@ -30,7 +30,7 @@ QString FClientUpdater::getCRClientVersion()
 //Gets downloaded client version from file.
 QString FClientUpdater::getDLClientVersion()
 {
-    if ((clientExists(1)) || (clientExists)(2))
+    if ((clientLinuxExists()) || clientWindowsExists())
     {
 
         qDebug() << "Downloaded client version: 0.0.1";
@@ -84,16 +84,63 @@ bool FClientUpdater::isCurrentClient()
 void FClientUpdater::downloadLinuxClient()
 {
 
-    qDebug() << "Attempting to download linux client.";
+    manager = new QNetworkAccessManager(this);
+    QNetworkRequest request;
+    request.setUrl(clientLinuxUrl);
+
+    QNetworkReply *reply = manager->get(request);
+
+    QObject::connect(reply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(updateProgress(qint64,qint64)));
+
+    QObject::connect(reply, SIGNAL(finished(QNetworkReply*)), this, SLOT(linuxFinished(QNetworkReply*)));
+
+    /*qDebug() << "Attempting to download linux client.";
     manager = new QNetworkAccessManager(this);
 
     connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(clientReplyFinishedLinux(QNetworkReply*)));
-    manager->get(QNetworkRequest(QUrl(clientLinuxUrl)));
+    manager->get(QNetworkRequest(QUrl(clientLinuxUrl)));*/
 }
 
-void FClientUpdater::clientReplyFinishedLinux(QNetworkReply *reply)
+void FClientUpdater::linuxFinished(QNetworkReply *reply)
 {
     reply->deleteLater();
+
+    QByteArray ba = reply->readAll();
+    QFile file(clientLinuxDirectory);
+
+    file.open(QIODevice::WriteOnly);
+    QDataStream out(&file);
+
+    out << ba;
+}
+
+void FClientUpdater::windowsFinished()
+{
+
+}
+
+void FClientUpdater::updateDownloadProgress(qint64 current, qint64 total)
+{
+
+    this->totalProgress = total;
+    this->currentProgress = current;
+}
+
+qint64 FClientUpdater::getTotalProgress()
+{
+
+    return this->totalProgress;
+}
+
+qint64 FClientUpdater::getCurrentProgress()
+{
+
+    return this->currentProgress;
+}
+
+//void FClientUpdater::clientReplyFinishedLinux(QNetworkReply *reply)
+//{
+    /*reply->deleteLater();
     reply->ignoreSslErrors();
 
     if(reply->error())
@@ -112,8 +159,8 @@ void FClientUpdater::clientReplyFinishedLinux(QNetworkReply *reply)
 
         FFileDownloader *downloader = new FFileDownloader(clientLinuxUrl, clientLinuxDirectory); //Change this to client file name later.
         qDebug() << "Downloaded linux client.";
-    }
-}
+    }*/
+//}
 
 //Downloads current windows client.
 void FClientUpdater::downloadWindowsClient()
@@ -126,7 +173,7 @@ void FClientUpdater::downloadWindowsClient()
     manager->get(QNetworkRequest(QUrl(clientWindowsUrl)));
 }
 
-void FClientUpdater::clientReplyFinishedWindows(QNetworkReply *reply)
+/*void FClientUpdater::clientReplyFinishedWindows(QNetworkReply *reply)
 {
     reply->deleteLater();
     reply->ignoreSslErrors();
@@ -148,111 +195,94 @@ void FClientUpdater::clientReplyFinishedWindows(QNetworkReply *reply)
         FFileDownloader *downloader = new FFileDownloader(clientWindowsUrl, clientWindowsDirectory);
         qDebug() << "Downloaded windows client.";
     }
+}*/
+
+//Replaces downloaded client with current client.
+void FClientUpdater::updateLinuxClient()
+{
+
+    qDebug() << "Attempting to update Linux client.";
+
+    //Rename downloaded client.
+    qd->rename(clientLinuxDirectory, oldClientDirectory);
+    qDebug() << "Renamed CURRENT to OLD";
+
+    //Download current client.
+    downloadLinuxClient();
 }
 
 //Replaces downloaded client with current client.
-void FClientUpdater::updateClient(int i)
+void FClientUpdater::updateWindowsClient()
 {
 
-    if (i == 1)
-    {
+    qDebug() << "Attempting to update Windows client.";
 
-        qDebug() << "Attempting to update Linux client.";
+    //Rename downloaded client.
+    qd->rename(clientWindowsDirectory, oldClientDirectory);
+    qDebug() << "Renamed CURRENT to OLD";
 
-        //Rename downloaded client.
-        qd->rename(clientLinuxDirectory, oldClientLinuxDirectory);
-        qDebug() << "Renamed CURRENT to OLD";
-
-        //Download current client.
-        downloadLinuxClient();
-    }
-    else if (i == 2)
-    {
-
-        qDebug() << "Attempting to update Windows client.";
-
-        //Rename downloaded client.
-        qd->rename(clientWindowsDirectory, oldClientWindowsDirectory);
-        qDebug() << "Renamed CURRENT to OLD";
-
-        //Download current client.
-        downloadWindowsClient();
-    }
+    //Download current client.
+    downloadWindowsClient();
 }
 
 //Restores previous client.
-void FClientUpdater::restoreClient(int i)
+void FClientUpdater::restoreLinuxClient()
 {
 
-    if (i == 1)
-    {
-
-        qDebug() << "Attempting to restore linux client.";
+        qDebug() << "Attempting to restore Linux client.";
 
         //Rename previous client.
-        qd->rename(oldClientLinuxDirectory, restoreClientLinuxDirectory);
+        qd->rename(oldClientDirectory, restoreClientDirectory);
         qDebug() << "Renamed OLD to RESTORE.";
 
         //Rename unwanted client.
-        qd->rename(clientLinuxDirectory, oldClientLinuxDirectory);
+        qd->rename(clientLinuxDirectory, oldClientDirectory);
         qDebug() << "Renamed CURRENT to OLD.";
 
         //Rename previous client again.
-        qd->rename(restoreClientLinuxDirectory, clientLinuxDirectory);
+        qd->rename(restoreClientDirectory, clientLinuxDirectory);
         qDebug() << "Renamed RESTORE to CURRENT";
-    }
-
-    else if (i == 1)
-    {
-
-        qDebug() << "Attempting to restore windows client.";
-
-        //Rename previous client.
-        qd->rename(oldClientWindowsDirectory, restoreClientWindowsDirectory);
-        qDebug() << "Renamed OLD to RESTORE.";
-
-        //Rename unwanted client.
-        qd->rename(clientWindowsDirectory, oldClientWindowsDirectory);
-        qDebug() << "Renamed CURRENT to OLD.";
-
-        //Rename previous client again.
-        qd->rename(restoreClientWindowsDirectory, clientWindowsDirectory);
-        qDebug() << "Renamed RESTORE to CURRENT";
-    }
-
 }
 
-//Returns true if the client exists.
-bool FClientUpdater::clientExists(int i)
+//Restores previous client.
+void FClientUpdater::restoreWindowsClient()
 {
 
-    if (i == 1)
-    {
+        qDebug() << "Attempting to restore Windows client.";
 
-        qDebug() << "Linux Client exists: " << qd->exists(clientLinuxDirectory);
-        return qd->exists(clientLinuxDirectory);
-    }
-    else if (i == 2)
-    {
+        //Rename previous client.
+        qd->rename(oldClientDirectory, restoreClientDirectory);
+        qDebug() << "Renamed OLD to RESTORE.";
 
-        qDebug() << "Windows Client exists: " << qd->exists(clientWindowsDirectory);
-        return qd->exists(clientWindowsDirectory);
-    }
+        //Rename unwanted client.
+        qd->rename(clientWindowsDirectory, oldClientDirectory);
+        qDebug() << "Renamed CURRENT to OLD.";
+
+        //Rename previous client again.
+        qd->rename(restoreClientDirectory, clientWindowsDirectory);
+        qDebug() << "Renamed RESTORE to CURRENT";
+}
+
+//Returns true if the linux client exists.
+bool FClientUpdater::clientLinuxExists()
+{
+
+    qDebug() << "Linux Client exists: " << qd->exists(clientLinuxDirectory);
+    return qd->exists(clientLinuxDirectory);
+}
+
+//Returns true if the windows client exists.
+bool FClientUpdater::clientWindowsExists()
+{
+
+    qDebug() << "Windows Client exists: " << qd->exists(clientWindowsDirectory);
+    return qd->exists(clientWindowsDirectory);
 }
 
 //Returns true if old client exists.
-bool FClientUpdater::oldClientExists(int i)
+bool FClientUpdater::oldClientExists()
 {
-    if (i == 1)
-    {
 
-        qDebug() << "Old Linux Client exists: " << qd->exists(oldClientLinuxDirectory);
-        return qd->exists(oldClientLinuxDirectory);
-    }
-    else if (i == 2)
-    {
-
-        qDebug() << "Old Windows Client exists: " << qd->exists(oldClientWindowsDirectory);
-        return qd->exists(oldClientWindowsDirectory);
-    }
+    qDebug() << "Old Client exists: " << qd->exists(oldClientDirectory);
+    return qd->exists(oldClientDirectory);
 }

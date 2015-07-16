@@ -11,6 +11,8 @@
 #include <QEventLoop>
 #include <QFile>
 #include <QDir>
+#include <QFile>
+#include <QDataStream>
 
 #include <QDebug>
 
@@ -24,12 +26,28 @@ public:
     QString getCRClientVersion();
     QString getDLClientVersion();
     bool isCurrentClient();
+
+    //Download clients
     void downloadLinuxClient();
     void downloadWindowsClient();
-    void updateClient(int i);
-    void restoreClient(int i);
-    bool clientExists(int i);
-    bool oldClientExists(int i);
+
+    //Update clients
+    void updateLinuxClient();
+    void updateWindowsClient();
+
+    //Restore clients
+    void restoreLinuxClient();
+    void restoreWindowsClient();
+
+    //Check for clients
+    bool clientLinuxExists();
+    bool clientWindowsExists();
+
+    bool oldClientExists();
+
+    //Get progress
+    qint64 getCurrentProgress();
+    qint64 getTotalProgress();
 
 private:
 
@@ -37,21 +55,23 @@ private:
     QDir *qd;
     QString clientLinuxDirectory = QDir::currentPath() + "/FusionClient";
     QString clientWindowsDirectory = QDir::currentPath() + "/FusionClient.exe";
-    QString oldClientLinuxDirectory = QDir::currentPath() + "/OLDFusionClient";
-    QString oldClientWindowsDirectory = QDir::currentPath() + "/OLDFusionClient.exe";
-    QString restoreClientLinuxDirectory = QDir::currentPath() + "/RESTOREFusionClient";
-    QString restoreClientWindowsDirectory = QDir::currentPath() + "/RESTOREFusionClient";
+    QString oldClientDirectory = QDir::currentPath() + "/FusionClient.OLD";
+    QString restoreClientDirectory = QDir::currentPath() + "/FusionClient.RESTORE";
     QString fusionDirectory = QDir::currentPath();
     QString clientLinuxUrl = "http://70.72.248.199/Resources/FusionClient";
     QString clientWindowsUrl = "http://70.72.248.199/Resources/FusionClient.exe";
+
+    qint64 currentProgress;
+    qint64 totalProgress;
 
 signals:
 
 public slots:
 
-    void clientReplyFinishedLinux(QNetworkReply *reply);
+    void updateDownloadProgress(qint64 current, qint64 total);
 
-    void clientReplyFinishedWindows(QNetworkReply *reply);
+    void linuxFinished(QNetworkReply *reply);
+    void windowsFinished();
 };
 
 #endif // FCLIENTUPDATER_H
