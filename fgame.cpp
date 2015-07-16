@@ -25,21 +25,17 @@ QString FGame::getName() {
     return this->gameName;
 }
 
-QString FGame::getBoxart() {
-
+QString FGame::getBoxart(bool fromCache, int size, FGameSizeConstrain fsc) {
         if(QFile::exists(getArtworkDir()+ QDir::separator() + "boxart.png"))
             return (getArtworkDir()+ "/boxart.png");
         else if(QFile::exists(getArtworkDir()+ QDir::separator() + "boxart.jpg"))
             return (getArtworkDir()+ "/boxart.jpg");
         else
             return (":/gfx/FusionLogo.png");
-
-
 }
 
-QString FGame::getClearart() {
-
-    QString ca = "";
+QString FGame::getClearart(bool fromCache, int size, FGameSizeConstrain fsc ) {
+        QString ca = "";
 
         if(QFile::exists(getArtworkDir()+ QDir::separator() + "clearlogo.png"))
             ca = getArtworkDir()+ "/clearlogo.png";
@@ -47,10 +43,87 @@ QString FGame::getClearart() {
              ca =  getArtworkDir()+"/clearlogo.jpg";
 
 
-    return ca;
+        return ca;
+
 }
 
-QString FGame::getFanart() {
+QString FGame::FGameArtToStr(FGameArt imgType ) {
+    switch (imgType) {
+    case FArtBanner:
+        return "Banner";
+        break;
+    case FArtBox:
+        return "Box";
+        break;
+    case FArtClearart:
+        return "Clearart";
+        break;
+    case FArtFanart:
+        return "Fanart";
+        break;
+    default:
+        return "";
+        break;
+    }
+}
+
+QString FGame::getArt(FGameArt imgType, bool fromCache, int size, FGameSizeConstrain fsc) {
+
+    if(fromCache) {
+        return cachedImage(size, fsc, imgType);
+    }
+    else
+    {
+        QString ca = "";
+
+        if(QFile::exists(getArtworkDir()+ QDir::separator() + FGameArtToStr(imgType) + ".png"))
+            ca = getArtworkDir()+ QDir::separator() + FGameArtToStr(imgType) + ".png";
+        else if(QFile::exists(getArtworkDir()+ QDir::separator() + FGameArtToStr(imgType) + ".jpg"))
+            ca =  getArtworkDir()+ QDir::separator() + FGameArtToStr(imgType) + ".jpg";
+
+        QFile f(ca);
+        if(ca != "")
+            return f.fileName();
+        else
+            return "";
+    }
+}
+
+QString FGame::cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType ) {
+    QString fscI;
+
+    if(fsc == FWidth)
+        fscI = "w_";
+    else
+        fscI = "h_";
+
+    QString fName(QString::number(dbId) + "_" + FGameArtToStr(imgType) + "_" + fscI + QString::number(size) + ".jpg");
+    QString dir = getCacheDir();
+    QString cached = dir + "/" + fName;
+    if(QFile(cached).exists())
+        return cached;
+    else {
+        QString unCached = getArt(imgType);
+        if(unCached == "")
+            return unCached;
+
+
+        QPixmap p(unCached);
+        if(fsc == FWidth)
+            p= p.scaledToWidth(size, Qt::SmoothTransformation);
+        else
+            p = p.scaledToHeight(size, Qt::SmoothTransformation);
+
+            QFile file(cached);
+            file.open(QIODevice::WriteOnly);
+            p.save(&file, "jpg", 90);
+            file.close();
+            qDebug() << "Resized " << cached;
+            return cached;
+      }
+}
+
+QString FGame::getFanart(bool fromCache, int size, FGameSizeConstrain fsc) {
 
     QString ca = "";
 
@@ -62,15 +135,17 @@ QString FGame::getFanart() {
     return ca;
 }
 
-QString FGame::getBanner()
+QString FGame::getBanner(bool fromCache, int size, FGameSizeConstrain fsc)
 {
-    QString ca = "";
 
-    if(QFile::exists(getArtworkDir()+ QDir::separator() + "banner.png"))
-        ca = getArtworkDir()+ "/banner.png";
-    else if(QFile::exists(getArtworkDir()+ QDir::separator() + "banner.jpg"))
-         ca =  getArtworkDir()+"/banner.jpg";
-    return ca;
+        QString ca = "";
+
+        if(QFile::exists(getArtworkDir()+ QDir::separator() + "banner.png"))
+            ca = getArtworkDir()+ "/banner.png";
+        else if(QFile::exists(getArtworkDir()+ QDir::separator() + "banner.jpg"))
+             ca =  getArtworkDir()+"/banner.jpg";
+        return ca;
+
 }
 
 
@@ -105,6 +180,26 @@ QString FGame::getArtworkDir()
 
  //   qDebug(path.absolutePath().toLatin1());
     return QDir::cleanPath(path.absolutePath() + QDir::separator() + QString::number(dbId) + QDir::separator() + "Artwork");
+}
+
+
+QString FGame::getCacheDir()
+{
+    #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
+        QDir path(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    #elif (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+        QDir path(QStandardPaths::locate(QStandardPaths::AppDataLocation, QString(), QStandardPaths::LocateDirectory));
+    #else
+        QDir path(QStandardPaths::locate(QStandardPaths::DataLocation, QString(), QStandardPaths::LocateDirectory));
+    #endif
+
+ //   qDebug(path.absolutePath().toLatin1());
+    QString dir(QDir::cleanPath(path.absolutePath() + QDir::separator() + "artCache"));
+
+    if(!(QDir(dir)).exists())
+        (QDir(dir)).mkdir(dir);
+
+    return dir;
 }
 
 QStringList FGame::getArgs()
