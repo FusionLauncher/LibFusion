@@ -204,7 +204,7 @@ void FClientUpdater::updateLinuxClient()
     qDebug() << "Attempting to update Linux client.";
 
     //Rename downloaded client.
-    qd->rename(clientLinuxDirectory, oldClientDirectory);
+    qd->rename(clientLinuxDirectory, oldClientLinuxDirectory);
     qDebug() << "Renamed CURRENT to OLD";
 
     //Download current client.
@@ -218,7 +218,7 @@ void FClientUpdater::updateWindowsClient()
     qDebug() << "Attempting to update Windows client.";
 
     //Rename downloaded client.
-    qd->rename(clientWindowsDirectory, oldClientDirectory);
+    qd->rename(clientWindowsDirectory, oldClientWindowsDirectory);
     qDebug() << "Renamed CURRENT to OLD";
 
     //Download current client.
@@ -232,15 +232,15 @@ void FClientUpdater::restoreLinuxClient()
         qDebug() << "Attempting to restore Linux client.";
 
         //Rename previous client.
-        qd->rename(oldClientDirectory, restoreClientDirectory);
+        qd->rename(oldClientLinuxDirectory, restoreClientLinuxDirectory);
         qDebug() << "Renamed OLD to RESTORE.";
 
         //Rename unwanted client.
-        qd->rename(clientLinuxDirectory, oldClientDirectory);
+        qd->rename(clientLinuxDirectory, oldClientLinuxDirectory);
         qDebug() << "Renamed CURRENT to OLD.";
 
         //Rename previous client again.
-        qd->rename(restoreClientDirectory, clientLinuxDirectory);
+        qd->rename(restoreClientLinuxDirectory, clientLinuxDirectory);
         qDebug() << "Renamed RESTORE to CURRENT";
 }
 
@@ -251,15 +251,15 @@ void FClientUpdater::restoreWindowsClient()
         qDebug() << "Attempting to restore Windows client.";
 
         //Rename previous client.
-        qd->rename(oldClientDirectory, restoreClientDirectory);
+        qd->rename(oldClientWindowsDirectory, restoreClientWindowsDirectory);
         qDebug() << "Renamed OLD to RESTORE.";
 
         //Rename unwanted client.
-        qd->rename(clientWindowsDirectory, oldClientDirectory);
+        qd->rename(clientWindowsDirectory, oldClientWindowsDirectory);
         qDebug() << "Renamed CURRENT to OLD.";
 
         //Rename previous client again.
-        qd->rename(restoreClientDirectory, clientWindowsDirectory);
+        qd->rename(restoreClientWindowsDirectory, clientWindowsDirectory);
         qDebug() << "Renamed RESTORE to CURRENT";
 }
 
@@ -279,10 +279,18 @@ bool FClientUpdater::clientWindowsExists()
     return qd->exists(clientWindowsDirectory);
 }
 
-//Returns true if old client exists.
-bool FClientUpdater::oldClientExists()
+//Returns true if old linux client exists.
+bool FClientUpdater::oldClientLinuxExists()
 {
 
-    qDebug() << "Old Client exists: " << qd->exists(oldClientDirectory);
-    return qd->exists(oldClientDirectory);
+    qDebug() << "Old Linux Client exists: " << qd->exists(oldClientLinuxDirectory);
+    return qd->exists(oldClientLinuxDirectory);
+}
+
+//Returns true if old windows client exists.
+bool FClientUpdater::oldClientWindowsExists()
+{
+
+    qDebug() << "Old Windows Client exists: " << qd->exists(oldClientWindowsDirectory);
+    return qd->exists(oldClientWindowsDirectory);
 }

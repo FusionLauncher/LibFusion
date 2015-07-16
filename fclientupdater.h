@@ -43,7 +43,9 @@ public:
     bool clientLinuxExists();
     bool clientWindowsExists();
 
-    bool oldClientExists();
+    //Check for old clients
+    bool oldClientLinuxExists();
+    bool oldClientWindowsExists();
 
     //Get progress
     qint64 getCurrentProgress();
@@ -55,8 +57,10 @@ private:
     QDir *qd;
     QString clientLinuxDirectory = QDir::currentPath() + "/FusionClient";
     QString clientWindowsDirectory = QDir::currentPath() + "/FusionClient.exe";
-    QString oldClientDirectory = QDir::currentPath() + "/FusionClient.OLD";
-    QString restoreClientDirectory = QDir::currentPath() + "/FusionClient.RESTORE";
+    QString oldClientLinuxDirectory = QDir::currentPath() + "/FusionClientL.OLD";
+    QString oldClientWindowsDirectory = QDir::currentPath() + "/FusionClientW.OLD";
+    QString restoreClientLinuxDirectory = QDir::currentPath() + "/FusionClientL.RESTORE";
+    QString restoreClientWindowsDirectory = QDir::currentPath() + "/FusionClientW.RESTORE";
     QString fusionDirectory = QDir::currentPath();
     QString clientLinuxUrl = "http://70.72.248.199/Resources/FusionClient";
     QString clientWindowsUrl = "http://70.72.248.199/Resources/FusionClient.exe";
