@@ -170,7 +170,7 @@ QString FGame::getPath()
 QString FGame::getArtworkDir()
 {
     #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-        QDir path(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+        QDir path(QCoreApplication::applicationDirPath());
     #elif (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
         QDir path(QStandardPaths::locate(QStandardPaths::AppDataLocation, QString(), QStandardPaths::LocateDirectory));
     #else
@@ -185,7 +185,7 @@ QString FGame::getArtworkDir()
 QString FGame::getCacheDir()
 {
     #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-        QDir path(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+        QDir path(QCoreApplication::applicationDirPath());
     #elif (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
         QDir path(QStandardPaths::locate(QStandardPaths::AppDataLocation, QString(), QStandardPaths::LocateDirectory));
     #else
