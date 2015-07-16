@@ -24,8 +24,14 @@ class FClientUpdater : public QObject
 public:
     explicit FClientUpdater(QObject *parent = 0);
     QString getCRClientVersion();
-    QString getDLClientVersion();
-    bool isCurrentClient();
+
+    //Get downloaded client version.
+    QString getDLClientLinuxVersion();
+    QString getDLClientWindowsVersion();
+
+    //Check if current client
+    bool isCurrentLinuxClient();
+    bool isCurrentWindowsClient();
 
     //Download clients
     void downloadLinuxClient();

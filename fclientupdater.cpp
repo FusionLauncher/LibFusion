@@ -27,28 +27,50 @@ QString FClientUpdater::getCRClientVersion()
     return text;
 }
 
-//Gets downloaded client version from file.
-QString FClientUpdater::getDLClientVersion()
+//Gets downloaded linux client version from file.
+QString FClientUpdater::getDLClientLinuxVersion()
 {
-    if ((clientLinuxExists()) || clientWindowsExists())
+    if (clientLinuxExists())
     {
 
-        qDebug() << "Downloaded client version: 0.0.1";
+        qDebug() << "Downloaded linux client version: 0.0.1";
         return "0.0.1"; //Read downloaded version from a file.
     }
     else
     {
 
-        qDebug() << "There is no downloaded client.";
+        qDebug() << "There is no downloaded linux client.";
         return "NA";
     }
 }
 
+//Gets downloaded windows client version from file.
+QString FClientUpdater::getDLClientWindowsVersion()
+{
+    if (clientWindowsExists())
+    {
+
+        qDebug() << "Downloaded windows client version: 0.0.1";
+        return "0.0.1"; //Read downloaded version from a file.
+    }
+    else
+    {
+
+        qDebug() << "There is no downloaded windows client.";
+        return "NA";
+    }
+}
+
+/* Client will write its version to a file by the OS name.
+ * Ex: if (os == win) { write.tofile("winversion=0.0.1");  }
+ *     if (chosenOs = win) { read.fromfile("winversion")
+ */
+
 //Compare downloaded client version with current client version.
-bool FClientUpdater::isCurrentClient()
+bool FClientUpdater::isCurrentLinuxClient()
 {
 
-    if (getDLClientVersion() == getCRClientVersion())
+    if (getDLClientLinuxVersion() == getCRClientVersion())
     {
         qDebug() << "Downloaded client version does match current client version.";
 
@@ -63,11 +85,47 @@ bool FClientUpdater::isCurrentClient()
         return true;
     }
 
-    else if (getDLClientVersion() == "NA")
+    else if (getDLClientLinuxVersion() == "NA")
     {
 
         //There is no downloaded client.
-        qDebug() << "There is no downloaded client.";
+        qDebug() << "There is no downloaded linux client.";
+
+        return true;
+    }
+
+    else
+    {
+        qDebug() << "Downloaded client version does not match current client version.";
+
+        return false;
+    }
+}
+
+//Compare downloaded client version with current client version.
+bool FClientUpdater::isCurrentWindowsClient()
+{
+
+    if (getDLClientWindowsVersion() == getCRClientVersion())
+    {
+        qDebug() << "Downloaded client version does match current client version.";
+
+        return true;
+    }
+
+    else if (getCRClientVersion() == "NA")
+    {
+        //There is no connection to the api.
+        qDebug() << "[ERROR] Client version from API is empty or null. There may be no connection to the API.";
+
+        return true;
+    }
+
+    else if (getDLClientWindowsVersion() == "NA")
+    {
+
+        //There is no downloaded client.
+        qDebug() << "There is no downloaded windows4 client.";
 
         return true;
     }
