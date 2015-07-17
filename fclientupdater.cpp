@@ -142,36 +142,12 @@ bool FClientUpdater::isCurrentWindowsClient()
 void FClientUpdater::downloadLinuxClient()
 {
 
-    manager = new QNetworkAccessManager(this);
-    QNetworkRequest request;
-    request.setUrl(clientLinuxUrl);
-
-    QNetworkReply *reply = manager->get(request);
-
-    QObject::connect(reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(updateDownloadProgress(qint64,qint64)));
-
-    QObject::connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(linuxFinished(QNetworkReply*)));
-
-    /*qDebug() << "Attempting to download linux client.";
+    qDebug() << "Attempting to download linux client.";
     manager = new QNetworkAccessManager(this);
 
     connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(clientReplyFinishedLinux(QNetworkReply*)));
-    manager->get(QNetworkRequest(QUrl(clientLinuxUrl)));*/
+    manager->get(QNetworkRequest(QUrl(clientLinuxUrl)));
 }
-
-void FClientUpdater::linuxFinished(QNetworkReply *reply)
-{
-    reply->deleteLater();
-
-    QByteArray ba = reply->readAll();
-    QFile file(clientLinuxDirectory);
-
-    file.open(QIODevice::WriteOnly);
-    QDataStream out(&file);
-
-    out << ba;
-}
-
 
 void FClientUpdater::clientReplyFinishedLinux(QNetworkReply *reply)
 {

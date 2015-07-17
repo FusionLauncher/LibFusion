@@ -67,12 +67,11 @@ private:
     QString clientLinuxUrl = "http://70.72.248.199/Resources/FusionClient";
     QString clientWindowsUrl = "http://70.72.248.199/Resources/FusionClient.exe";
 
-    qint64 currentProgress;
-    qint64 totalProgress;
-
 signals:
 
 public slots:
+    void clientReplyFinishedLinux(QNetworkReply *reply);
+    void clientReplyFinishedWindows(QNetworkReply *reply);
 
 };
 
