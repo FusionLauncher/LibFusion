@@ -53,10 +53,6 @@ public:
     bool oldClientLinuxExists();
     bool oldClientWindowsExists();
 
-    //Get progress
-    qint64 getCurrentProgress();
-    qint64 getTotalProgress();
-
 private:
 
     QNetworkAccessManager *manager;
@@ -78,10 +74,6 @@ signals:
 
 public slots:
 
-    void updateDownloadProgress(qint64 current, qint64 total);
-
-    void linuxFinished(QNetworkReply *reply);
-    void windowsFinished();
 };
 
 #endif // FCLIENTUPDATER_H

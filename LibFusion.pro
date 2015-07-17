@@ -28,7 +28,8 @@ SOURCES += libfusion.cpp \
     fcrawler.cpp \
     fartmanager.cpp \
     ffiledownloader.cpp \
-    fclientupdater.cpp
+    fclientupdater.cpp \
+    fcuworker.cpp
 
 HEADERS += libfusion.h\
     libfusion_global.h \
@@ -39,7 +40,8 @@ HEADERS += libfusion.h\
     fartmanager.h \
     ffiledownloader.h \
     thegamedbstorage.h \
-    fclientupdater.h
+    fclientupdater.h \
+    fcuworker.h
 
 unix {
     target.path = /usr/lib

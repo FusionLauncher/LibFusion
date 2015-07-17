@@ -172,33 +172,10 @@ void FClientUpdater::linuxFinished(QNetworkReply *reply)
     out << ba;
 }
 
-void FClientUpdater::windowsFinished()
+
+void FClientUpdater::clientReplyFinishedLinux(QNetworkReply *reply)
 {
-
-}
-
-void FClientUpdater::updateDownloadProgress(qint64 current, qint64 total)
-{
-
-    this->totalProgress = total;
-    this->currentProgress = current;
-}
-
-qint64 FClientUpdater::getTotalProgress()
-{
-
-    return this->totalProgress;
-}
-
-qint64 FClientUpdater::getCurrentProgress()
-{
-
-    return this->currentProgress;
-}
-
-//void FClientUpdater::clientReplyFinishedLinux(QNetworkReply *reply)
-//{
-    /*reply->deleteLater();
+    reply->deleteLater();
     reply->ignoreSslErrors();
 
     if(reply->error())
@@ -217,8 +194,8 @@ qint64 FClientUpdater::getCurrentProgress()
 
         FFileDownloader *downloader = new FFileDownloader(clientLinuxUrl, clientLinuxDirectory); //Change this to client file name later.
         qDebug() << "Downloaded linux client.";
-    }*/
-//}
+    }
+}
 
 //Downloads current windows client.
 void FClientUpdater::downloadWindowsClient()
@@ -231,7 +208,7 @@ void FClientUpdater::downloadWindowsClient()
     manager->get(QNetworkRequest(QUrl(clientWindowsUrl)));
 }
 
-/*void FClientUpdater::clientReplyFinishedWindows(QNetworkReply *reply)
+void FClientUpdater::clientReplyFinishedWindows(QNetworkReply *reply)
 {
     reply->deleteLater();
     reply->ignoreSslErrors();
@@ -253,7 +230,7 @@ void FClientUpdater::downloadWindowsClient()
         FFileDownloader *downloader = new FFileDownloader(clientWindowsUrl, clientWindowsDirectory);
         qDebug() << "Downloaded windows client.";
     }
-}*/
+}
 
 //Replaces downloaded client with current client.
 void FClientUpdater::updateLinuxClient()
