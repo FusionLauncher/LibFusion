@@ -148,7 +148,7 @@ void FClientUpdater::downloadLinuxClient()
 
     QNetworkReply *reply = manager->get(request);
 
-    QObject::connect(reply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(updateProgress(qint64,qint64)));
+    QObject::connect(reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(updateDownloadProgress(qint64,qint64)));
 
     QObject::connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(linuxFinished(QNetworkReply*)));
 
