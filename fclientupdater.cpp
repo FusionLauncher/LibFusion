@@ -150,7 +150,7 @@ void FClientUpdater::downloadLinuxClient()
 
     QObject::connect(reply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(updateProgress(qint64,qint64)));
 
-    QObject::connect(reply, SIGNAL(finished(QNetworkReply*)), this, SLOT(linuxFinished(QNetworkReply*)));
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(linuxFinished(QNetworkReply*)));
 
     /*qDebug() << "Attempting to download linux client.";
     manager = new QNetworkAccessManager(this);
