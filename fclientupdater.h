@@ -34,8 +34,8 @@ public:
     bool isCurrentWindowsClient();
 
     //Download clients
-    void downloadLinuxClient();
-    void downloadWindowsClient();
+    //void downloadLinuxClient();
+    //void downloadWindowsClient();
 
     //Update clients
     void updateLinuxClient();
@@ -64,14 +64,12 @@ private:
     QString restoreClientLinuxDirectory = QDir::currentPath() + "/FusionClientL.RESTORE";
     QString restoreClientWindowsDirectory = QDir::currentPath() + "/FusionClientW.RESTORE";
     QString fusionDirectory = QDir::currentPath();
-    QString clientLinuxUrl = "http://70.72.248.199/Resources/FusionClient";
-    QString clientWindowsUrl = "http://70.72.248.199/Resources/FusionClient.exe";
 
 signals:
 
 public slots:
-    void clientReplyFinishedLinux(QNetworkReply *reply);
-    void clientReplyFinishedWindows(QNetworkReply *reply);
+    //void clientReplyFinishedLinux(QNetworkReply *reply);
+    //void clientReplyFinishedWindows(QNetworkReply *reply);
 
 };
 

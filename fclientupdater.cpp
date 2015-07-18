@@ -34,7 +34,7 @@ QString FClientUpdater::getDLClientLinuxVersion()
     {
 
         qDebug() << "Downloaded linux client version: 0.0.1";
-        return "0.0.1"; //Read downloaded version from a file.
+        return "0.0.2"; //Read downloaded version from a file.
     }
     else
     {
@@ -51,7 +51,7 @@ QString FClientUpdater::getDLClientWindowsVersion()
     {
 
         qDebug() << "Downloaded windows client version: 0.0.1";
-        return "0.0.1"; //Read downloaded version from a file.
+        return "0.0.2"; //Read downloaded version from a file.
     }
     else
     {
@@ -139,7 +139,7 @@ bool FClientUpdater::isCurrentWindowsClient()
 }
 
 //Downloads current linux client.
-void FClientUpdater::downloadLinuxClient()
+/*void FClientUpdater::downloadLinuxClient()
 {
 
     qDebug() << "Attempting to download linux client.";
@@ -206,7 +206,7 @@ void FClientUpdater::clientReplyFinishedWindows(QNetworkReply *reply)
         FFileDownloader *downloader = new FFileDownloader(clientWindowsUrl, clientWindowsDirectory);
         qDebug() << "Downloaded windows client.";
     }
-}
+}*/
 
 //Replaces downloaded client with current client.
 void FClientUpdater::updateLinuxClient()
@@ -219,7 +219,7 @@ void FClientUpdater::updateLinuxClient()
     qDebug() << "Renamed CURRENT to OLD";
 
     //Download current client.
-    downloadLinuxClient();
+    //downloadLinuxClient();
 }
 
 //Replaces downloaded client with current client.
@@ -233,7 +233,7 @@ void FClientUpdater::updateWindowsClient()
     qDebug() << "Renamed CURRENT to OLD";
 
     //Download current client.
-    downloadWindowsClient();
+    //downloadWindowsClient();
 }
 
 //Restores previous client.
