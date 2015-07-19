@@ -21,7 +21,6 @@ public:
     bool removeGameById(int id);
     FGame* getGame(int id);
     QList<FGame> getGameList();
-    void resetDatabase();
     int getGameCount();
 
     QString getTextPref(QString pref);
@@ -39,7 +38,9 @@ public:
     QList<QDir> getWatchedFoldersList();
     bool beginTransaction();
     bool endTransaction();
+    bool rollbackTransaction();
     bool gameExists(FGame game);
+    bool runQuery(QSqlQuery q);
 private:
     QSqlDatabase db;
     QSqlQuery query;

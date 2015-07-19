@@ -2,6 +2,8 @@
 #include <QSqlQuery>
 #include <fgame.h>
 #include <fdb.h>
+#include "fdbupdater.h"
+#include <QFile>
 
 FDB::FDB(QObject *parent)
 {
@@ -10,6 +12,13 @@ FDB::FDB(QObject *parent)
 
 bool FDB::init()
 {
+    QFile dbFile("fusion.db");
+    bool createDB = false;
+    if(!dbFile.exists())
+    {
+        createDB = true;
+    }
+    bool initSuccessful = true;
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setHostName("localhost");
     db.setDatabaseName("fusion.db");
@@ -21,36 +30,35 @@ bool FDB::init()
         return false;
     }
     QSqlQuery query;
-    QSqlQuery queryPreferences;
-    QSqlQuery queryGames;
-
-    query.exec("CREATE TABLE IF NOT EXISTS prefs(key TINYTEXT NOT NULL, valuetype TINYINT NOT NULL, number TINYINT NOT NULL, text VARCHAR(255) NOT NULL)");
-    queryPreferences.exec("SELECT * FROM prefs;");
-    while(queryPreferences.next())
+    FDBUpdater updater(this, this);
+    if(createDB)
     {
-        //get values here
+        qDebug() << "Creating database.";
+        query.exec("CREATE TABLE IF NOT EXISTS prefs(key TINYTEXT NOT NULL, valuetype TINYINT NOT NULL, number TINYINT NOT NULL, text VARCHAR(255) NOT NULL)");
+        //(later) if clientToken doesnt exists, show login and run registerClient(), if no account, //run register()
+        //(later) if lang is not set, set it to the default system language
+        query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL, gameCommand TEXT, gameArgs TEXT)");
+        query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255) );");
+        updater.initVersion();
     }
-    //(later) if clientToken doesnt exists, show login and run registerClient(), if no account, //run register()
-    //(later) if lang is not set, set it to the default system language
-    //Then get game list
-    query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL)");
-    //queryGames.exec("SELECT * FROM games");
-    //TODO: add everything to list
-
-
-    query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255) );");
-
-    return true;
+    if(updater.checkForDBUpdate())
+    {
+        qDebug() << "Found an update, updating!";
+        initSuccessful = updater.updateDB();
+    }
+    return initSuccessful;
 }
 
 bool FDB::addGame(FGame game)
 {
     QSqlQuery gameQuery;
-    gameQuery.prepare("INSERT INTO games(gameName, gameType, gameDirectory, relExecutablePath) VALUES (:gameName, :gameType, :gameDirectory, :relExecutablePath)");
+    gameQuery.prepare("INSERT INTO games(gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs) VALUES (:gameName, :gameType, :gameDirectory, :relExecutablePath, :gameCommand, :gameArgs)");
     gameQuery.bindValue(":gameName", game.getName());
     gameQuery.bindValue(":gameType", game.getType());
     gameQuery.bindValue(":gameDirectory", game.getPath());
     gameQuery.bindValue(":relExecutablePath", game.getExe());
+    gameQuery.bindValue(":gameCommand", game.getCommand());
+    gameQuery.bindValue(":gameArgs", game.getArgs());
     qDebug("Game Added: " + game.getName().toLatin1());
     return gameQuery.exec();
 }
@@ -68,7 +76,7 @@ bool FDB::removeGameById(int id)
 FGame* FDB::getGame(int id)
 {
     QSqlQuery gameQuery;
-    gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath FROM games WHERE id = :id");
+    gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs FROM games WHERE id = :id");
     gameQuery.bindValue(":id", id);
     gameQuery.exec();
     if(! gameQuery.next())
@@ -80,6 +88,8 @@ FGame* FDB::getGame(int id)
     //TODO: get the game type
     game->setPath(gameQuery.value(2).toString());
     game->setExe(gameQuery.value(3).toString());
+    game->setCommand(gameQuery.value(4).toString());
+    game->setArgs(gameQuery.value(5).toStringList());
     game->dbId = id;
     return game;
 }
@@ -89,7 +99,7 @@ QList<FGame> FDB::getGameList()
     QList<FGame> gameList;
     QSqlQuery libraryQuery;
     FGame game;
-    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id FROM games ORDER BY gameName ASC");
+    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id, gameCommand, gameArgs FROM games ORDER BY gameName ASC");
     while(libraryQuery.next())
     {
         qDebug("Getting game!");
@@ -99,17 +109,11 @@ QList<FGame> FDB::getGameList()
         game.setExe(libraryQuery.value(3).toString());
         game.dbId = libraryQuery.value(4).toInt();
         game.setType((FGameType)libraryQuery.value(1).toInt());
+        game.setCommand(libraryQuery.value(5).toString());
+        game.setArgs(libraryQuery.value(6).toStringList());
         gameList.append(game);
     }
     return gameList;
-}
-
-void FDB::resetDatabase()
-{
-    QSqlQuery resetQuery;
-    resetQuery.exec("DROP TABLE games"); //WOO DROPPING TABLES YAY
-    resetQuery.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL)");
-    qDebug("Game database reset");
 }
 
 int FDB::getGameCount()
@@ -295,6 +299,19 @@ bool FDB::endTransaction()
 {
     QSqlQuery q;
     return q.exec("END TRANSACTION;");
+}
+
+bool FDB::rollbackTransaction()
+{
+    QSqlQuery q;
+    return q.exec("ROLLBACK TRANSACTION;");
+}
+
+bool FDB::runQuery(QSqlQuery q)
+{
+    //return q.exec();
+    qDebug() << "RUN!";
+    return false;
 }
 
 bool FDB::gameExists(FGame game)

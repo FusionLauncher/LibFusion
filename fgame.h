@@ -21,12 +21,14 @@ public:
     QString getArtworkDir();
     QStringList getArgs();
     FGameType getType();
+    QString getCommand();
 
     void setName(QString val);
     void setExe(QString val);
     void setPath(QString val);
     void setArgs(QStringList val);
     void setType(FGameType val);
+    void setCommand(QString val);
     bool execute();
 
     int dbId;
@@ -41,6 +43,7 @@ private:
     QString gamePath;
     QString gameExe;
     QStringList gameArgs;
+    QString gameCommand;
 };
 
 #endif // FGAME_H
