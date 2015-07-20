@@ -22,6 +22,7 @@ SOURCES += libfusion.cpp \
     fcrawler.cpp \
     fartmanager.cpp \
     ffiledownloader.cpp \
+    fdbupdater.cpp \
     fclientupdater.cpp
 
 HEADERS += libfusion.h\
@@ -33,6 +34,7 @@ HEADERS += libfusion.h\
     fartmanager.h \
     ffiledownloader.h \
     thegamedbstorage.h \
+    fdbupdater.h \
     fclientupdater.h
 
 unix {

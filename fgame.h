@@ -23,12 +23,14 @@ public:
     QString getArtworkDir();
     QStringList getArgs();
     FGameType getType();
+    QString getCommand();
 
     void setName(QString val);
     void setExe(QString val);
     void setPath(QString val);
     void setArgs(QStringList val);
     void setType(FGameType val);
+    void setCommand(QString val);
     bool execute();
 
     int dbId;
@@ -47,6 +49,7 @@ protected:
     QString gamePath;
     QString gameExe;
     QStringList gameArgs;
+    QString gameCommand;
 private:
     QString getCacheDir();
     QString cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType);
