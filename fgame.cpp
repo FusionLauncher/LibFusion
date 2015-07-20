@@ -1,6 +1,7 @@
 #include "fgame.h"
 #include <QProcess>
 #include <QPixmap>
+#include <QDesktopServices>
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     #include <QStandardPaths>
@@ -160,6 +161,11 @@ QStringList FGame::getArgs()
     return this->gameArgs;
 }
 
+QString FGame::getCommand()
+{
+    return this->gameCommand;
+}
+
 void FGame::setName(QString val)
 {
     this->gameName = val;
@@ -180,9 +186,14 @@ void FGame::setArgs(QStringList val)
     this->gameArgs = val;
 }
 
+void FGame::setCommand(QString val)
+{
+    this->gameCommand = val;
+}
+
 bool FGame::execute()
 {
-
+    qDebug() << "Game type: " << gameType;
    if(gameType == FGameType::Steam) {
         #ifdef _WIN32
             QString cmd("start steam://rungameid/" + gameExe);
@@ -194,6 +205,8 @@ bool FGame::execute()
         #endif
 
    } else if (gameType == FGameType::Origin) {
+        return QDesktopServices::openUrl ( "origin://launchgame/" + gameExe );
+   } else if (gameType == FGameType::Executable){
        QString cmd("start origin://launchgame/" + gameExe);
        system(cmd.toStdString().c_str());
    } else {
@@ -204,7 +217,26 @@ bool FGame::execute()
 
         QProcess *process = new QProcess();
         process->setWorkingDirectory(gamePath);
-        process->start(gamePath+'/'+gameExe, gameArgs);
+        qDebug() << "Command: " << gameCommand;
+        if(!gameCommand.isEmpty())
+        {
+            qDebug() << "Found a command!";
+            QStringList::iterator i;
+            for(i = gameArgs.begin(); i != gameArgs.end(); i++)
+            {
+                i->replace("$GAMENAME", gameName);
+                i->replace("$GAMECOMMAND", gameCommand);
+                i->replace("$GAMEPATH", gamePath);
+                i->replace("$GAMEEXE", gameExe);
+            }
+            process->start(gameCommand, gameArgs);
+        }
+        else
+        {
+            qDebug() << "Didn't find command, running executable";
+            process->start(gameExe, gameArgs);
+        }
     }
     return true;
 }
+

@@ -11,6 +11,8 @@
 #include <QEventLoop>
 #include <QFile>
 #include <QDir>
+#include <QFile>
+#include <QDataStream>
 
 #include <QDebug>
 
@@ -22,33 +24,52 @@ class FClientUpdater : public QObject
 public:
     explicit FClientUpdater(QObject *parent = 0);
     QString getCRClientVersion();
-    QString getDLClientVersion();
-    bool isCurrentClient();
-    void downloadClient();
-    void updateClient();
-    void restoreClient();
-    bool clientExists();
-    bool oldClientExists();
+
+    //Get downloaded client version.
+    QString getDLClientLinuxVersion();
+    QString getDLClientWindowsVersion();
+
+    //Check if current client
+    bool isCurrentLinuxClient();
+    bool isCurrentWindowsClient();
+
+    //Download clients
+    //void downloadLinuxClient();
+    //void downloadWindowsClient();
+
+    //Update clients
+    void updateLinuxClient();
+    void updateWindowsClient();
+
+    //Restore clients
+    void restoreLinuxClient();
+    void restoreWindowsClient();
+
+    //Check for clients
+    bool clientLinuxExists();
+    bool clientWindowsExists();
+
+    //Check for old clients
+    bool oldClientLinuxExists();
+    bool oldClientWindowsExists();
 
 private:
 
     QNetworkAccessManager *manager;
     QDir *qd;
-    QString clientDirectory = QDir::currentPath() + "/FusionClient.txt"; //Change this to client file name later.
-    QString oldClientDirectory = QDir::currentPath() + "/OLDFusionClient.txt"; //Change this to client file name later.
-    QString restoreClientDirectory = QDir::currentPath() + "/RESTOREFusionClient.txt"; //Change this to client file name later.
-    QString versionFileDirectory = QDir::currentPath() + "/fversion.txt";
+    QString clientLinuxDirectory = QDir::currentPath() + "/FusionClient";
+    QString clientWindowsDirectory = QDir::currentPath() + "/FusionClient.exe";
+    QString oldClientLinuxDirectory = QDir::currentPath() + "/FusionClientL.OLD";
+    QString oldClientWindowsDirectory = QDir::currentPath() + "/FusionClientW.OLD";
+    QString restoreClientLinuxDirectory = QDir::currentPath() + "/FusionClientL.RESTORE";
+    QString restoreClientWindowsDirectory = QDir::currentPath() + "/FusionClientW.RESTORE";
     QString fusionDirectory = QDir::currentPath();
-    QString clientUrl = "http://pacific-citadel-1552.herokuapp.com/api/version/fusionClient";//Change this to URL of client later.
-
-    int i = 1;
-
 
 signals:
 
 public slots:
-
-    void clientReplyFinished(QNetworkReply *reply);
+    //void clientReplyFinishedLinux(QNetworkReply *reply);
+    //void clientReplyFinishedWindows(QNetworkReply *reply);
 
 };
 

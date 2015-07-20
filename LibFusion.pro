@@ -8,12 +8,6 @@ QT       += gui
 QT       += core
 QT	 += sql
 QT       += network
-QT       += webkit
-
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-    QT       += webkitwidgets
-#endif
 
 TARGET = LibFusion
 TEMPLATE = lib
@@ -25,10 +19,10 @@ SOURCES += libfusion.cpp \
     fgame.cpp \
     fdb.cpp \
     flibrary.cpp \
-    fupdater.cpp \
     fcrawler.cpp \
     fartmanager.cpp \
     ffiledownloader.cpp \
+    fdbupdater.cpp \
     fclientupdater.cpp
 
 HEADERS += libfusion.h\
@@ -36,11 +30,11 @@ HEADERS += libfusion.h\
     fgame.h \
     fdb.h \
     flibrary.h \
-    fupdater.h \
     fcrawler.h \
     fartmanager.h \
     ffiledownloader.h \
     thegamedbstorage.h \
+    fdbupdater.h \
     fclientupdater.h
 
 unix {
