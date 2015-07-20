@@ -41,6 +41,13 @@ public:
     bool rollbackTransaction();
     bool gameExists(FGame game);
     bool runQuery(QSqlQuery q);
+    bool updateBoolPref(QString pref, bool value);
+    bool addBoolPref(QString pref, bool value);
+    bool getBoolPref(QString pref);
+    bool getBoolPref(QString pref, bool defaultValue);
+
+
+    bool updateGame(FGame *g);
 private:
     QSqlDatabase db;
     QSqlQuery query;

@@ -1,3 +1,5 @@
+#include "fdb.h"
+
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <fgame.h>
@@ -79,13 +81,15 @@ FGame* FDB::getGame(int id)
     gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs FROM games WHERE id = :id");
     gameQuery.bindValue(":id", id);
     gameQuery.exec();
+
     if(! gameQuery.next())
     {
         return NULL;
     }
+
     FGame *game = new FGame();
     game->setName(gameQuery.value(0).toString());
-    //TODO: get the game type
+    game->setType((FGameType)gameQuery.value(1).toInt());
     game->setPath(gameQuery.value(2).toString());
     game->setExe(gameQuery.value(3).toString());
     game->setCommand(gameQuery.value(4).toString());
@@ -102,9 +106,7 @@ QList<FGame> FDB::getGameList()
     libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id, gameCommand, gameArgs FROM games ORDER BY gameName ASC");
     while(libraryQuery.next())
     {
-        qDebug("Getting game!");
         game.setName(libraryQuery.value(0).toString());
-        //TODO: get the game type
         game.setPath(libraryQuery.value(2).toString());
         game.setExe(libraryQuery.value(3).toString());
         game.dbId = libraryQuery.value(4).toInt();
@@ -254,6 +256,77 @@ bool FDB::updateIntPref(QString pref, int value)
     }
 }
 
+
+
+bool FDB::getBoolPref(QString pref, bool defaultValue)
+{
+    bool val = defaultValue;
+    try  {
+          val = getBoolPref(pref);
+    } catch(int i) {
+
+            addBoolPref(pref, defaultValue);
+            qDebug() << "added Pref: " << pref;
+
+    }
+
+    return val;
+}
+
+bool FDB::updateGame(FGame *g)
+{
+    QSqlQuery q;
+    q.prepare("UPDATE games SET gameName = :gName, gameDirectory = :gDir, relExecutablePath = :exec WHERE id = :gID");
+    q.bindValue(":gName", g->getName());
+    q.bindValue(":gDir", g->getPath());
+    q.bindValue(":exec", g->getExe());
+    q.bindValue(":gID", g->dbId);
+    return q.exec();
+
+}
+
+
+bool FDB::getBoolPref(QString pref)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("SELECT (number) FROM prefs WHERE key = :key AND valuetype = 3");
+    prefQuery.bindValue(":key", pref);
+    prefQuery.exec();
+
+    if(!prefQuery.next())
+        throw 20;
+    else
+        return prefQuery.value(0).toBool();
+}
+
+bool FDB::addBoolPref(QString pref, bool value)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("INSERT INTO prefs(key, valuetype, number, text) VALUES (:key, 3, :value, '')");
+    prefQuery.bindValue(":key", pref);
+    prefQuery.bindValue(":value", value);
+    bool res = prefQuery.exec();
+    return res;
+}
+
+bool FDB::updateBoolPref(QString pref, bool value)
+{
+    QSqlQuery prefQuery;
+    prefQuery.prepare("UPDATE prefs SET number = :value WHERE key = :key");
+    prefQuery.bindValue(":value", value);
+    prefQuery.bindValue(":key", pref);
+
+    bool res = prefQuery.exec();
+
+    if(prefQuery.numRowsAffected() == 0) {
+        qDebug() << "Added Int-Pref:" << pref;
+        return addBoolPref(pref, value);
+    } else {
+        return res;
+    }
+}
+
+
 bool FDB::updateWatchedFolders(QList<QDir> data)
 {
     QSqlQuery updateQuery;
@@ -317,8 +390,7 @@ bool FDB::runQuery(QSqlQuery q)
 bool FDB::gameExists(FGame game)
 {
     QSqlQuery query;
-    query.prepare("SELECT count(*) FROM games WHERE gameName = :Name AND relExecutablePath = :Exe");
-    query.bindValue(":Name", game.getName());
+    query.prepare("SELECT count(*) FROM games WHERE relExecutablePath = :Exe");
     query.bindValue(":Exe", game.getExe());
     query.exec();
     query.next();

@@ -14,6 +14,7 @@ FFileDownloader::FFileDownloader(QUrl fileUrl, QObject *parent) :
 
  QNetworkRequest request(fileUrl);
  m_WebCtrl.get(request);
+ src = fileUrl.path();
 }
 
 
@@ -25,6 +26,7 @@ FFileDownloader::FFileDownloader(QUrl fileUrl, QString t, QObject *parent) :
   this, SLOT (fileDownloaded(QNetworkReply*))
   );
  target = t;
+ src = fileUrl.path();
  QNetworkRequest request(fileUrl);
  m_WebCtrl.get(request);
 }
@@ -48,9 +50,10 @@ void FFileDownloader::fileDownloaded(QNetworkReply* pReply) {
      file.open(QIODevice::WriteOnly);
      file.write(m_DownloadedData);
      file.close();
-
+     emit srcDownloaded(target);
+ } else {
+     emit downloaded();
  }
- emit downloaded();
 }
 
 QByteArray FFileDownloader::downloadedData() const {

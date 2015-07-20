@@ -19,9 +19,12 @@ void FCrawler::scanAllFolders()
 
     QList<QDir> folder =db.getWatchedFoldersList();
     for(int i=0;i<folder.length();++i) {
+
         FGameType folderType = getType(folder.at(i));
         if(folderType==FGameType::Steam) {
             getSteamGames(folder.at(i));
+        } else if (folderType==FGameType::Galaxy) {
+            getGalaxyGames(folder.at(i));
         }
     }
 
@@ -43,7 +46,83 @@ FGameType FCrawler::getType(QDir folder) {
     if(steamFiles.length()>0)
         return FGameType::Steam;
 
+    folder = folder.absolutePath() + QDir::separator() + "!Downloads";
+    if(folder.exists())
+      return FGameType::Galaxy;
+
     return FGameType::unknown;
+}
+
+void FCrawler::getGalaxyGames(QDir folder) {
+    QStringList subfolders = folder.entryList();
+
+    for(int j=0;j<subfolders.length();++j) {
+        if(subfolders[j]=="!Downloads")
+            continue;
+
+        //Get Info-File
+        QStringList filters;
+        filters << "goggame-*.info";
+
+        QDir dir(folder.absolutePath()  + QDir::separator() + subfolders[j]);
+        QStringList InfoFile = dir.entryList(filters);
+        if(InfoFile.length()==1) {
+            QFile oLogFile;
+            oLogFile.setFileName(folder.absolutePath() + QDir::separator() + subfolders[j] + QDir::separator() + InfoFile[0]);
+            oLogFile.open(QIODevice::ReadOnly|QIODevice::Text);
+            QString fileContent = oLogFile.readAll();
+            QStringList fileLines = fileContent.split("\n");
+            oLogFile.close();
+
+            FGame g;
+            g.setType(FGameType::Galaxy);
+            bool nameFound = false;
+            bool pathFound = false;
+            bool workingdirFound = false;
+            bool argumentFound = false;
+
+            for(int i=0;i<fileLines.length();++i){
+                QString line = fileLines[i].replace(QString("\t"), QString("    "));
+                    QString val;
+                    if(line.contains("\"name\"") && !nameFound) {
+                        val =line.mid(26, line.lastIndexOf("\"")-26);
+                        g.setName(val);
+                 //       qDebug() << "Name: " << val;
+                        nameFound = true;
+                    }
+                    else if(line.contains("\"path\"") && !pathFound){
+                        val = line.mid(27, line.lastIndexOf("\"")-27);
+                        g.setExe(val);
+                        pathFound = true;
+                   //     qDebug() << "Path: " << val;
+                    }
+                    else if(line.contains("\"workingDir\"") && !workingdirFound){
+                        val = line.mid(28, line.lastIndexOf("\"")-28);
+                        g.setPath(folder.absolutePath() + QDir::separator() + subfolders[j] + QDir::separator() + val);
+                        workingdirFound = true;
+                   //     qDebug() << "workingDir: " << val;
+                    }
+                    else if(line.contains("\"arguments\"") && !argumentFound){
+                        val  =line.mid(28, line.lastIndexOf("\"")-28);
+                        argumentFound = true;
+                    //    qDebug() << "arguments: " << val;
+                    }
+
+                    if(pathFound && nameFound && argumentFound && workingdirFound)
+                        break;
+            }
+
+            if(pathFound && nameFound && workingdirFound) //This should be enough
+                if(!db.gameExists(g)){
+                   if(!db.addGame(g))
+                       qDebug() << "Error on insert Game!";
+                }
+                else
+                    qDebug() << "Game exists: " << g.getName();
+        }
+        else
+            continue;
+    }
 }
 
 

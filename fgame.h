@@ -1,4 +1,3 @@
-
 #ifndef QTCORE
 #include <QtCore>
 #endif
@@ -6,7 +5,10 @@
 #ifndef FGAME_H
 #define FGAME_H
 
-enum FGameType {unknown, Executable, Steam, Origin, Uplay};
+enum FGameType {unknown, Executable, Steam, Origin, Uplay, Galaxy};
+enum FGameSizeConstrain {FHeight, FWidth};
+enum FGameArt { FArtBox, FArtClearart, FArtBanner, FArtFanart};
+
 
 #include "libfusion_global.h"
 class LIBFUSIONSHARED_EXPORT FGame
@@ -33,17 +35,24 @@ public:
 
     int dbId;
 
-    QString getBoxart();
-    QString getClearart();
-    QString getFanart();
+    //Artwork-Stuff
+    QString getBoxart(bool fromCache = false, int size=0, FGameSizeConstrain fsc = FWidth);
+    QString getClearart(bool fromCache = false, int size=0, FGameSizeConstrain fsc = FWidth);
+    QString getFanart(bool fromCache = false, int size=0, FGameSizeConstrain fsc = FWidth);
+    QString getBanner(bool fromCache = false, int size=0, FGameSizeConstrain fsc = FWidth);
 
-private:
+    QString getArt(FGameArt imgType, bool fromCache = false, int size = 0, FGameSizeConstrain fsc = FWidth);
+    static QString FGameArtToStr(FGameArt imgType);
+protected:
     QString gameName;
     FGameType gameType;
     QString gamePath;
     QString gameExe;
     QStringList gameArgs;
     QString gameCommand;
+private:
+    QString getCacheDir();
+    QString cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType);
 };
 
 #endif // FGAME_H
