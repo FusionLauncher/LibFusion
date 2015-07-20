@@ -24,28 +24,6 @@ QString FGame::getName() {
     return this->gameName;
 }
 
-QString FGame::getBoxart(bool fromCache, int size, FGameSizeConstrain fsc) {
-        if(QFile::exists(getArtworkDir()+ QDir::separator() + "boxart.png"))
-            return (getArtworkDir()+ "/boxart.png");
-        else if(QFile::exists(getArtworkDir()+ QDir::separator() + "boxart.jpg"))
-            return (getArtworkDir()+ "/boxart.jpg");
-        else
-            return (":/gfx/FusionLogo.png");
-}
-
-QString FGame::getClearart(bool fromCache, int size, FGameSizeConstrain fsc ) {
-        QString ca = "";
-
-        if(QFile::exists(getArtworkDir()+ QDir::separator() + "clearlogo.png"))
-            ca = getArtworkDir()+ "/clearlogo.png";
-        else if(QFile::exists(getArtworkDir()+ QDir::separator() + "clearlogo.jpg"))
-             ca =  getArtworkDir()+"/clearlogo.jpg";
-
-
-        return ca;
-
-}
-
 QString FGame::FGameArtToStr(FGameArt imgType ) {
     switch (imgType) {
     case FArtBanner:
@@ -122,30 +100,6 @@ QString FGame::cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType ) 
       }
 }
 
-QString FGame::getFanart(bool fromCache, int size, FGameSizeConstrain fsc) {
-
-    QString ca = "";
-
-    if(QFile::exists(getArtworkDir()+ QDir::separator() + "fanart.png"))
-        ca = getArtworkDir()+ "/fanart.png";
-    else if(QFile::exists(getArtworkDir()+ QDir::separator() + "fanart.jpg"))
-         ca =  getArtworkDir()+"/fanart.jpg";
-
-    return ca;
-}
-
-QString FGame::getBanner(bool fromCache, int size, FGameSizeConstrain fsc)
-{
-
-        QString ca = "";
-
-        if(QFile::exists(getArtworkDir()+ QDir::separator() + "banner.png"))
-            ca = getArtworkDir()+ "/banner.png";
-        else if(QFile::exists(getArtworkDir()+ QDir::separator() + "banner.jpg"))
-             ca =  getArtworkDir()+"/banner.jpg";
-        return ca;
-
-}
 
 
 
