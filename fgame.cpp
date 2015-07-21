@@ -193,7 +193,9 @@ void FGame::setCommand(QString val)
 
 bool FGame::execute()
 {
-    qDebug() << "Game type: " << gameType;
+   qDebug() << "Game type: " << gameType;
+
+
    if(gameType == FGameType::Steam) {
         #ifdef _WIN32
             QString cmd("start steam://rungameid/" + gameExe);
@@ -205,19 +207,32 @@ bool FGame::execute()
         #endif
 
    } else if (gameType == FGameType::Origin) {
-        return QDesktopServices::openUrl ( "origin://launchgame/" + gameExe );
-   } else if (gameType == FGameType::Executable){
        QString cmd("start origin://launchgame/" + gameExe);
        system(cmd.toStdString().c_str());
    } else {
-        if(gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists())
+        if(gameExe.isEmpty())
         {
+            qWarning() << "gameExe.isEmpty() Cannot launch Game: "  << gameName;
             return false;
         }
+
+        if(gamePath.isEmpty())
+        {
+            qWarning() << "gamePath.isEmpty() Cannot launch Game: "  << gameName;
+            return false;
+        }
+
+        if(!QFile(gamePath+'/'+gameExe).exists())
+        {
+            qWarning() << "!QFile(gamePath+'/'+gameExe).exists() Cannot launch Game: "  << gameName  <<"\n"<< gamePath+'/'+gameExe;
+            return false;
+        }
+
 
         QProcess *process = new QProcess();
         process->setWorkingDirectory(gamePath);
         qDebug() << "Command: " << gameCommand;
+        qDebug() << "Working Dir: " << gamePath;
         if(!gameCommand.isEmpty())
         {
             qDebug() << "Found a command!";
@@ -234,7 +249,12 @@ bool FGame::execute()
         else
         {
             qDebug() << "Didn't find command, running executable";
-            process->start(gameExe, gameArgs);
+            qDebug() << "Args: " << gameArgs;
+            qDebug() << "Exe: " << gameExe;
+            QString arglist = gameArgs[0];
+            QStringList realArgs = arglist.split(" ", QString::SkipEmptyParts);
+            qDebug() << "realArgs: " << realArgs;
+            process->start(gamePath+'/'+gameExe, realArgs);
         }
     }
     return true;
