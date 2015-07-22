@@ -24,25 +24,25 @@ public:
     QString getCRClientVersion();
 
     //Get downloaded client version.
-    QString getDLClientLinuxVersion(QString path);
-    QString getDLClientWindowsVersion(QString path); //TODO: Read version from file will only need one function.
+    QString getDLClientLinuxVersion(QString filePath);
+    QString getDLClientWindowsVersion(QString filePath); //TODO: Read version from file will only need one function.
 
     //Check if current client
-    bool isCurrentLinuxClient(QString path);
-    bool isCurrentWindowsClient(QString path);
+    bool isCurrentLinuxClient(QString filePath);
+    bool isCurrentWindowsClient(QString filePath);
 
     //Check for clients
-    bool clientLinuxExists(QString path);
-    bool clientWindowsExists(QString path);
+    bool clientLinuxExists(QString filePath);
+    bool clientWindowsExists(QString filePath);
 
     //Check for old clients
-    bool oldClientLinuxExists(QString path);
-    bool oldClientWindowsExists(QString path);
+    bool oldClientLinuxExists(QString filePath);
+    bool oldClientWindowsExists(QString filePath);
 
 private:
 
     QNetworkAccessManager *manager;
-    QDir *qd;
+    QDir *qd = new QDir();
 
 signals:
 
