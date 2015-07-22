@@ -26,50 +26,29 @@ public:
     QString getCRClientVersion();
 
     //Get downloaded client version.
-    QString getDLClientLinuxVersion();
-    QString getDLClientWindowsVersion();
+    QString getDLClientLinuxVersion(QString path);
+    QString getDLClientWindowsVersion(QString path); //TODO: Read version from file will only need one function.
 
     //Check if current client
-    bool isCurrentLinuxClient();
-    bool isCurrentWindowsClient();
-
-    //Download clients
-    //void downloadLinuxClient();
-    //void downloadWindowsClient();
-
-    //Update clients
-    void updateLinuxClient();
-    void updateWindowsClient();
-
-    //Restore clients
-    void restoreLinuxClient();
-    void restoreWindowsClient();
+    bool isCurrentLinuxClient(QString path);
+    bool isCurrentWindowsClient(QString path);
 
     //Check for clients
-    bool clientLinuxExists();
-    bool clientWindowsExists();
+    bool clientLinuxExists(QString path);
+    bool clientWindowsExists(QString path);
 
     //Check for old clients
-    bool oldClientLinuxExists();
-    bool oldClientWindowsExists();
+    bool oldClientLinuxExists(QString path);
+    bool oldClientWindowsExists(QString path);
 
 private:
 
     QNetworkAccessManager *manager;
     QDir *qd;
-    QString clientLinuxDirectory = QDir::currentPath() + "/FusionClient";
-    QString clientWindowsDirectory = QDir::currentPath() + "/FusionClient.exe";
-    QString oldClientLinuxDirectory = QDir::currentPath() + "/FusionClientL.OLD";
-    QString oldClientWindowsDirectory = QDir::currentPath() + "/FusionClientW.OLD";
-    QString restoreClientLinuxDirectory = QDir::currentPath() + "/FusionClientL.RESTORE";
-    QString restoreClientWindowsDirectory = QDir::currentPath() + "/FusionClientW.RESTORE";
-    QString fusionDirectory = QDir::currentPath();
 
 signals:
 
 public slots:
-    //void clientReplyFinishedLinux(QNetworkReply *reply);
-    //void clientReplyFinishedWindows(QNetworkReply *reply);
 
 };
 
