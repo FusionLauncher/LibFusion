@@ -16,8 +16,6 @@
 
 #include <QDebug>
 
-#include "ffiledownloader.h"
-
 class FClientUpdater : public QObject
 {
     Q_OBJECT
