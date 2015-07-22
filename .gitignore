@@ -1,1 +1,5 @@
 *.user
+*.o
+moc_*
+MakeFile
+*.so*
