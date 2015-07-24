@@ -60,6 +60,7 @@ protected:
 private:
     QString getCacheDir();
     QString cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType);
+    QStringList createStringListFromArguments(QString args);
 };
 
 #endif // FGAME_H

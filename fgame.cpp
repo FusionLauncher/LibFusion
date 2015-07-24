@@ -260,6 +260,12 @@ FLauncher FGame::getLauncher()
     return this->launcher;
 }
 
+QStringList FGame::createStringListFromArguments(QString args)
+{
+    QStringList list = args.split(" ");
+    return list;
+}
+
 bool FGame::execute()
 {
     qDebug() << "Game type: " << gameType;
@@ -285,21 +291,26 @@ bool FGame::execute()
         if(launcherEnabled)
         {
             qDebug() << "Launcher:" << launcher.getName() << ", path:" << launcher.getPath() << ", args:" << launcher.getArgs() << ", id:" << launcher.getDbId();
-            QString launcherArgs = launcher.getArgs();
             QProcess *process = new QProcess();
             process->setWorkingDirectory(gamePath);
-
-            if(!launcherArgs.isEmpty())
+            if(!launcher.getArgs().isEmpty())
             {
-                launcherArgs.replace("$GAMENAME", gameName);
-                launcherArgs.replace("$GAMECOMMAND", gameCommand);
-                launcherArgs.replace("$GAMEPATH", gamePath);
-                launcherArgs.replace("$GAMEEXE", gameExe);
-
-                process->start(launcher.getPath(), QStringList(launcherArgs));
+                qDebug() << "Found some arguments!";
+                QStringList argList = createStringListFromArguments(launcher.getArgs());
+                qDebug() << argList;
+                QStringList::iterator i;
+                for(i = argList.begin(); i != argList.end(); i++)
+                {
+                    i->replace("$GAMENAME", gameName);
+                    i->replace("$GAMECOMMAND", gameCommand);
+                    i->replace("$GAMEPATH", gamePath);
+                    i->replace("$GAMEEXE", gameExe);
+                }
+                process->start(launcher.getPath(), argList);
             }
             else
             {
+                qDebug() << "Didn't find arguments.";
                 process->start(launcher.getPath(), QStringList(gameExe));
             }
         }
@@ -310,16 +321,17 @@ bool FGame::execute()
             qDebug() << "Command: " << gameCommand;
             if(!gameCommand.isEmpty())
             {
+                QStringList newGameArgs = createStringListFromArguments(gameArgs.at(0));
                 qDebug() << "Found a command!";
                 QStringList::iterator i;
-                for(i = gameArgs.begin(); i != gameArgs.end(); i++)
+                for(i = newGameArgs.begin(); i != newGameArgs.end(); i++)
                 {
                     i->replace("$GAMENAME", gameName);
                     i->replace("$GAMECOMMAND", gameCommand);
                     i->replace("$GAMEPATH", gamePath);
                     i->replace("$GAMEEXE", gameExe);
                 }
-                process->start(gameCommand, gameArgs);
+                process->start(gameCommand, newGameArgs);
             }
             else
             {

@@ -296,7 +296,14 @@ bool FDB::updateGame(FGame *g)
     q.bindValue(":gName", g->getName());
     q.bindValue(":gDir", g->getPath());
     q.bindValue(":exec", g->getExe());
-    q.bindValue(":gLauncher", g->getLauncher().getDbId());
+    if(g->doesUseLauncher())
+    {
+        q.bindValue(":gLauncher", g->getLauncher().getDbId());
+    }
+    else
+    {
+        q.bindValue(":gLauncher", QVariant(QVariant::String));
+    }
     q.bindValue(":gID", g->dbId);
     return q.exec();
 
@@ -429,6 +436,7 @@ bool FDB::launcherExists(FLauncher launcher)
     return query.value(0).toInt()>0;
 }
 
+
 int FDB::addLauncher(FLauncher launcher)
 {
     QSqlQuery query;
@@ -446,7 +454,7 @@ FLauncher FDB::getLauncher(int dbId)
     query.prepare("SELECT launcherName, launcherPath, launcherArgs FROM launchers WHERE id = :id");
     query.bindValue(":id", dbId);
     query.exec();
-    qDebug() << "Getting launcher";
+    qDebug() << "Getting launcher" << dbId;
     if(!query.next())
     {
         qDebug() << "Didn't find the launcher.";
