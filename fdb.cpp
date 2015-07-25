@@ -39,8 +39,9 @@ bool FDB::init()
         query.exec("CREATE TABLE IF NOT EXISTS prefs(key TINYTEXT NOT NULL, valuetype TINYINT NOT NULL, number TINYINT NOT NULL, text VARCHAR(255) NOT NULL)");
         //(later) if clientToken doesnt exists, show login and run registerClient(), if no account, //run register()
         //(later) if lang is not set, set it to the default system language
-        query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL, gameCommand TEXT, gameArgs TEXT)");
+        query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL, gameCommand TEXT, gameArgs TEXT, gameLauncher INTEGER)");
         query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255) );");
+        query.exec("CREATE TABLE IF NOT EXISTS launchers(id INTEGER PRIMARY KEY ASC, launcherName TEXT NOT NULL, launcherPath TEXT NOT NULL, launcherArgs TEXT NOT NULL)");
         updater.initVersion();
     }
     if(updater.checkForDBUpdate())
@@ -54,13 +55,18 @@ bool FDB::init()
 bool FDB::addGame(FGame game)
 {
     QSqlQuery gameQuery;
-    gameQuery.prepare("INSERT INTO games(gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs) VALUES (:gameName, :gameType, :gameDirectory, :relExecutablePath, :gameCommand, :gameArgs)");
+    if(!launcherExists(game.getLauncher()))
+    {
+        addLauncher(game.getLauncher());
+    }
+    gameQuery.prepare("INSERT INTO games(gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher) VALUES (:gameName, :gameType, :gameDirectory, :relExecutablePath, :gameCommand, :gameArgs, :gameLauncher)");
     gameQuery.bindValue(":gameName", game.getName());
     gameQuery.bindValue(":gameType", game.getType());
     gameQuery.bindValue(":gameDirectory", game.getPath());
     gameQuery.bindValue(":relExecutablePath", game.getExe());
     gameQuery.bindValue(":gameCommand", game.getCommand());
     gameQuery.bindValue(":gameArgs", game.getArgs());
+    gameQuery.bindValue(":gameLauncher", game.getLauncher().getDbId());
     qDebug("Game Added: " + game.getName().toLatin1());
     return gameQuery.exec();
 }
@@ -78,7 +84,7 @@ bool FDB::removeGameById(int id)
 FGame* FDB::getGame(int id)
 {
     QSqlQuery gameQuery;
-    gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs FROM games WHERE id = :id");
+    gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher FROM games WHERE id = :id");
     gameQuery.bindValue(":id", id);
     gameQuery.exec();
 
@@ -94,6 +100,11 @@ FGame* FDB::getGame(int id)
     game->setExe(gameQuery.value(3).toString());
     game->setCommand(gameQuery.value(4).toString());
     game->setArgs(gameQuery.value(5).toStringList());
+    if(!gameQuery.value(6).isNull())
+    {
+        FLauncher launcher = getLauncher(gameQuery.value(6).toInt());
+        game->setLauncher(launcher);
+    }
     game->dbId = id;
     return game;
 }
@@ -103,7 +114,7 @@ QList<FGame> FDB::getGameList()
     QList<FGame> gameList;
     QSqlQuery libraryQuery;
     FGame game;
-    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id, gameCommand, gameArgs FROM games ORDER BY gameName ASC");
+    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id, gameCommand, gameArgs, gameLauncher FROM games ORDER BY gameName ASC");
     while(libraryQuery.next())
     {
         game.setName(libraryQuery.value(0).toString());
@@ -113,6 +124,11 @@ QList<FGame> FDB::getGameList()
         game.setType((FGameType)libraryQuery.value(1).toInt());
         game.setCommand(libraryQuery.value(5).toString());
         game.setArgs(libraryQuery.value(6).toStringList());
+        if(!libraryQuery.value(7).isNull())
+        {
+            FLauncher launcher = getLauncher(libraryQuery.value(7).toInt());
+            game.setLauncher(launcher);
+        }
         gameList.append(game);
     }
     return gameList;
@@ -276,10 +292,18 @@ bool FDB::getBoolPref(QString pref, bool defaultValue)
 bool FDB::updateGame(FGame *g)
 {
     QSqlQuery q;
-    q.prepare("UPDATE games SET gameName = :gName, gameDirectory = :gDir, relExecutablePath = :exec WHERE id = :gID");
+    q.prepare("UPDATE games SET gameName = :gName, gameDirectory = :gDir, relExecutablePath = :exec, gameLauncher = :gLauncher WHERE id = :gID");
     q.bindValue(":gName", g->getName());
     q.bindValue(":gDir", g->getPath());
     q.bindValue(":exec", g->getExe());
+    if(g->doesUseLauncher())
+    {
+        q.bindValue(":gLauncher", g->getLauncher().getDbId());
+    }
+    else
+    {
+        q.bindValue(":gLauncher", QVariant(QVariant::String));
+    }
     q.bindValue(":gID", g->dbId);
     return q.exec();
 
@@ -400,4 +424,62 @@ bool FDB::gameExists(FGame game)
     else
         return false;
 
+}
+
+bool FDB::launcherExists(FLauncher launcher)
+{
+    QSqlQuery query;
+    query.prepare("SELECT count(*) FROM launchers WHERE id = :id");
+    query.bindValue(":id", launcher.getDbId());
+    query.exec();
+    query.next();
+    return query.value(0).toInt()>0;
+}
+
+
+int FDB::addLauncher(FLauncher launcher)
+{
+    QSqlQuery query;
+    query.prepare("INSERT INTO launchers(launcherName, launcherPath, launcherArgs) VALUES (:name, :path, :args)");
+    query.bindValue(":name", launcher.getName());
+    query.bindValue(":path", launcher.getPath());
+    query.bindValue(":args", launcher.getArgs());
+    return query.exec();
+}
+
+FLauncher FDB::getLauncher(int dbId)
+{
+    FLauncher launcher;
+    QSqlQuery query;
+    query.prepare("SELECT launcherName, launcherPath, launcherArgs FROM launchers WHERE id = :id");
+    query.bindValue(":id", dbId);
+    query.exec();
+    qDebug() << "Getting launcher" << dbId;
+    if(!query.next())
+    {
+        qDebug() << "Didn't find the launcher.";
+        return FLauncher();
+    }
+    launcher.setDbId(dbId);
+    launcher.setName(query.value(0).toString());
+    launcher.setPath(query.value(1).toString());
+    launcher.setArgs(query.value(2).toString());
+    return launcher;
+}
+
+QList<FLauncher> FDB::getLaunchers()
+{
+    QList<FLauncher> list;
+    QSqlQuery query;
+    query.prepare("SELECT launcherName, launcherPath, launcherArgs, id FROM launchers");
+    query.exec();
+    while(query.next())
+    {
+        FLauncher launcher;
+        launcher.setName(query.value(0).toString());
+        launcher.setPath(query.value(1).toString());
+        launcher.setDbId(query.value(3).toInt());
+        list.append(launcher);
+    }
+    return list;
 }

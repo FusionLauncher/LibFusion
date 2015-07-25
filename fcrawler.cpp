@@ -113,12 +113,19 @@ void FCrawler::getGalaxyGames(QDir folder) {
             }
 
             if(pathFound && nameFound && workingdirFound) //This should be enough
-                if(!db.gameExists(g)){
+            {
+                if(!db.gameExists(g))
+                {
                    if(!db.addGame(g))
+                   {
                        qDebug() << "Error on insert Game!";
+                   }
                 }
                 else
+                {
                     qDebug() << "Game exists: " << g.getName();
+                }
+            }
         }
         else
             continue;
