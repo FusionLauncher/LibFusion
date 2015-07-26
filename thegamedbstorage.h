@@ -11,6 +11,8 @@ class LIBFUSIONSHARED_EXPORT TheGameDBStorage {
         QString gameID;
         QString gameName;
 
+        QString Platform;
+
         //Images
         QString clearartURL;
         QString boxartURL;

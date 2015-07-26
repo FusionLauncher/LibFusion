@@ -51,6 +51,7 @@ public:
 
     QString getArt(FGameArt imgType, bool fromCache = false, int size = 0, FGameSizeConstrain fsc = FWidth);
     static QString FGameArtToStr(FGameArt imgType);
+    static QString FGameTypeToStr(FGameType type);
     static QString getCacheDir();
 protected:
     QString gameName;

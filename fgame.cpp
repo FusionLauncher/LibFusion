@@ -48,6 +48,34 @@ QString FGame::FGameArtToStr(FGameArt imgType ) {
     }
 }
 
+QString FGame::FGameTypeToStr(FGameType type)
+{
+    switch(type) {
+
+    case unknown:
+        return "Unknown";
+        break;
+    Executable:
+        return "Executable";
+        break;
+    case Steam:
+        return "Steam";
+        break;
+    case Origin:
+        return "Origin";
+        break;
+    case Uplay:
+        return "Uplay";
+        break;
+    case Galaxy:
+        return "GOG Galaxy";
+        break;
+    default:
+        return "Unknown";
+        break;
+    }
+}
+
 QString FGame::getArt(FGameArt imgType, bool fromCache, int size, FGameSizeConstrain fsc) {
 
     if(fromCache) {
@@ -235,10 +263,12 @@ bool FGame::execute()
     } else if (gameType == FGameType::Origin) {
         QString cmd("start origin://launchgame/" + gameExe);
         system(cmd.toStdString().c_str());
-    } else if (gameType == FGameType::Executable)
+    }
+    else if (gameType == FGameType::Executable ||gameType == FGameType::Galaxy  )
     {
         if(gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists())
         {
+            qDebug() << "gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists()";
             return false;
         }
         if(launcherEnabled)
@@ -250,7 +280,7 @@ bool FGame::execute()
             {
                 qDebug() << "Found some arguments!";
                 QStringList argList = createStringListFromArguments(launcher.getArgs());
-                qDebug() << argList;
+                qDebug() << "Launcher ArgList: " << argList;
                 QStringList::iterator i;
                 for(i = argList.begin(); i != argList.end(); i++)
                 {
@@ -289,7 +319,7 @@ bool FGame::execute()
             else
             {
                 qDebug() << "Didn't find command, running executable";
-                process->start(gameExe, gameArgs);
+                process->start(gamePath+'/'+gameExe, gameArgs);
             }
         }
     }
