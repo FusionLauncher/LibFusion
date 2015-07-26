@@ -8,7 +8,6 @@
 #include <QObject>
 #include <QSqlDatabase>
 #include <QSqlQuery>
-#include "flauncher.h"
 
 #include "libfusion_global.h"
 
@@ -46,14 +45,9 @@ public:
     bool addBoolPref(QString pref, bool value);
     bool getBoolPref(QString pref);
     bool getBoolPref(QString pref, bool defaultValue);
-    int addLauncher(FLauncher launcher);
-    FLauncher getLauncher(int id);
-    QList<FLauncher> getLaunchers();
 
 
     bool updateGame(FGame *g);
-    bool launcherExists(FLauncher launcher);
-
 private:
     QSqlDatabase db;
     QSqlQuery query;

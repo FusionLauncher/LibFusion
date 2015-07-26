@@ -92,6 +92,8 @@ void FCrawler::getGalaxyGames(QDir folder) {
                     }
                     else if(line.contains("\"path\"") && !pathFound){
                         val = line.mid(27, line.lastIndexOf("\"")-27);
+                        // eg: ScummVM\\schumm.exe
+                        val = val.right(val.length() - val.lastIndexOf("\\")-1);
                         g.setExe(val);
                         pathFound = true;
                    //     qDebug() << "Path: " << val;
@@ -105,6 +107,7 @@ void FCrawler::getGalaxyGames(QDir folder) {
                     else if(line.contains("\"arguments\"") && !argumentFound){
                         val  =line.mid(28, line.lastIndexOf("\"")-28);
                         argumentFound = true;
+                        g.setArgs(QStringList(val.replace("\\\"", "")));
                     //    qDebug() << "arguments: " << val;
                     }
 
@@ -113,19 +116,12 @@ void FCrawler::getGalaxyGames(QDir folder) {
             }
 
             if(pathFound && nameFound && workingdirFound) //This should be enough
-            {
-                if(!db.gameExists(g))
-                {
+                if(!db.gameExists(g)){
                    if(!db.addGame(g))
-                   {
                        qDebug() << "Error on insert Game!";
-                   }
                 }
                 else
-                {
                     qDebug() << "Game exists: " << g.getName();
-                }
-            }
         }
         else
             continue;

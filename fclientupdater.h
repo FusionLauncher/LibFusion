@@ -16,6 +16,8 @@
 
 #include <QDebug>
 
+#include "ffiledownloader.h"
+
 class FClientUpdater : public QObject
 {
     Q_OBJECT
@@ -24,29 +26,50 @@ public:
     QString getCRClientVersion();
 
     //Get downloaded client version.
-    QString getDLClientLinuxVersion(QString filePath);
-    QString getDLClientWindowsVersion(QString filePath); //TODO: Read version from file will only need one function.
+    QString getDLClientLinuxVersion();
+    QString getDLClientWindowsVersion();
 
     //Check if current client
-    bool isCurrentLinuxClient(QString filePath);
-    bool isCurrentWindowsClient(QString filePath);
+    bool isCurrentLinuxClient();
+    bool isCurrentWindowsClient();
+
+    //Download clients
+    //void downloadLinuxClient();
+    //void downloadWindowsClient();
+
+    //Update clients
+    void updateLinuxClient();
+    void updateWindowsClient();
+
+    //Restore clients
+    void restoreLinuxClient();
+    void restoreWindowsClient();
 
     //Check for clients
-    bool clientLinuxExists(QString filePath);
-    bool clientWindowsExists(QString filePath);
+    bool clientLinuxExists();
+    bool clientWindowsExists();
 
     //Check for old clients
-    bool oldClientLinuxExists(QString filePath);
-    bool oldClientWindowsExists(QString filePath);
+    bool oldClientLinuxExists();
+    bool oldClientWindowsExists();
 
 private:
 
     QNetworkAccessManager *manager;
-    QDir *qd = new QDir();
+    QDir *qd;
+    QString clientLinuxDirectory = QDir::currentPath() + "/FusionClient";
+    QString clientWindowsDirectory = QDir::currentPath() + "/FusionClient.exe";
+    QString oldClientLinuxDirectory = QDir::currentPath() + "/FusionClientL.OLD";
+    QString oldClientWindowsDirectory = QDir::currentPath() + "/FusionClientW.OLD";
+    QString restoreClientLinuxDirectory = QDir::currentPath() + "/FusionClientL.RESTORE";
+    QString restoreClientWindowsDirectory = QDir::currentPath() + "/FusionClientW.RESTORE";
+    QString fusionDirectory = QDir::currentPath();
 
 signals:
 
 public slots:
+    //void clientReplyFinishedLinux(QNetworkReply *reply);
+    //void clientReplyFinishedWindows(QNetworkReply *reply);
 
 };
 

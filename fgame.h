@@ -8,7 +8,6 @@
 enum FGameType {unknown, Executable, Steam, Origin, Uplay, Galaxy};
 enum FGameSizeConstrain {FHeight, FWidth};
 enum FGameArt { FArtBox, FArtClearart, FArtBanner, FArtFanart};
-#include "flauncher.h"
 
 
 #include "libfusion_global.h"
@@ -25,7 +24,6 @@ public:
     QStringList getArgs();
     FGameType getType();
     QString getCommand();
-    FLauncher getLauncher();
 
     void setName(QString val);
     void setExe(QString val);
@@ -33,9 +31,6 @@ public:
     void setArgs(QStringList val);
     void setType(FGameType val);
     void setCommand(QString val);
-    void setLauncher(FLauncher launcher);
-    void disableLauncher();
-    bool doesUseLauncher();
     bool execute();
 
     int dbId;
@@ -55,12 +50,9 @@ protected:
     QString gameExe;
     QStringList gameArgs;
     QString gameCommand;
-    FLauncher launcher;
-    bool launcherEnabled;
 private:
     QString getCacheDir();
     QString cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType);
-    QStringList createStringListFromArguments(QString args);
 };
 
 #endif // FGAME_H

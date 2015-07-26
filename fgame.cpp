@@ -1,10 +1,10 @@
+#include "fgame.h"
 #include <QProcess>
 #include <QPixmap>
 #include <QDesktopServices>
-#include "fgame.h"
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-#include <QStandardPaths>
+    #include <QStandardPaths>
 #endif
 
 
@@ -14,39 +14,15 @@ FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QSt
     this->gamePath = gDir;
     this->gameExe = exePath;
     this->gameArgs = args;
-    launcherEnabled = false;
 }
 
 FGame::FGame()
 {
-    launcherEnabled = false;
 }
 
 
 QString FGame::getName() {
     return this->gameName;
-}
-
-QString FGame::getBoxart(bool fromCache, int size, FGameSizeConstrain fsc) {
-    if(QFile::exists(getArtworkDir()+ QDir::separator() + "boxart.png"))
-        return (getArtworkDir()+ "/boxart.png");
-    else if(QFile::exists(getArtworkDir()+ QDir::separator() + "boxart.jpg"))
-        return (getArtworkDir()+ "/boxart.jpg");
-    else
-        return (":/gfx/FusionLogo.png");
-}
-
-QString FGame::getClearart(bool fromCache, int size, FGameSizeConstrain fsc ) {
-    QString ca = "";
-
-    if(QFile::exists(getArtworkDir()+ QDir::separator() + "clearlogo.png"))
-        ca = getArtworkDir()+ "/clearlogo.png";
-    else if(QFile::exists(getArtworkDir()+ QDir::separator() + "clearlogo.jpg"))
-        ca =  getArtworkDir()+"/clearlogo.jpg";
-
-
-    return ca;
-
 }
 
 QString FGame::FGameArtToStr(FGameArt imgType ) {
@@ -116,39 +92,15 @@ QString FGame::cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType ) 
         else
             p = p.scaledToHeight(size, Qt::SmoothTransformation);
 
-        QFile file(cached);
-        file.open(QIODevice::WriteOnly);
-        p.save(&file, "png", 90);
-        file.close();
-        qDebug() << "Resized " << cached;
-        return cached;
-    }
+            QFile file(cached);
+            file.open(QIODevice::WriteOnly);
+            p.save(&file, "png", 90);
+            file.close();
+            qDebug() << "Resized " << cached;
+            return cached;
+      }
 }
 
-QString FGame::getFanart(bool fromCache, int size, FGameSizeConstrain fsc) {
-
-    QString ca = "";
-
-    if(QFile::exists(getArtworkDir()+ QDir::separator() + "fanart.png"))
-        ca = getArtworkDir()+ "/fanart.png";
-    else if(QFile::exists(getArtworkDir()+ QDir::separator() + "fanart.jpg"))
-        ca =  getArtworkDir()+"/fanart.jpg";
-
-    return ca;
-}
-
-QString FGame::getBanner(bool fromCache, int size, FGameSizeConstrain fsc)
-{
-
-    QString ca = "";
-
-    if(QFile::exists(getArtworkDir()+ QDir::separator() + "banner.png"))
-        ca = getArtworkDir()+ "/banner.png";
-    else if(QFile::exists(getArtworkDir()+ QDir::separator() + "banner.jpg"))
-        ca =  getArtworkDir()+"/banner.jpg";
-    return ca;
-
-}
 
 
 
@@ -172,30 +124,30 @@ QString FGame::getPath()
 
 QString FGame::getArtworkDir()
 {
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-    QDir path(QCoreApplication::applicationDirPath());
-#elif (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
-    QDir path(QStandardPaths::locate(QStandardPaths::AppDataLocation, QString(), QStandardPaths::LocateDirectory));
-#else
-    QDir path(QStandardPaths::locate(QStandardPaths::DataLocation, QString(), QStandardPaths::LocateDirectory));
-#endif
+    #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
+        QDir path(QCoreApplication::applicationDirPath());
+    #elif (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+        QDir path(QStandardPaths::locate(QStandardPaths::AppDataLocation, QString(), QStandardPaths::LocateDirectory));
+    #else
+        QDir path(QStandardPaths::locate(QStandardPaths::DataLocation, QString(), QStandardPaths::LocateDirectory));
+    #endif
 
-    //   qDebug(path.absolutePath().toLatin1());
+ //   qDebug(path.absolutePath().toLatin1());
     return QDir::cleanPath(path.absolutePath() + QDir::separator() + QString::number(dbId) + QDir::separator() + "Artwork");
 }
 
 
 QString FGame::getCacheDir()
 {
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-    QDir path(QCoreApplication::applicationDirPath());
-#elif (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
-    QDir path(QStandardPaths::locate(QStandardPaths::AppDataLocation, QString(), QStandardPaths::LocateDirectory));
-#else
-    QDir path(QStandardPaths::locate(QStandardPaths::DataLocation, QString(), QStandardPaths::LocateDirectory));
-#endif
+    #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
+        QDir path(QCoreApplication::applicationDirPath());
+    #elif (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+        QDir path(QStandardPaths::locate(QStandardPaths::AppDataLocation, QString(), QStandardPaths::LocateDirectory));
+    #else
+        QDir path(QStandardPaths::locate(QStandardPaths::DataLocation, QString(), QStandardPaths::LocateDirectory));
+    #endif
 
-    //   qDebug(path.absolutePath().toLatin1());
+ //   qDebug(path.absolutePath().toLatin1());
     QString dir(QDir::cleanPath(path.absolutePath() + QDir::separator() + "artCache"));
 
     if(!(QDir(dir)).exists())
@@ -239,105 +191,70 @@ void FGame::setCommand(QString val)
     this->gameCommand = val;
 }
 
-void FGame::setLauncher(FLauncher launcher)
-{
-    this->launcher = launcher;
-    launcherEnabled = true;
-}
-
-void FGame::disableLauncher()
-{
-    launcherEnabled = false;
-}
-
-bool FGame::doesUseLauncher()
-{
-    return launcherEnabled;
-}
-
-FLauncher FGame::getLauncher()
-{
-    return this->launcher;
-}
-
-QStringList FGame::createStringListFromArguments(QString args)
-{
-    QStringList list = args.split(" ");
-    return list;
-}
-
 bool FGame::execute()
 {
-    qDebug() << "Game type: " << gameType;
-    if(gameType == FGameType::Steam) {
-#ifdef _WIN32
-        QString cmd("start steam://rungameid/" + gameExe);
-        system(cmd.toStdString().c_str());
-#else
-        QStringList args;
-        args << "-applaunch" << gameExe;
-        QProcess::startDetached("steam", args);
-#endif
+   qDebug() << "Game type: " << gameType;
 
-    } else if (gameType == FGameType::Origin) {
-        QString cmd("start origin://launchgame/" + gameExe);
-        system(cmd.toStdString().c_str());
-    } else if (gameType == FGameType::Executable)
-    {
-        if(gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists())
+
+   if(gameType == FGameType::Steam) {
+        #ifdef _WIN32
+            QString cmd("start steam://rungameid/" + gameExe);
+            system(cmd.toStdString().c_str());
+        #else
+           QStringList args;
+           args << "-applaunch" << gameExe;
+           QProcess::startDetached("steam", args);
+        #endif
+
+   } else if (gameType == FGameType::Origin) {
+       QString cmd("start origin://launchgame/" + gameExe);
+       system(cmd.toStdString().c_str());
+   } else {
+        if(gameExe.isEmpty())
         {
+            qWarning() << "gameExe.isEmpty() Cannot launch Game: "  << gameName;
             return false;
         }
-        if(launcherEnabled)
+
+        if(gamePath.isEmpty())
         {
-            qDebug() << "Launcher:" << launcher.getName() << ", path:" << launcher.getPath() << ", args:" << launcher.getArgs() << ", id:" << launcher.getDbId();
-            QProcess *process = new QProcess();
-            process->setWorkingDirectory(gamePath);
-            if(!launcher.getArgs().isEmpty())
+            qWarning() << "gamePath.isEmpty() Cannot launch Game: "  << gameName;
+            return false;
+        }
+
+        if(!QFile(gamePath+'/'+gameExe).exists())
+        {
+            qWarning() << "!QFile(gamePath+'/'+gameExe).exists() Cannot launch Game: "  << gameName  <<"\n"<< gamePath+'/'+gameExe;
+            return false;
+        }
+
+
+        QProcess *process = new QProcess();
+        process->setWorkingDirectory(gamePath);
+        qDebug() << "Command: " << gameCommand;
+        qDebug() << "Working Dir: " << gamePath;
+        if(!gameCommand.isEmpty())
+        {
+            qDebug() << "Found a command!";
+            QStringList::iterator i;
+            for(i = gameArgs.begin(); i != gameArgs.end(); i++)
             {
-                qDebug() << "Found some arguments!";
-                QStringList argList = createStringListFromArguments(launcher.getArgs());
-                qDebug() << argList;
-                QStringList::iterator i;
-                for(i = argList.begin(); i != argList.end(); i++)
-                {
-                    i->replace("$GAMENAME", gameName);
-                    i->replace("$GAMECOMMAND", gameCommand);
-                    i->replace("$GAMEPATH", gamePath);
-                    i->replace("$GAMEEXE", gameExe);
-                }
-                process->start(launcher.getPath(), argList);
+                i->replace("$GAMENAME", gameName);
+                i->replace("$GAMECOMMAND", gameCommand);
+                i->replace("$GAMEPATH", gamePath);
+                i->replace("$GAMEEXE", gameExe);
             }
-            else
-            {
-                qDebug() << "Didn't find arguments.";
-                process->start(launcher.getPath(), QStringList(gameExe));
-            }
+            process->start(gameCommand, gameArgs);
         }
         else
         {
-            QProcess *process = new QProcess();
-            process->setWorkingDirectory(gamePath);
-            qDebug() << "Command: " << gameCommand;
-            if(!gameCommand.isEmpty())
-            {
-                QStringList newGameArgs = createStringListFromArguments(gameArgs.at(0));
-                qDebug() << "Found a command!";
-                QStringList::iterator i;
-                for(i = newGameArgs.begin(); i != newGameArgs.end(); i++)
-                {
-                    i->replace("$GAMENAME", gameName);
-                    i->replace("$GAMECOMMAND", gameCommand);
-                    i->replace("$GAMEPATH", gamePath);
-                    i->replace("$GAMEEXE", gameExe);
-                }
-                process->start(gameCommand, newGameArgs);
-            }
-            else
-            {
-                qDebug() << "Didn't find command, running executable";
-                process->start(gameExe, gameArgs);
-            }
+            qDebug() << "Didn't find command, running executable";
+            qDebug() << "Args: " << gameArgs;
+            qDebug() << "Exe: " << gameExe;
+            QString arglist = gameArgs[0];
+            QStringList realArgs = arglist.split(" ", QString::SkipEmptyParts);
+            qDebug() << "realArgs: " << realArgs;
+            process->start(gamePath+'/'+gameExe, realArgs);
         }
     }
     return true;
