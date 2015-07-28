@@ -109,7 +109,7 @@ void FArtManager::dataReady(QNetworkReply *pReply)
       } else if(Games.length()==0) {
           if(!triedSearch) {
               QString gName = game->getName().replace("™", "");
-              QString url = "http://thegamesdb.net/api/GetGame.php?platform=pc&name=" + gName;
+              QString url = "http://thegamesdb.net/api/GetGame.php?name=" + gName;
               m_manager->get(QNetworkRequest(QUrl(url)));
               triedSearch = true;
           }
@@ -161,6 +161,8 @@ void FArtManager::processGame()
                   gameDBStore->boxartURL = xml->readElementText();
               else if(name=="banner")
                   gameDBStore->bannerURL = xml->readElementText();
+              else if(name=="Platform")
+                  gameDBStore->Platform = xml->readElementText();
               else if (name=="Similar")
                   xml->skipCurrentElement();
           }

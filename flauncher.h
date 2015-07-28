@@ -3,7 +3,9 @@
 
 #include <QObject>
 
-class FLauncher
+
+#include "libfusion_global.h"
+class LIBFUSIONSHARED_EXPORT  FLauncher
 {
 public:
     explicit FLauncher();

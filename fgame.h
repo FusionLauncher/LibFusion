@@ -2,8 +2,11 @@
 #include <QtCore>
 #endif
 
+
 #ifndef FGAME_H
 #define FGAME_H
+
+
 
 enum FGameType {unknown, Executable, Steam, Origin, Uplay, Galaxy};
 enum FGameSizeConstrain {FHeight, FWidth};
@@ -48,6 +51,8 @@ public:
 
     QString getArt(FGameArt imgType, bool fromCache = false, int size = 0, FGameSizeConstrain fsc = FWidth);
     static QString FGameArtToStr(FGameArt imgType);
+    static QString FGameTypeToStr(FGameType type);
+    static QString getCacheDir();
 protected:
     QString gameName;
     FGameType gameType;
@@ -58,7 +63,6 @@ protected:
     FLauncher launcher;
     bool launcherEnabled;
 private:
-    QString getCacheDir();
     QString cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType);
     QStringList createStringListFromArguments(QString args);
 };
