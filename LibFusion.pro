@@ -41,5 +41,7 @@ HEADERS += libfusion.h\
 
 unix {
     target.path = /usr/lib
-    INSTALLS += target
+    headers.path = /usr/include
+    headers.files = $$HEADERS
+    INSTALLS += target headers
 }
