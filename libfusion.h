@@ -3,11 +3,14 @@
 
 #include "libfusion_global.h"
 
+#include <QDir>
+
 class LIBFUSIONSHARED_EXPORT LibFusion
 {
 
 public:
     LibFusion();
+    static QDir getWorkingDir();
 };
 
 #endif // LIBFUSION_H

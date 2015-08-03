@@ -2,10 +2,8 @@
 #include <QPixmap>
 #include <QDesktopServices>
 #include "fgame.h"
+#include "libfusion.h"
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-#include <QStandardPaths>
-#endif
 
 
 FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args) {
@@ -153,30 +151,15 @@ QString FGame::getPath()
 
 QString FGame::getArtworkDir()
 {
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-    QDir path(QCoreApplication::applicationDirPath());
-#elif (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
-    QDir path(QStandardPaths::locate(QStandardPaths::AppDataLocation, QString(), QStandardPaths::LocateDirectory));
-#else
-    QDir path(QStandardPaths::locate(QStandardPaths::DataLocation, QString(), QStandardPaths::LocateDirectory));
-#endif
-
-    //   qDebug(path.absolutePath().toLatin1());
+    QDir path = LibFusion::getWorkingDir();
     return QDir::cleanPath(path.absolutePath() + QDir::separator() + QString::number(dbId) + QDir::separator() + "Artwork");
 }
 
 
 QString FGame::getCacheDir()
 {
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-    QDir path(QCoreApplication::applicationDirPath());
-#elif (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
-    QDir path(QStandardPaths::locate(QStandardPaths::AppDataLocation, QString(), QStandardPaths::LocateDirectory));
-#else
-    QDir path(QStandardPaths::locate(QStandardPaths::DataLocation, QString(), QStandardPaths::LocateDirectory));
-#endif
 
-    //   qDebug(path.absolutePath().toLatin1());
+    QDir path = LibFusion::getWorkingDir();
     QString dir(QDir::cleanPath(path.absolutePath() + QDir::separator() + "artCache"));
 
     if(!(QDir(dir)).exists())
