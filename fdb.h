@@ -52,6 +52,7 @@ public:
 
 
     bool updateGame(FGame *g);
+    bool updateLauncher(FLauncher launcher);
     bool launcherExists(FLauncher launcher);
 
 private:

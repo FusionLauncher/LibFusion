@@ -313,6 +313,17 @@ bool FDB::updateGame(FGame *g)
 
 }
 
+bool FDB::updateLauncher(FLauncher launcher)
+{
+    QSqlQuery q;
+    q.prepare("UPDATE launchers SET launcherName = :lName, launcherPath = :lPath, launcherArgs = :lArgs WHERE id = :lId");
+    q.bindValue(":lName", launcher.getName());
+    q.bindValue(":lPath", launcher.getPath());
+    q.bindValue(":lArgs", launcher.getArgs());
+    q.bindValue(":lId", launcher.getDbId());
+    return q.exec();
+}
+
 
 bool FDB::getBoolPref(QString pref)
 {
@@ -482,6 +493,7 @@ QList<FLauncher> FDB::getLaunchers()
         FLauncher launcher;
         launcher.setName(query.value(0).toString());
         launcher.setPath(query.value(1).toString());
+        launcher.setArgs(query.value(2).toString());
         launcher.setDbId(query.value(3).toInt());
         list.append(launcher);
     }
