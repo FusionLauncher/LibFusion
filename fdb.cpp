@@ -4,6 +4,7 @@
 #include <QSqlQuery>
 #include <fgame.h>
 #include <fdb.h>
+#include <libfusion.h>
 #include "fdbupdater.h"
 #include <QFile>
 
@@ -14,7 +15,9 @@ FDB::FDB(QObject *parent)
 
 bool FDB::init()
 {
-    QFile dbFile("fusion.db");
+    QDir workingDir = LibFusion::getWorkingDir();
+    QFile dbFile(workingDir.absolutePath() + QDir::separator() + "fusion.db");
+
     bool createDB = false;
     if(!dbFile.exists())
     {
@@ -23,7 +26,8 @@ bool FDB::init()
     bool initSuccessful = true;
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setHostName("localhost");
-    db.setDatabaseName("fusion.db");
+
+    db.setDatabaseName(QFileInfo(dbFile).absoluteFilePath());
     bool ok = db.open();
     //ui->label->setText(ok ? "Connected!" : "Failed");
     if(!ok)

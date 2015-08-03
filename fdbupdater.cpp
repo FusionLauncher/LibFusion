@@ -2,6 +2,7 @@
 #include <QFile>
 #include <QByteArray>
 #include "fdb.h"
+#include "libfusion.h"
 
 FDBUpdater::FDBUpdater(QObject *parent, FDB *db) : QObject(parent)
 {
@@ -11,7 +12,8 @@ FDBUpdater::FDBUpdater(QObject *parent, FDB *db) : QObject(parent)
 bool FDBUpdater::checkForDBUpdate()
 {
     qDebug() << "Checking for update...";
-    QFile updateFile("dbUpdate");
+    QDir workingDir = LibFusion::getWorkingDir();
+    QFile updateFile(workingDir.absolutePath() + QDir::separator() + "dbUpdate");
     if(updateFile.exists())
     {
         if(!updateFile.open(QIODevice::ReadOnly))
@@ -52,7 +54,8 @@ bool FDBUpdater::checkForDBUpdate()
 bool FDBUpdater::updateDB()
 {
     qDebug() << "Updating!";
-    QFile updateFile("dbUpdate");
+    QDir workingDir = LibFusion::getWorkingDir();
+    QFile updateFile(workingDir.absolutePath() + QDir::separator() + "dbUpdate");
     qDebug() << "Trying to open file...";
     if(updateFile.exists())
     {
