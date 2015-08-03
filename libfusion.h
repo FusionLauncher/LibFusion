@@ -3,6 +3,10 @@
 
 #include "libfusion_global.h"
 
+#ifndef QTCORE
+#include <QtCore>
+#endif
+
 #include <QDir>
 
 class LIBFUSIONSHARED_EXPORT LibFusion
