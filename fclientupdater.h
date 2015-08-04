@@ -24,20 +24,16 @@ public:
     QString getCRClientVersion();
 
     //Get downloaded client version.
-    QString getDLClientLinuxVersion(QString filePath);
-    QString getDLClientWindowsVersion(QString filePath); //TODO: Read version from file will only need one function.
+    QString getDLClientVersion(QString filePath);
 
     //Check if current client
-    bool isCurrentLinuxClient(QString filePath);
-    bool isCurrentWindowsClient(QString filePath);
+    bool isCurrentClient(QString filePath);
 
-    //Check for clients
-    bool clientLinuxExists(QString filePath);
-    bool clientWindowsExists(QString filePath);
+    bool fileExists(QString filePath);
 
-    //Check for old clients
-    bool oldClientLinuxExists(QString filePath);
-    bool oldClientWindowsExists(QString filePath);
+    //Read/Write version info
+    void writeVersion(QString version, QString filePath);
+    QString readVersion(QString filePath);
 
 private:
 

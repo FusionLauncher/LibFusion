@@ -27,50 +27,28 @@ QString FClientUpdater::getCRClientVersion()
     return text;
 }
 
-//Gets downloaded linux client version from file.
-QString FClientUpdater::getDLClientLinuxVersion(QString path)
+//Gets downloaded client version from file.
+QString FClientUpdater::getDLClientVersion(QString filePath)
 {
-    if (clientLinuxExists(path))
+    if (fileExists(filePath))
     {
 
-        qDebug() << "Downloaded linux client version: 0.0.2";
-        return "0.0.2"; //Read downloaded version from a file.
+        qDebug() << "Downloaded client version: " << FClientUpdater::readVersion(filePath);
+        return FClientUpdater::readVersion(filePath);
     }
     else
     {
 
-        qDebug() << "There is no downloaded linux client.";
+        qDebug() << "Unable to find version file.";
         return "NA";
     }
 }
-
-//Gets downloaded windows client version from file.
-QString FClientUpdater::getDLClientWindowsVersion(QString path)
-{
-    if (clientWindowsExists(path))
-    {
-
-        qDebug() << "Downloaded windows client version: 0.0.2";
-        return "0.0.2"; //Read downloaded version from a file.
-    }
-    else
-    {
-
-        qDebug() << "There is no downloaded windows client.";
-        return "NA";
-    }
-}
-
-/* Client will write its version to a file by the OS name.
- * Ex: if (os == win) { write.tofile("winversion=0.0.1");  }
- *     if (chosenOs = win) { read.fromfile("winversion")
- */
 
 //Compare downloaded client version with current client version.
-bool FClientUpdater::isCurrentLinuxClient(QString path)
+bool FClientUpdater::isCurrentClient(QString path)
 {
 
-    if (getDLClientLinuxVersion(path) == getCRClientVersion())
+    if (getDLClientVersion(path) == getCRClientVersion())
     {
         qDebug() << "Downloaded client version does match current client version.";
 
@@ -85,11 +63,10 @@ bool FClientUpdater::isCurrentLinuxClient(QString path)
         return true;
     }
 
-    else if (getDLClientLinuxVersion(path) == "NA")
+    else if (getDLClientVersion(path) == "NA")
     {
 
-        //There is no downloaded client.
-        qDebug() << "There is no downloaded linux client.";
+        qDebug() << "There is no downloaded client.";
 
         return true;
     }
@@ -102,70 +79,36 @@ bool FClientUpdater::isCurrentLinuxClient(QString path)
     }
 }
 
-//Compare downloaded client version with current client version.
-bool FClientUpdater::isCurrentWindowsClient(QString path)
+//Returns true if file exists
+bool FClientUpdater::fileExists(QString filePath)
 {
 
-    if (getDLClientWindowsVersion(path) == getCRClientVersion())
-    {
-        qDebug() << "Downloaded client version does match current client version.";
-
-        return true;
-    }
-
-    else if (getCRClientVersion() == "NA")
-    {
-        //There is no connection to the api.
-        qDebug() << "[ERROR] Client version from API is empty or null. There may be no connection to the API.";
-
-        return true;
-    }
-
-    else if (getDLClientWindowsVersion(path) == "NA")
-    {
-
-        //There is no downloaded client.
-        qDebug() << "There is no downloaded windows4 client.";
-
-        return true;
-    }
-
-    else
-    {
-        qDebug() << "Downloaded client version does not match current client version.";
-
-        return false;
-    }
+    qDebug() << filePath << " exists: " << qd->exists(filePath);
+    return qd->exists(filePath);
 }
 
-//Returns true if the linux client exists.
-bool FClientUpdater::clientLinuxExists(QString path)
+//Write version info
+void FClientUpdater::writeVersion(QString version, QString filePath)
 {
+    QFile file(filePath);
+    file.open(QIODevice::WriteOnly);
+    QDataStream out(&file);
 
-    qDebug() << "Linux Client exists: " << qd->exists(path);
-    return qd->exists(path);
+    out << version;
+    file.close();
+
 }
 
-//Returns true if the windows client exists.
-bool FClientUpdater::clientWindowsExists(QString path)
+QString FClientUpdater::readVersion(QString filePath)
 {
 
-    qDebug() << "Windows Client exists: " << qd->exists(path);
-    return qd->exists(path);
-}
+    QString fileVersion;
 
-//Returns true if old linux client exists.
-bool FClientUpdater::oldClientLinuxExists(QString path)
-{
+    QFile file(filePath);
+    file.open(QIODevice::ReadOnly);
+    QDataStream in(&file);
 
-    qDebug() << "Old Linux Client exists: " << qd->exists(path);
-    return qd->exists(path);
-}
-
-//Returns true if old windows client exists.
-bool FClientUpdater::oldClientWindowsExists(QString path)
-{
-
-    qDebug() << "Old Windows Client exists: " << qd->exists(path);
-    return qd->exists(path);
+    in >> fileVersion;
+    file.close();
+    return fileVersion;
 }
