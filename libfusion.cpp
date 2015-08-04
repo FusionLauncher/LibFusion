@@ -12,11 +12,17 @@ LibFusion::LibFusion()
 QDir LibFusion::getWorkingDir()
 {
     #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-        return QDir(QCoreApplication::applicationDirPath());
-    #elif (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
-        return QDir(QStandardPaths::locate(QStandardPaths::AppLocalDataLocation, QString(), QStandardPaths::LocateDirectory));
+    return QDir(QDesktopServices::storageLocation(QDesktopServices::DataLocation);
     #else
-        return QDir(QStandardPaths::locate(QStandardPaths::DataLocation, QString(), QStandardPaths::LocateDirectory));
+	return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     #endif
 }
 
+bool LibFusion::makeSureWorkingDirExists()
+{
+    if(!getWorkingDir().exists())
+    {
+        return getWorkingDir().mkpath(".");
+    }
+    return true;
+}

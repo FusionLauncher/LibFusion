@@ -15,6 +15,7 @@ class LIBFUSIONSHARED_EXPORT LibFusion
 public:
     LibFusion();
     static QDir getWorkingDir();
+    static bool makeSureWorkingDirExists();
 };
 
 #endif // LIBFUSION_H
