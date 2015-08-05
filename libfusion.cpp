@@ -2,6 +2,8 @@
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QStandardPaths>
+#else
+#include <QDesktopServices>
 #endif
 
 LibFusion::LibFusion()
