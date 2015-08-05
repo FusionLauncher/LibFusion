@@ -16,7 +16,7 @@ QDir LibFusion::getWorkingDir()
     #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
     return QDir(QDesktopServices::storageLocation(QDesktopServices::DataLocation);
     #else
-	return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
     #endif
 }
 
