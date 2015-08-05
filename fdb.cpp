@@ -15,6 +15,10 @@ FDB::FDB(QObject *parent)
 
 bool FDB::init()
 {
+    if(!LibFusion::makeSureWorkingDirExists())
+    {
+	    return false;
+    }
     QDir workingDir = LibFusion::getWorkingDir();
     QFile dbFile(workingDir.absolutePath() + QDir::separator() + "fusion.db");
 
