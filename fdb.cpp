@@ -111,11 +111,11 @@ FGame* FDB::getGame(int id)
 
 
     bool getLauncherOK;
-    int launcherID = libraryQuery.value(6).toInt(&getLauncherOK);
+    int launcherID = gameQuery.value(6).toInt(&getLauncherOK);
     if(getLauncherOK)
     {
         FLauncher launcher = getLauncher(launcherID);
-        game.setLauncher(launcher);
+        game->setLauncher(launcher);
     }
 
     game->dbId = id;
