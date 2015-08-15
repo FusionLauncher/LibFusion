@@ -16,7 +16,10 @@
 
 #include <QDebug>
 
-class FClientUpdater : public QObject
+
+#include "libfusion_global.h"
+
+class LIBFUSIONSHARED_EXPORT FClientUpdater : public QObject
 {
     Q_OBJECT
 public:

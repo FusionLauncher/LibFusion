@@ -108,11 +108,16 @@ FGame* FDB::getGame(int id)
     game->setExe(gameQuery.value(3).toString());
     game->setCommand(gameQuery.value(4).toString());
     game->setArgs(gameQuery.value(5).toStringList());
-    if(!gameQuery.value(6).isNull())
+
+
+    bool getLauncherOK;
+    int launcherID = gameQuery.value(6).toInt(&getLauncherOK);
+    if(getLauncherOK)
     {
-        FLauncher launcher = getLauncher(gameQuery.value(6).toInt());
+        FLauncher launcher = getLauncher(launcherID);
         game->setLauncher(launcher);
     }
+
     game->dbId = id;
     return game;
 }
@@ -132,11 +137,15 @@ QList<FGame> FDB::getGameList()
         game.setType((FGameType)libraryQuery.value(1).toInt());
         game.setCommand(libraryQuery.value(5).toString());
         game.setArgs(libraryQuery.value(6).toStringList());
-        if(!libraryQuery.value(7).isNull())
+
+        bool getLauncherOK;
+        int launcherID = libraryQuery.value(7).toInt(&getLauncherOK);
+        if(getLauncherOK)
         {
-            FLauncher launcher = getLauncher(libraryQuery.value(7).toInt());
+            FLauncher launcher = getLauncher(launcherID);
             game.setLauncher(launcher);
         }
+
         gameList.append(game);
     }
     return gameList;
@@ -476,7 +485,7 @@ FLauncher FDB::getLauncher(int dbId)
     qDebug() << "Getting launcher" << dbId;
     if(!query.next())
     {
-        qDebug() << "Didn't find the launcher.";
+        qDebug() << "Didn't find the launcher..";
         return FLauncher();
     }
     launcher.setDbId(dbId);
