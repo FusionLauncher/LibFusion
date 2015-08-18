@@ -17,14 +17,14 @@ void FCrawler::scanAllFolders()
 {
     db.beginTransaction();
 
-    QList<QDir> folder =db.getWatchedFoldersList();
+    QList<FWatchedFolder> folder =db.getWatchedFoldersList();
     for(int i=0;i<folder.length();++i) {
-
+        FWatchedFolder f = folder[i];
         FGameType folderType = getType(folder.at(i));
         if(folderType==FGameType::Steam) {
-            getSteamGames(folder.at(i));
+            getSteamGames(f);
         } else if (folderType==FGameType::Galaxy) {
-            getGalaxyGames(folder.at(i));
+            getGalaxyGames(f);
         }
     }
 
@@ -37,24 +37,28 @@ void FCrawler::scanAllFolders()
 }
 
 
-FGameType FCrawler::getType(QDir folder) {
+FGameType FCrawler::getType(FWatchedFolder folder) {
 
     //TODO: Proper Type-Check
-    folder.setNameFilters(QStringList()<<"*.acf");
-    QStringList steamFiles = folder.entryList();
+    folder.getDirectory().setNameFilters(QStringList()<<"*.acf");
+    QStringList steamFiles = folder.getDirectory().entryList();
 
     if(steamFiles.length()>0)
         return FGameType::Steam;
 
-    folder = folder.absolutePath() + QDir::separator() + "!Downloads";
-    if(folder.exists())
+    qDebug() << "Check if Galaxy-Folder";
+
+    QDir f = folder.getDirectory().absolutePath() + QDir::separator() + "!Downloads";
+    if(f.exists())
       return FGameType::Galaxy;
 
     return FGameType::unknown;
 }
 
-void FCrawler::getGalaxyGames(QDir folder) {
-    QStringList subfolders = folder.entryList();
+void FCrawler::getGalaxyGames(FWatchedFolder folder) {
+    QStringList subfolders = folder.getDirectory().entryList();
+
+       qDebug() << "Scanning Galaxy-Dir";
 
     for(int j=0;j<subfolders.length();++j) {
         if(subfolders[j]=="!Downloads")
@@ -64,11 +68,11 @@ void FCrawler::getGalaxyGames(QDir folder) {
         QStringList filters;
         filters << "goggame-*.info";
 
-        QDir dir(folder.absolutePath()  + QDir::separator() + subfolders[j]);
+        QDir dir(folder.getDirectory().absolutePath()  + QDir::separator() + subfolders[j]);
         QStringList InfoFile = dir.entryList(filters);
         if(InfoFile.length()==1) {
             QFile oLogFile;
-            oLogFile.setFileName(folder.absolutePath() + QDir::separator() + subfolders[j] + QDir::separator() + InfoFile[0]);
+            oLogFile.setFileName(folder.getDirectory().absolutePath() + QDir::separator() + subfolders[j] + QDir::separator() + InfoFile[0]);
             oLogFile.open(QIODevice::ReadOnly|QIODevice::Text);
             QString fileContent = oLogFile.readAll();
             QStringList fileLines = fileContent.split("\n");
@@ -98,7 +102,7 @@ void FCrawler::getGalaxyGames(QDir folder) {
                     }
                     else if(line.contains("\"workingDir\"") && !workingdirFound){
                         val = line.mid(28, line.lastIndexOf("\"")-28);
-                        g.setPath(folder.absolutePath() + QDir::separator() + subfolders[j] + QDir::separator() + val);
+                        g.setPath(folder.getDirectory().absolutePath() + QDir::separator() + subfolders[j] + QDir::separator() + val);
                         workingdirFound = true;
                    //     qDebug() << "workingDir: " << val;
                     }
@@ -183,14 +187,15 @@ void FCrawler::getOriginGames() {
 
 
 
-void FCrawler::getSteamGames(QDir folder) {
-    folder.setNameFilters(QStringList()<<"*.acf");
-    QStringList steamFiles = folder.entryList();
+void FCrawler::getSteamGames(FWatchedFolder folder) {
+    QDir SteamAppsDir = folder.getDirectory();
+    SteamAppsDir.setNameFilters(QStringList()<<"*.acf");
+    QStringList steamFiles = SteamAppsDir.entryList();
     for(QString file : steamFiles) {
 
         //Get File-Content
         QFile f;
-        f.setFileName(folder.absoluteFilePath(file));
+        f.setFileName(SteamAppsDir.absoluteFilePath(file));
         f.open(QIODevice::ReadOnly|QIODevice::Text);
         QString fileContent = f.readAll();
         f.close();

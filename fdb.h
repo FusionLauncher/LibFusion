@@ -10,6 +10,7 @@
 #include <QSqlQuery>
 #include "flauncher.h"
 
+#include "fwatchedfolder.h"
 #include "libfusion_global.h"
 
 class LIBFUSIONSHARED_EXPORT FDB : public QObject
@@ -35,8 +36,8 @@ public:
     bool addIntPref(QString pref, int value);
     bool updateIntPref(QString pref, int value);
 
-    bool updateWatchedFolders(QList<QDir> data);
-    QList<QDir> getWatchedFoldersList();
+    bool updateWatchedFolders(QList<FWatchedFolder> data);
+    QList<FWatchedFolder> getWatchedFoldersList();
     bool beginTransaction();
     bool endTransaction();
     bool rollbackTransaction();

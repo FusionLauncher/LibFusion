@@ -1,4 +1,5 @@
 #include "fdb.h"
+#include "fwatchedfolder.h"
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -379,32 +380,43 @@ bool FDB::updateBoolPref(QString pref, bool value)
 }
 
 
-bool FDB::updateWatchedFolders(QList<QDir> data)
+bool FDB::updateWatchedFolders(QList<FWatchedFolder> data)
 {
     QSqlQuery updateQuery;
     updateQuery.prepare("DELETE FROM watchedFolders");
     updateQuery.exec();
 
-        QSqlQuery insertQuery;
-        insertQuery.prepare("INSERT INTO watchedFolders (path) VALUES(:folder)");
+    QSqlQuery insertQuery;
+    insertQuery.prepare("INSERT INTO watchedFolders (path, launcherID, forLauncher) VALUES(:folder, :launcherID, :forLauncher)");
 
-    for(QDir dir : data) {
-        insertQuery.bindValue(":folder", dir.absolutePath());
+    for(FWatchedFolder dir : data) {
+        insertQuery.bindValue(":folder", dir.getDirectory().absolutePath());
+        insertQuery.bindValue(":launcherID", dir.getLauncherID());
+        insertQuery.bindValue(":forLauncher", dir.forLauncher);
         insertQuery.exec();
-        qDebug("Add Lib: " + dir.absolutePath().toLatin1());
+        qDebug("Add Lib: " + dir.getDirectory().absolutePath().toLatin1());
     }
 
     return true;
 }
 
-QList<QDir> FDB::getWatchedFoldersList() {
-    QList<QDir> result;
+QList<FWatchedFolder> FDB::getWatchedFoldersList() {
+    QList<FWatchedFolder> result;
     QSqlQuery folderqQueue;
-    folderqQueue.exec("SELECT path FROM watchedFolders ORDER BY path ASC");
+
+    folderqQueue.exec("SELECT path, id, launcherID, forLauncher FROM watchedFolders ORDER BY path ASC");
     while(folderqQueue.next())
     {
-        qDebug("Getting Folders!");
-        result.append(QDir(folderqQueue.value(0).toString()));
+        FWatchedFolder folder;
+        folder.setDirectory(QDir(folderqQueue.value(0).toString()));
+        folder.setDbID(folderqQueue.value(1).toInt());
+
+        folder.forLauncher = folderqQueue.value(3).toBool();
+
+        if(folder.forLauncher)
+            folder.setLauncherID(folderqQueue.value(2).toInt());
+
+        result.append(folder);
     }
     return result;
 
