@@ -13,11 +13,14 @@ public:
     QString getName();
     QString getPath();
     QString getArgs();
+    QString getFileEndings();
     int getDbId();
+
     void setName(QString newName);
     void setPath(QString newPath);
     void setArgs(QString newArgs);
     void setDbId(int newId);
+    void setFileEndings(QString suffixes);
 
 signals:
 
@@ -25,6 +28,7 @@ public slots:
 
 protected:
     QString name;
+    QString FileEndings;
     QString path;
     QString args;
     int dbId;

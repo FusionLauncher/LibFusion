@@ -20,13 +20,21 @@ void FCrawler::scanAllFolders()
     QList<FWatchedFolder> folder =db.getWatchedFoldersList();
     for(int i=0;i<folder.length();++i) {
         FWatchedFolder f = folder[i];
-        FGameType folderType = getType(folder.at(i));
-        if(folderType==FGameType::Steam) {
-            getSteamGames(f);
-        } else if (folderType==FGameType::Galaxy) {
-            getGalaxyGames(f);
+
+        if(f.forLauncher) {
+              scanforLauncher(f);
+
+        } else {
+            FGameType folderType = getType(folder.at(i));
+            if(folderType==FGameType::Steam) {
+                getSteamGames(f);
+            } else if (folderType==FGameType::Galaxy) {
+                getGalaxyGames(f);
+            }
         }
     }
+
+
 
     //Origin only on Windows
     #if OS == Windows
@@ -36,6 +44,33 @@ void FCrawler::scanAllFolders()
     db.endTransaction();
 }
 
+void FCrawler::scanforLauncher(FWatchedFolder folder) {
+    QStringList fileEndings = db.getLauncher(folder.getLauncherID()).getFileEndings().split(",", QString::SkipEmptyParts);
+
+    for(int i=0;i<fileEndings.length();++i)
+        fileEndings[i] = "*." + fileEndings[i];
+
+    QDir target =  folder.getDirectory();
+    target.setNameFilters(fileEndings);
+    QStringList launcherFiles = target.entryList();
+    for(QString foundGame : launcherFiles) {
+        qDebug() << "Found " << foundGame << " in " << target.absolutePath();
+        FGame g;
+        g.setName(foundGame.left(foundGame.length()-4));
+        g.setExe(foundGame);
+        g.setLauncher(db.getLauncher(folder.getLauncherID()));
+        g.setType(ROM);
+        g.setPath(target.absolutePath());
+        if(!db.gameExists(g)){
+           if(!db.addGame(g))
+               qDebug() << "Error on insert Game "<< g.getName();;
+        }
+        else
+            qDebug() << "Game exists: " << g.getName();
+    }
+
+
+}
 
 FGameType FCrawler::getType(FWatchedFolder folder) {
 

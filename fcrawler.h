@@ -51,6 +51,7 @@ private:
      */
     void getOriginGames();
     void getGalaxyGames(FWatchedFolder folder);
+    void scanforLauncher(FWatchedFolder folder);
 };
 
 #endif // FCRAWLER_H
