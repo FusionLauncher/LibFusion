@@ -47,7 +47,9 @@ public:
     bool addBoolPref(QString pref, bool value);
     bool getBoolPref(QString pref);
     bool getBoolPref(QString pref, bool defaultValue);
+
     int addLauncher(FLauncher launcher);
+    bool updateLaunchers(QList<FLauncher> launchers);
     FLauncher getLauncher(int id);
     QList<FLauncher> getLaunchers();
 
