@@ -30,7 +30,7 @@ private:
      *
      * Tries to get the Folder-Type, based on its content. Actually, only Steam is implemented
      */
-    FGameType getType(QDir folder);
+    FGameType getType(FWatchedFolder folder);
 
     /**
      * @brief getSteamGames Scans a Steam-Library for Games
@@ -38,7 +38,7 @@ private:
      *
      * Scans a SteamApps-Folder for Games. Adds all Missing games to the Lib.
      */
-    void getSteamGames(QDir folder);
+    void getSteamGames(FWatchedFolder folder);
 
     /**
      * @brief getOriginGames  Scans the Origin Logfile for new Games and adds them
@@ -50,7 +50,8 @@ private:
      *
      */
     void getOriginGames();
-    void getGalaxyGames(QDir folder);
+    void getGalaxyGames(FWatchedFolder folder);
+    void scanforLauncher(FWatchedFolder folder);
 };
 
 #endif // FCRAWLER_H

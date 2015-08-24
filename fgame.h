@@ -8,7 +8,7 @@
 
 
 
-enum FGameType {unknown, Executable, Steam, Origin, Uplay, Galaxy};
+enum FGameType {unknown, Executable, Steam, Origin, Uplay, Galaxy, ROM};
 enum FGameSizeConstrain {FHeight, FWidth};
 enum FGameArt { FArtBox, FArtClearart, FArtBanner, FArtFanart};
 #include "flauncher.h"

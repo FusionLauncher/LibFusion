@@ -2,7 +2,7 @@
 
 FLauncher::FLauncher()
 {
-
+    dbId = -1;
 }
 
 FLauncher::FLauncher(QString name, QString path, QString args)
@@ -35,6 +35,11 @@ QString FLauncher::getArgs()
     return args;
 }
 
+QString FLauncher::getFileEndings()
+{
+    return FileEndings;
+}
+
 void FLauncher::setArgs(QString newArgs)
 {
     args = newArgs;
@@ -49,3 +54,9 @@ void FLauncher::setDbId(int newId)
 {
     dbId = newId;
 }
+
+void FLauncher::setFileEndings(QString suffixes)
+{
+    FileEndings = suffixes;
+}
+

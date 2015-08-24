@@ -1,4 +1,5 @@
 #include "fdb.h"
+#include "fwatchedfolder.h"
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -329,11 +330,12 @@ bool FDB::updateGame(FGame *g)
 bool FDB::updateLauncher(FLauncher launcher)
 {
     QSqlQuery q;
-    q.prepare("UPDATE launchers SET launcherName = :lName, launcherPath = :lPath, launcherArgs = :lArgs WHERE id = :lId");
+    q.prepare("UPDATE launchers SET launcherName = :lName, launcherPath = :lPath, launcherArgs = :lArgs, suffix = :lSuffix WHERE id = :lId");
     q.bindValue(":lName", launcher.getName());
     q.bindValue(":lPath", launcher.getPath());
     q.bindValue(":lArgs", launcher.getArgs());
     q.bindValue(":lId", launcher.getDbId());
+    q.bindValue(":lSuffix", launcher.getFileEndings());
     return q.exec();
 }
 
@@ -379,32 +381,43 @@ bool FDB::updateBoolPref(QString pref, bool value)
 }
 
 
-bool FDB::updateWatchedFolders(QList<QDir> data)
+bool FDB::updateWatchedFolders(QList<FWatchedFolder> data)
 {
     QSqlQuery updateQuery;
     updateQuery.prepare("DELETE FROM watchedFolders");
     updateQuery.exec();
 
-        QSqlQuery insertQuery;
-        insertQuery.prepare("INSERT INTO watchedFolders (path) VALUES(:folder)");
+    QSqlQuery insertQuery;
+    insertQuery.prepare("INSERT INTO watchedFolders (path, launcherID, forLauncher) VALUES(:folder, :launcherID, :forLauncher)");
 
-    for(QDir dir : data) {
-        insertQuery.bindValue(":folder", dir.absolutePath());
+    for(FWatchedFolder dir : data) {
+        insertQuery.bindValue(":folder", dir.getDirectory().absolutePath());
+        insertQuery.bindValue(":launcherID", dir.getLauncherID());
+        insertQuery.bindValue(":forLauncher", dir.forLauncher);
         insertQuery.exec();
-        qDebug("Add Lib: " + dir.absolutePath().toLatin1());
+        qDebug("Add Lib: " + dir.getDirectory().absolutePath().toLatin1());
     }
 
     return true;
 }
 
-QList<QDir> FDB::getWatchedFoldersList() {
-    QList<QDir> result;
+QList<FWatchedFolder> FDB::getWatchedFoldersList() {
+    QList<FWatchedFolder> result;
     QSqlQuery folderqQueue;
-    folderqQueue.exec("SELECT path FROM watchedFolders ORDER BY path ASC");
+
+    folderqQueue.exec("SELECT path, id, launcherID, forLauncher FROM watchedFolders ORDER BY path ASC");
     while(folderqQueue.next())
     {
-        qDebug("Getting Folders!");
-        result.append(QDir(folderqQueue.value(0).toString()));
+        FWatchedFolder folder;
+        folder.setDirectory(QDir(folderqQueue.value(0).toString()));
+        folder.setDbID(folderqQueue.value(1).toInt());
+
+        folder.forLauncher = folderqQueue.value(3).toBool();
+
+        if(folder.forLauncher)
+            folder.setLauncherID(folderqQueue.value(2).toInt());
+
+        result.append(folder);
     }
     return result;
 
@@ -468,18 +481,30 @@ bool FDB::launcherExists(FLauncher launcher)
 int FDB::addLauncher(FLauncher launcher)
 {
     QSqlQuery query;
-    query.prepare("INSERT INTO launchers(launcherName, launcherPath, launcherArgs) VALUES (:name, :path, :args)");
+    query.prepare("INSERT INTO launchers(launcherName, launcherPath, launcherArgs, suffix) VALUES (:name, :path, :args, :suffix)");
     query.bindValue(":name", launcher.getName());
     query.bindValue(":path", launcher.getPath());
     query.bindValue(":args", launcher.getArgs());
+    query.bindValue(":suffix", launcher.getFileEndings());
     return query.exec();
+}
+
+bool FDB::updateLaunchers(QList<FLauncher> launchers)
+{
+    for(int i=0;i<launchers.length();++i) {
+        if(launchers[i].getDbId() == -1) { //we need to insert it
+            addLauncher(launchers[i]);
+        } else {
+            updateLauncher(launchers[i]);
+        }
+    }
 }
 
 FLauncher FDB::getLauncher(int dbId)
 {
     FLauncher launcher;
     QSqlQuery query;
-    query.prepare("SELECT launcherName, launcherPath, launcherArgs FROM launchers WHERE id = :id");
+    query.prepare("SELECT launcherName, launcherPath, launcherArgs, suffix FROM launchers WHERE id = :id");
     query.bindValue(":id", dbId);
     query.exec();
     qDebug() << "Getting launcher" << dbId;
@@ -492,6 +517,7 @@ FLauncher FDB::getLauncher(int dbId)
     launcher.setName(query.value(0).toString());
     launcher.setPath(query.value(1).toString());
     launcher.setArgs(query.value(2).toString());
+    launcher.setFileEndings(query.value(3).toString());
     return launcher;
 }
 
@@ -499,7 +525,7 @@ QList<FLauncher> FDB::getLaunchers()
 {
     QList<FLauncher> list;
     QSqlQuery query;
-    query.prepare("SELECT launcherName, launcherPath, launcherArgs, id FROM launchers");
+    query.prepare("SELECT launcherName, launcherPath, launcherArgs, id, suffix FROM launchers");
     query.exec();
     while(query.next())
     {
@@ -508,6 +534,7 @@ QList<FLauncher> FDB::getLaunchers()
         launcher.setPath(query.value(1).toString());
         launcher.setArgs(query.value(2).toString());
         launcher.setDbId(query.value(3).toInt());
+        launcher.setFileEndings(query.value(4).toString());
         list.append(launcher);
     }
     return list;

@@ -24,7 +24,8 @@ SOURCES += libfusion.cpp \
     ffiledownloader.cpp \
     fdbupdater.cpp \
     fclientupdater.cpp \
-    flauncher.cpp
+    flauncher.cpp \
+    fwatchedfolder.cpp
 
 HEADERS += libfusion.h\
     libfusion_global.h \
@@ -37,7 +38,8 @@ HEADERS += libfusion.h\
     thegamedbstorage.h \
     fdbupdater.h \
     fclientupdater.h \
-    flauncher.h
+    flauncher.h \
+    fwatchedfolder.h
 
 unix {
     target.path = /usr/lib

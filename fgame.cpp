@@ -247,7 +247,7 @@ bool FGame::execute()
         QString cmd("start origin://launchgame/" + gameExe);
         system(cmd.toStdString().c_str());
     }
-    else if (gameType == FGameType::Executable ||gameType == FGameType::Galaxy  )
+    else if (gameType == FGameType::Executable || gameType == FGameType::Galaxy || gameType == FGameType::ROM  )
     {
         if(gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists())
         {
