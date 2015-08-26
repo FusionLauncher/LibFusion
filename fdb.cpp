@@ -75,7 +75,11 @@ bool FDB::addGame(FGame game)
     gameQuery.bindValue(":relExecutablePath", game.getExe());
     gameQuery.bindValue(":gameCommand", game.getCommand());
     gameQuery.bindValue(":gameArgs", game.getArgs());
-    gameQuery.bindValue(":gameLauncher", game.getLauncher().getDbId());
+
+    if(game.doesUseLauncher())
+        gameQuery.bindValue(":gameLauncher", game.getLauncher().getDbId());
+
+
     qDebug("Game Added: " + game.getName().toLatin1());
     return gameQuery.exec();
 }
@@ -93,7 +97,7 @@ bool FDB::removeGameById(int id)
 FGame* FDB::getGame(int id)
 {
     QSqlQuery gameQuery;
-    gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher FROM games WHERE id = :id");
+    gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, savegameDir FROM games WHERE id = :id");
     gameQuery.bindValue(":id", id);
     gameQuery.exec();
 
@@ -118,6 +122,7 @@ FGame* FDB::getGame(int id)
         FLauncher launcher = getLauncher(launcherID);
         game->setLauncher(launcher);
     }
+    game->setSavegameDir(gameQuery.value(7).toString());
 
     game->dbId = id;
     return game;
@@ -128,28 +133,50 @@ QList<FGame> FDB::getGameList()
     QList<FGame> gameList;
     QSqlQuery libraryQuery;
     FGame game;
-    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id, gameCommand, gameArgs, gameLauncher FROM games ORDER BY gameName ASC");
+    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id, gameCommand, gameArgs, gameLauncher, savegameDir FROM games ORDER BY gameName ASC");
     while(libraryQuery.next())
     {
         game.setName(libraryQuery.value(0).toString());
+        game.setType((FGameType)libraryQuery.value(1).toInt());
         game.setPath(libraryQuery.value(2).toString());
         game.setExe(libraryQuery.value(3).toString());
         game.dbId = libraryQuery.value(4).toInt();
-        game.setType((FGameType)libraryQuery.value(1).toInt());
         game.setCommand(libraryQuery.value(5).toString());
         game.setArgs(libraryQuery.value(6).toStringList());
 
-        bool getLauncherOK;
-        int launcherID = libraryQuery.value(7).toInt(&getLauncherOK);
-        if(getLauncherOK)
+        bool convertOK;
+        int launcherID = libraryQuery.value(7).toInt(&convertOK);
+        if(convertOK)
         {
             FLauncher launcher = getLauncher(launcherID);
             game.setLauncher(launcher);
         }
 
+        game.setSavegameDir(libraryQuery.value(8).toString());
         gameList.append(game);
     }
     return gameList;
+}
+
+bool FDB::updateGame(FGame *g)
+{
+    QSqlQuery q;
+    q.prepare("UPDATE games SET gameName = :gName, gameDirectory = :gDir, relExecutablePath = :exec, gameLauncher = :gLauncher, savegameDir = :gSavegameDir WHERE id = :gID");
+    q.bindValue(":gName", g->getName());
+    q.bindValue(":gDir", g->getPath());
+    q.bindValue(":exec", g->getExe());
+    if(g->savegameSyncEndabled())
+        q.bindValue(":gSavegameDir", g->getSavegameDir().absolutePath());
+    else
+        q.bindValue(":gLauncher", QVariant(QVariant::String));
+
+    if(g->doesUseLauncher())
+        q.bindValue(":gLauncher", g->getLauncher().getDbId());
+    else
+        q.bindValue(":gLauncher", QVariant(QVariant::String));
+
+    q.bindValue(":gID", g->dbId);
+    return q.exec();
 }
 
 int FDB::getGameCount()
@@ -307,25 +334,6 @@ bool FDB::getBoolPref(QString pref, bool defaultValue)
     return val;
 }
 
-bool FDB::updateGame(FGame *g)
-{
-    QSqlQuery q;
-    q.prepare("UPDATE games SET gameName = :gName, gameDirectory = :gDir, relExecutablePath = :exec, gameLauncher = :gLauncher WHERE id = :gID");
-    q.bindValue(":gName", g->getName());
-    q.bindValue(":gDir", g->getPath());
-    q.bindValue(":exec", g->getExe());
-    if(g->doesUseLauncher())
-    {
-        q.bindValue(":gLauncher", g->getLauncher().getDbId());
-    }
-    else
-    {
-        q.bindValue(":gLauncher", QVariant(QVariant::String));
-    }
-    q.bindValue(":gID", g->dbId);
-    return q.exec();
-
-}
 
 bool FDB::updateLauncher(FLauncher launcher)
 {

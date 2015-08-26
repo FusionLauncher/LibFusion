@@ -13,7 +13,8 @@ bool FDBUpdater::checkForDBUpdate()
 {
     qDebug() << "Checking for update...";
     QDir workingDir = LibFusion::getWorkingDir();
-    QFile updateFile(workingDir.absolutePath() + QDir::separator() + "dbUpdate");
+  //  QFile updateFile(workingDir.absolutePath() + QDir::separator() + "dbUpdate");
+    QFile updateFile("dbUpdate");
     if(updateFile.exists())
     {
         if(!updateFile.open(QIODevice::ReadOnly))
@@ -38,6 +39,7 @@ bool FDBUpdater::checkForDBUpdate()
             qDebug() << "Found comment, ignoring...";
         }
         qDebug() << "Current version: " << db->getTextPref("dbVersion");
+
         if(!foundVersion || line == db->getTextPref("dbVersion"))
         {
             qDebug() << "No update found";
@@ -48,6 +50,11 @@ bool FDBUpdater::checkForDBUpdate()
             return true;
         }
     }
+    else
+    {
+        qDebug() << "Couldn't find a dbUpdate file.";
+        return false;
+    }
     return false;
 }
 
@@ -55,21 +62,25 @@ bool FDBUpdater::updateDB()
 {
     qDebug() << "Updating!";
     QDir workingDir = LibFusion::getWorkingDir();
-    QFile updateFile(workingDir.absolutePath() + QDir::separator() + "dbUpdate");
-    qDebug() << "Trying to open file...";
+ //   QFile updateFile(workingDir.absolutePath() + QDir::separator() + "dbUpdate");
+    QFile updateFile("dbUpdate");
+
     if(updateFile.exists())
     {
+        qDebug() << "dbUpdate-File Opend...";
         if(!updateFile.open(QIODevice::ReadOnly))
         {
             qDebug() << "Couldn't open";
             return false;
         }
+
         QByteArray line;
-        QString currentVersion = db->getTextPref("dbVersion");
+        QString currentVersion = db->getTextPref("dbVersion",0);
         QStack<QString> stack;
         line = updateFile.readLine();
         qDebug() << "New version:" << line << ", old version:" << currentVersion;
         QString newVersion;
+
         if(line.startsWith("_"))
         {
             newVersion = line;

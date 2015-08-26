@@ -13,11 +13,13 @@ FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QSt
     this->gameExe = exePath;
     this->gameArgs = args;
     launcherEnabled = false;
+    syncEnabled = false;
 }
 
 FGame::FGame()
 {
     launcherEnabled = false;
+    syncEnabled = false;
 }
 
 
@@ -167,6 +169,31 @@ QString FGame::getCacheDir()
 
     return dir;
 }
+QDir FGame::getSavegameDir() const
+{
+    return savegameDir;
+}
+
+void FGame::setSavegameDir(const QDir &value)
+{
+    savegameDir = value;
+    syncEnabled = true;
+}
+
+void FGame::setSavegameDir(const QString &value)
+{
+    if(value!="") {
+        savegameDir = QDir(value);
+        syncEnabled = true;
+    } else
+        syncEnabled = false;
+}
+
+bool FGame::savegameSyncEndabled()
+{
+    return syncEnabled;
+}
+
 
 QStringList FGame::getArgs()
 {
