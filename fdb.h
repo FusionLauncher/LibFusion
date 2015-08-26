@@ -22,7 +22,7 @@ public:
     bool addGame(FGame game);
     bool removeGameById(int id);
     FGame* getGame(int id);
-    QList<FGame> getGameList();
+    QList<FGame *> getGameList();
     int getGameCount();
 
     QString getTextPref(QString pref);
@@ -62,6 +62,7 @@ private:
     QSqlDatabase db;
     QSqlQuery query;
 
+    FGame *createGameFromQuery(QSqlQuery query);
 signals:
 
 public slots:

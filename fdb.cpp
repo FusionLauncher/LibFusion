@@ -90,10 +90,31 @@ bool FDB::removeGameById(int id)
     return true;
 }
 
+FGame* FDB::createGameFromQuery(QSqlQuery query)
+{
+    FGame* game = new FGame();
+    game->setName(query.value(0).toString());
+    game->setPath(query.value(2).toString());
+    game->setExe(query.value(3).toString());
+    game->setType((FGameType)query.value(1).toInt());
+    game->setCommand(query.value(4).toString());
+    game->setArgs(query.value(5).toStringList());
+    game->dbId = query.value(7).toInt();
+
+    bool getLauncherOK;
+    int launcherID = query.value(6).toInt(&getLauncherOK);
+    if(getLauncherOK && launcherID != -1)
+    {
+        FLauncher launcher = getLauncher(launcherID);
+        game->setLauncher(launcher);
+    }
+    return game;
+}
+
 FGame* FDB::getGame(int id)
 {
     QSqlQuery gameQuery;
-    gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher FROM games WHERE id = :id");
+    gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id FROM games WHERE id = :id");
     gameQuery.bindValue(":id", id);
     gameQuery.exec();
 
@@ -101,53 +122,18 @@ FGame* FDB::getGame(int id)
     {
         return NULL;
     }
-
-    FGame *game = new FGame();
-    game->setName(gameQuery.value(0).toString());
-    game->setType((FGameType)gameQuery.value(1).toInt());
-    game->setPath(gameQuery.value(2).toString());
-    game->setExe(gameQuery.value(3).toString());
-    game->setCommand(gameQuery.value(4).toString());
-    game->setArgs(gameQuery.value(5).toStringList());
-
-
-    bool getLauncherOK;
-    int launcherID = gameQuery.value(6).toInt(&getLauncherOK);
-    if(getLauncherOK)
-    {
-        FLauncher launcher = getLauncher(launcherID);
-        game->setLauncher(launcher);
-    }
-
-    game->dbId = id;
-    return game;
+    return createGameFromQuery(gameQuery);
 }
 
-QList<FGame> FDB::getGameList()
+QList<FGame*> FDB::getGameList()
 {
-    QList<FGame> gameList;
+    QList<FGame*> gameList;
     QSqlQuery libraryQuery;
     FGame game;
-    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id, gameCommand, gameArgs, gameLauncher FROM games ORDER BY gameName ASC");
+    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id FROM games ORDER BY gameName ASC");
     while(libraryQuery.next())
     {
-        game.setName(libraryQuery.value(0).toString());
-        game.setPath(libraryQuery.value(2).toString());
-        game.setExe(libraryQuery.value(3).toString());
-        game.dbId = libraryQuery.value(4).toInt();
-        game.setType((FGameType)libraryQuery.value(1).toInt());
-        game.setCommand(libraryQuery.value(5).toString());
-        game.setArgs(libraryQuery.value(6).toStringList());
-
-        bool getLauncherOK;
-        int launcherID = libraryQuery.value(7).toInt(&getLauncherOK);
-        if(getLauncherOK)
-        {
-            FLauncher launcher = getLauncher(launcherID);
-            game.setLauncher(launcher);
-        }
-
-        gameList.append(game);
+        gameList.append(createGameFromQuery(libraryQuery));
     }
     return gameList;
 }
@@ -426,7 +412,7 @@ QList<FWatchedFolder> FDB::getWatchedFoldersList() {
 //These two speed up mainly insert-queries, sice SQLite does not write to disk after every command, but after the endTransaction()
 
 //DON'T FROGET TO RUN endTransaction() AFTERWARDS!
-//DON'T FROGET TO RUN endTransaction() AFTERWARDS!
+//DON'T FROGET TO RUN endTransaction() AFTERWARDS = false;
 bool FDB::beginTransaction()
 {
     QSqlQuery q;
