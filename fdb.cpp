@@ -49,7 +49,7 @@ bool FDB::init()
         //(later) if clientToken doesnt exists, show login and run registerClient(), if no account, //run register()
         //(later) if lang is not set, set it to the default system language
         query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL, gameCommand TEXT, gameArgs TEXT, gameLauncher INTEGER)");
-        query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255) );");
+        query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255), launcherId INT DEFAULT NULL, forLauncher TINY INT DEFAULT '0');");
         query.exec("CREATE TABLE IF NOT EXISTS launchers(id INTEGER PRIMARY KEY ASC, launcherName TEXT NOT NULL, launcherPath TEXT NOT NULL, launcherArgs TEXT NOT NULL)");
         updater.initVersion();
     }
@@ -377,11 +377,15 @@ bool FDB::updateWatchedFolders(QList<FWatchedFolder> data)
     insertQuery.prepare("INSERT INTO watchedFolders (path, launcherID, forLauncher) VALUES(:folder, :launcherID, :forLauncher)");
 
     for(FWatchedFolder dir : data) {
+        qDebug() << "path";
         insertQuery.bindValue(":folder", dir.getDirectory().absolutePath());
         insertQuery.bindValue(":launcherID", dir.getLauncherID());
         insertQuery.bindValue(":forLauncher", dir.forLauncher);
-        insertQuery.exec();
-        qDebug("Add Lib: " + dir.getDirectory().absolutePath().toLatin1());
+        if(!insertQuery.exec())
+        {
+            qDebug() << "Failed to add lib";
+        }
+        qDebug("FDB: Add Lib: " + dir.getDirectory().absolutePath().toLatin1());
     }
 
     return true;
