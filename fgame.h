@@ -6,12 +6,13 @@
 #ifndef FGAME_H
 #define FGAME_H
 
-
+#include "flauncher.h"
+#include "ffilesync.h"
 
 enum FGameType {unknown, Executable, Steam, Origin, Uplay, Galaxy, ROM};
 enum FGameSizeConstrain {FHeight, FWidth};
 enum FGameArt { FArtBox, FArtClearart, FArtBanner, FArtFanart};
-#include "flauncher.h"
+
 
 
 #include "libfusion_global.h"
@@ -58,6 +59,8 @@ public:
     void setSavegameDir(const QDir &value);
     void setSavegameDir(const QString &value);
     bool savegameSyncEndabled();
+
+    bool syncData();
 
 protected:
     QString gameName;

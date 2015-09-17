@@ -1,6 +1,7 @@
 #include <QProcess>
 #include <QPixmap>
 #include <QDesktopServices>
+#include "fexception.h"
 #include "fgame.h"
 #include "libfusion.h"
 
@@ -55,7 +56,7 @@ QString FGame::FGameTypeToStr(FGameType type)
     case unknown:
         return "Unknown";
         break;
-    Executable:
+    case Executable:
         return "Executable";
         break;
     case Steam:
@@ -194,6 +195,21 @@ bool FGame::savegameSyncEndabled()
     return syncEnabled;
 }
 
+bool FGame::syncData()
+{
+   // if(!syncEnabled)
+     //   return true;
+
+    try {
+        FFileSync f;
+      //  f.sync(savegameDir,5);
+    } catch (FException& e) {
+        qWarning() << e.what() << e.Message;
+        }
+
+    return true;
+}
+
 
 QStringList FGame::getArgs()
 {
@@ -259,6 +275,8 @@ QStringList FGame::createStringListFromArguments(QString args)
 
 bool FGame::execute()
 {
+    syncData();
+
     qDebug() << "Game type: " << gameType;
     if(gameType == FGameType::Steam) {
 #ifdef _WIN32

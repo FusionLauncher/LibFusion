@@ -1,17 +1,16 @@
 #ifndef FDB_H
 #define FDB_H
 
-#ifndef FGAME_H
-#include <fgame.h>
-#endif
 
 #include <QObject>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include "flauncher.h"
 
+#include "fgame.h"
 #include "fwatchedfolder.h"
 #include "libfusion_global.h"
+
 
 class LIBFUSIONSHARED_EXPORT FDB : public QObject
 {
@@ -22,7 +21,7 @@ public:
     bool addGame(FGame game);
     bool removeGameById(int id);
     FGame* getGame(int id);
-    QList<FGame> getGameList();
+    QList<FGame *> getGameList();
     int getGameCount();
 
     QString getTextPref(QString pref);
@@ -58,10 +57,13 @@ public:
     bool updateLauncher(FLauncher launcher);
     bool launcherExists(FLauncher launcher);
 
+    QDir getSavegameDir();
+
 private:
     QSqlDatabase db;
     QSqlQuery query;
 
+    FGame *createGameFromQuery(QSqlQuery query);
 signals:
 
 public slots:
