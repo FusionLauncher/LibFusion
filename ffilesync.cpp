@@ -43,10 +43,6 @@ bool FFileSync::sync(QDir local, int numBckps)
 
     if(syncPossible) {
 
-        if(latestSync_local<latestSync_synced)
-            swapFiles(synced, local);
-        else
-            swapFiles(local, synced);
 
 
 
