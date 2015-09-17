@@ -51,8 +51,4 @@ bool FFileSync::sync(QDir local, int numBckps)
     return true;
 }
 
-FFileSync::swapFiles(QDir src, QDir trgt)
-{
-
-}
 

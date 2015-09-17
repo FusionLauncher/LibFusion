@@ -15,7 +15,6 @@ public:
     bool sync(QDir local , int numBckps);
 
 private:
-    swapFiles(QDir src, QDir trgt);
   //  FDB *db;
 };
 
