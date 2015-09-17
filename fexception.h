@@ -3,17 +3,18 @@
 
 
 #include <QString>
-#include <exception>
+//#include <exception>
 
-class FException : public std::exception
+class FException // :public std::exception
 {
 public:
     FException(QString msg) {Message = msg;}
-    virtual const char* what() const throw()
+   /* virtual const char* what() const throw()
     {
         return "An error occured!";
     }
-
+*/
+    QString what() {return "that."; }
     QString Message;
 };
 

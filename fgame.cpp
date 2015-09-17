@@ -1,7 +1,7 @@
 #include <QProcess>
 #include <QPixmap>
 #include <QDesktopServices>
-#include "fexception.h"
+//#include "fexception.h"
 #include "fgame.h"
 #include "libfusion.h"
 
@@ -197,6 +197,7 @@ bool FGame::savegameSyncEndabled()
 
 bool FGame::syncData()
 {
+    /*
    // if(!syncEnabled)
      //   return true;
 
@@ -206,7 +207,7 @@ bool FGame::syncData()
     } catch (FException& e) {
         qWarning() << e.what() << e.Message;
         }
-
+*/
     return true;
 }
 

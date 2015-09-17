@@ -26,8 +26,7 @@ SOURCES += libfusion.cpp \
     fclientupdater.cpp \
     flauncher.cpp \
     fwatchedfolder.cpp \
-    ffilesync.cpp \
-    fexception.cpp
+    ffilesync.cpp
 
 HEADERS += libfusion.h\
     libfusion_global.h \
