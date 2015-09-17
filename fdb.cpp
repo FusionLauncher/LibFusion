@@ -3,6 +3,7 @@
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <fgame.h>
 #include <fdb.h>
 #include <libfusion.h>
 #include "fdbupdater.h"
@@ -93,6 +94,7 @@ bool FDB::removeGameById(int id)
     return true;
 }
 
+
 FGame* FDB::createGameFromQuery(QSqlQuery query)
 {
     FGame* game = new FGame();
@@ -118,7 +120,7 @@ FGame* FDB::createGameFromQuery(QSqlQuery query)
 FGame* FDB::getGame(int id)
 {
     QSqlQuery gameQuery;
-    gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id FROM games WHERE id = :id");
+    gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id, savegameDir FROM games WHERE id = :id");
     gameQuery.bindValue(":id", id);
     gameQuery.exec();
 
@@ -129,12 +131,13 @@ FGame* FDB::getGame(int id)
     return createGameFromQuery(gameQuery);
 }
 
+
 QList<FGame*> FDB::getGameList()
 {
     QList<FGame*> gameList;
     QSqlQuery libraryQuery;
     FGame game;
-    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id, savegameDir FROM games ORDER BY gameName ASC");
+    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id, gameCommand, gameArgs, gameLauncher, savegameDir FROM games ORDER BY gameName ASC");
     while(libraryQuery.next())
     {
         gameList.append(createGameFromQuery(libraryQuery));
@@ -313,10 +316,10 @@ bool FDB::updateGame(FGame *g)
         q.bindValue(":gLauncher", QVariant(QVariant::String));
     }
 	
-	    if(g->savegameSyncEndabled())
+	if(g->savegameSyncEndabled())
         q.bindValue(":gSavegameDir", g->getSavegameDir().absolutePath());
     else
-        q.bindValue(":gLauncher", QVariant(QVariant::String));
+        q.bindValue(":gSavegameDir", QVariant(QVariant::String));
 		
     q.bindValue(":gID", g->dbId);
     return q.exec();
