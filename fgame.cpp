@@ -1,6 +1,7 @@
 #include <QProcess>
 #include <QPixmap>
 #include <QDesktopServices>
+#include "fexception.h"
 #include "fgame.h"
 #include "libfusion.h"
 
@@ -13,11 +14,13 @@ FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QSt
     this->gameExe = exePath;
     this->gameArgs = args;
     launcherEnabled = false;
+    syncEnabled = false;
 }
 
 FGame::FGame()
 {
     launcherEnabled = false;
+    syncEnabled = false;
 }
 
 
@@ -53,7 +56,7 @@ QString FGame::FGameTypeToStr(FGameType type)
     case unknown:
         return "Unknown";
         break;
-    Executable:
+    case Executable:
         return "Executable";
         break;
     case Steam:
@@ -167,6 +170,46 @@ QString FGame::getCacheDir()
 
     return dir;
 }
+QDir FGame::getSavegameDir() const
+{
+    return savegameDir;
+}
+
+void FGame::setSavegameDir(const QDir &value)
+{
+    savegameDir = value;
+    syncEnabled = true;
+}
+
+void FGame::setSavegameDir(const QString &value)
+{
+    if(value!="") {
+        savegameDir = QDir(value);
+        syncEnabled = true;
+    } else
+        syncEnabled = false;
+}
+
+bool FGame::savegameSyncEndabled()
+{
+    return syncEnabled;
+}
+
+bool FGame::syncData()
+{
+   // if(!syncEnabled)
+     //   return true;
+
+    try {
+        FFileSync f;
+      //  f.sync(savegameDir,5);
+    } catch (FException& e) {
+        qWarning() << e.what() << e.Message;
+        }
+
+    return true;
+}
+
 
 QStringList FGame::getArgs()
 {
@@ -232,6 +275,8 @@ QStringList FGame::createStringListFromArguments(QString args)
 
 bool FGame::execute()
 {
+    syncData();
+
     qDebug() << "Game type: " << gameType;
     if(gameType == FGameType::Steam) {
 #ifdef _WIN32
