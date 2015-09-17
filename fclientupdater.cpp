@@ -22,7 +22,9 @@ QString FClientUpdater::getCRClientVersion()
     reply->deleteLater();
     text.remove('"');
 
-    if ((text.isEmpty()) || (text.isNull())) { qDebug() << "[ERROR] Client version from API is empty or null. There may be no connection to the API."; return "NA"; }
+    if ((text.isEmpty()) || (text.isNull())) {
+        qDebug() << "[ERROR] Client version from API is empty or null. There may be no connection to the API."; return "NA";
+    }
     qDebug() << "Current client version: " << text;
     return text;
 }

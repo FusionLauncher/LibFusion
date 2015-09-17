@@ -8,6 +8,7 @@
 #include <fdb.h>
 #include <libfusion.h>
 #include "fdbupdater.h"
+#include "f_dbg.h"
 #include <QFile>
 
 FDB::FDB(QObject *parent)
@@ -45,7 +46,7 @@ bool FDB::init()
     FDBUpdater updater(this, this);
     if(createDB)
     {
-        qDebug() << "Creating database.";
+        DBG_DB("Creating database.");
         query.exec("CREATE TABLE IF NOT EXISTS prefs(key TINYTEXT NOT NULL, valuetype TINYINT NOT NULL, number TINYINT NOT NULL, text VARCHAR(255) NOT NULL)");
         //(later) if clientToken doesnt exists, show login and run registerClient(), if no account, //run register()
         //(later) if lang is not set, set it to the default system language
@@ -58,7 +59,7 @@ bool FDB::init()
     }
     if(updater.checkForDBUpdate())
     {
-        qDebug() << "Found an update, updating!";
+        DBG_DB("Found an update, updating!");
         initSuccessful = updater.updateDB();
     }
     return initSuccessful;
@@ -214,7 +215,7 @@ bool FDB::updateTextPref(QString pref, QString value)
 
 
     if(prefQuery.numRowsAffected() == 0) {
-        qDebug() << "Added Text-Pref:" << pref;
+        DBG_DB("Added Text-Pref:" << pref);
         return addTextPref(pref, value);
     } else {
         return res;
@@ -280,7 +281,7 @@ bool FDB::updateIntPref(QString pref, int value)
     bool res = tryExecute(&prefQuery);
 
     if(prefQuery.numRowsAffected() == 0) {
-        qDebug() << "Added Int-Pref:" << pref;
+        DBG_DB("Added Int-Pref:" << pref);
         return addIntPref(pref, value);
     } else {
         return res;
@@ -297,7 +298,7 @@ bool FDB::getBoolPref(QString pref, bool defaultValue)
     } catch(int i) {
 
             addBoolPref(pref, defaultValue);
-            qDebug() << "added Pref: " << pref;
+            DBG_DB("added Pref: " << pref);
     }
 
     return val;
@@ -374,7 +375,7 @@ bool FDB::updateBoolPref(QString pref, bool value)
     bool res = tryExecute(&prefQuery);
 
     if(prefQuery.numRowsAffected() == 0) {
-        qDebug() << "Added Int-Pref:" << pref;
+        DBG_DB("Added Int-Pref:" << pref);
         return addBoolPref(pref, value);
     } else {
         return res;
@@ -475,7 +476,7 @@ bool FDB::rollbackTransaction()
 bool FDB::runQuery(QSqlQuery q)
 {
     //return q.exec();
-    qDebug() << "RUN!";
+    DBG_DB("RUN!");
     return false;
 }
 
@@ -539,10 +540,10 @@ FLauncher FDB::getLauncher(int dbId)
     query.prepare("SELECT launcherName, launcherPath, launcherArgs, suffix FROM launchers WHERE id = :id");
     query.bindValue(":id", dbId);
     tryExecute(&query);
-    qDebug() << "Getting launcher" << dbId;
+    DBG_DB("Getting launcher" << dbId);
     if(!query.next())
     {
-        qDebug() << "Didn't find the launcher..";
+        DBG_DB("Didn't find the launcher..");
         return FLauncher();
     }
     launcher.setDbId(dbId);

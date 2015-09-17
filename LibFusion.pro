@@ -42,7 +42,8 @@ HEADERS += libfusion.h\
     flauncher.h \
     fwatchedfolder.h \
     ffilesync.h \
-    fexception.h
+    fexception.h \
+    f_dbg.h
 
 unix {
     target.path = /usr/lib

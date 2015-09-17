@@ -30,7 +30,6 @@ void FArtManager::getGameData(FGame *g, QString platform = "pc") {
     game = g;
     QString gName = g->getName().replace("™", "");
     QString url = "http://thegamesdb.net/api/GetGame.php?platform="+platform+"&exactname=" + gName;
-//    qDebug() << url ;
     m_manager->get(QNetworkRequest(QUrl(url)));
 }
 
@@ -38,7 +37,6 @@ void FArtManager::getGameData(FGame *g, TheGameDBStorage *gameDBEntry)
 {
     game = g;
     QString url = "http://thegamesdb.net/api/GetGame.php?id=" + gameDBEntry->gameID;
-//    qDebug() << url ;
     m_manager->get(QNetworkRequest(QUrl(url)));
 }
 
@@ -67,15 +65,14 @@ void FArtManager::importArtwork(QFileInfo fi, QString destName)
 
 void FArtManager::dataReady(QNetworkReply *pReply)
 {
-    qDebug() << "dataReady(QNetworkReply *pReply)";
     if(pReply->error() != QNetworkReply::NoError) {
-        qDebug() << "QNetworkReply-Error: " << pReply->error();
+        qWarning() << "QNetworkReply-Error: " << pReply->error();
         return;
     }
 
    QByteArray data=pReply->readAll();
    if(data.size() == 0) {
-       qDebug() << "No data from ";
+       qWarning() << "No data from ";
        return;
    }
 
@@ -95,7 +92,6 @@ void FArtManager::dataReady(QNetworkReply *pReply)
       //Only one Found, assume its the right one
       if(Games.length()==1)
       {
-          qDebug() << "Only one Found, assume its the right one";
         if(Games[0]->clearartURL != NULL)
             downloadImage(Games[0]->clearartURL, FArtClearart);
 
