@@ -3,6 +3,7 @@
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QSqlError>
 #include <fgame.h>
 #include <fdb.h>
 #include <libfusion.h>
@@ -48,9 +49,11 @@ bool FDB::init()
         query.exec("CREATE TABLE IF NOT EXISTS prefs(key TINYTEXT NOT NULL, valuetype TINYINT NOT NULL, number TINYINT NOT NULL, text VARCHAR(255) NOT NULL)");
         //(later) if clientToken doesnt exists, show login and run registerClient(), if no account, //run register()
         //(later) if lang is not set, set it to the default system language
-        query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL, gameCommand TEXT, gameArgs TEXT, gameLauncher INTEGER)");
-        query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255) );");
-        query.exec("CREATE TABLE IF NOT EXISTS launchers(id INTEGER PRIMARY KEY ASC, launcherName TEXT NOT NULL, launcherPath TEXT NOT NULL, launcherArgs TEXT NOT NULL)");
+        query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL, gameCommand TEXT, gameArgs TEXT, gameLauncher INTEGER, savegameDir TEXT)");
+        query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255),forLauncher TINY INT DEFAULT '0', launcherID INT DEFAULT NULL );");
+        query.exec("CREATE TABLE IF NOT EXISTS launchers(id INTEGER PRIMARY KEY ASC, launcherName TEXT NOT NULL, launcherPath TEXT NOT NULL, launcherArgs TEXT NOT NULL, suffix TEXT)");
+
+
         updater.initVersion();
     }
     if(updater.checkForDBUpdate())
@@ -68,6 +71,7 @@ bool FDB::addGame(FGame game)
     {
         addLauncher(game.getLauncher());
     }
+
     gameQuery.prepare("INSERT INTO games(gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher) VALUES (:gameName, :gameType, :gameDirectory, :relExecutablePath, :gameCommand, :gameArgs, :gameLauncher)");
     gameQuery.bindValue(":gameName", game.getName());
     gameQuery.bindValue(":gameType", game.getType());
@@ -81,7 +85,7 @@ bool FDB::addGame(FGame game)
 
 
     qDebug("Game Added: " + game.getName().toLatin1());
-    return gameQuery.exec();
+    return tryExecute(&gameQuery);
 }
 
 bool FDB::removeGameById(int id)
@@ -89,7 +93,7 @@ bool FDB::removeGameById(int id)
     QSqlQuery removalQuery;
     removalQuery.prepare("DELETE FROM games WHERE id = :id");
     removalQuery.bindValue(":id", id);
-    removalQuery.exec();
+    tryExecute(&removalQuery);
     //TODO: return false in case of an error
     return true;
 }
@@ -122,7 +126,7 @@ FGame* FDB::getGame(int id)
     QSqlQuery gameQuery;
     gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id, savegameDir FROM games WHERE id = :id");
     gameQuery.bindValue(":id", id);
-    gameQuery.exec();
+    tryExecute(&gameQuery);
 
     if(! gameQuery.next())
     {
@@ -393,7 +397,8 @@ bool FDB::updateWatchedFolders(QList<FWatchedFolder> data)
         insertQuery.bindValue(":folder", dir.getDirectory().absolutePath());
         insertQuery.bindValue(":launcherID", dir.getLauncherID());
         insertQuery.bindValue(":forLauncher", dir.forLauncher);
-        insertQuery.exec();
+        tryExecute(&insertQuery);
+        insertQuery.finish();
         qDebug("Add Lib: " + dir.getDirectory().absolutePath().toLatin1());
     }
 
@@ -419,6 +424,31 @@ QList<FWatchedFolder> FDB::getWatchedFoldersList() {
         result.append(folder);
     }
     return result;
+
+}
+
+
+bool FDB::tryExecute(QSqlQuery *q) {
+    bool queryOK = q->exec();
+
+    if(!queryOK) {
+        QString queryStr = q->lastQuery();
+        QSqlError e = q->lastError();
+
+        QString boundValues;
+        QMapIterator<QString, QVariant> i(q->boundValues());
+        while (i.hasNext()) {
+            i.next();
+            boundValues += i.key() + ": " + i.value().toString() + "\r\n";
+        }
+
+        qWarning() << e.databaseText();
+        qWarning() << e.driverText();
+        qWarning() << queryStr;
+        qWarning() << boundValues;
+    }
+
+    return queryOK;
 
 }
 

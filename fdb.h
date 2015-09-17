@@ -64,6 +64,7 @@ private:
     QSqlQuery query;
 
     FGame *createGameFromQuery(QSqlQuery query);
+    bool tryExecute(QSqlQuery *q);
 signals:
 
 public slots:
