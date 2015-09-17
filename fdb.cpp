@@ -93,9 +93,8 @@ bool FDB::removeGameById(int id)
     QSqlQuery removalQuery;
     removalQuery.prepare("DELETE FROM games WHERE id = :id");
     removalQuery.bindValue(":id", id);
-    tryExecute(&removalQuery);
-    //TODO: return false in case of an error
-    return true;
+
+    return tryExecute(&removalQuery);
 }
 
 
@@ -141,7 +140,8 @@ QList<FGame*> FDB::getGameList()
     QList<FGame*> gameList;
     QSqlQuery libraryQuery;
     FGame game;
-    libraryQuery.exec("SELECT gameName, gameType, gameDirectory, relExecutablePath, id, gameCommand, gameArgs, gameLauncher, savegameDir FROM games ORDER BY gameName ASC");
+    libraryQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, id, gameCommand, gameArgs, gameLauncher, savegameDir FROM games ORDER BY gameName ASC");
+    tryExecute(&libraryQuery);
     while(libraryQuery.next())
     {
         gameList.append(createGameFromQuery(libraryQuery));
@@ -152,7 +152,8 @@ QList<FGame*> FDB::getGameList()
 int FDB::getGameCount()
 {
     QSqlQuery countQuery;
-    countQuery.exec("SELECT count() FROM games");
+    countQuery.prepare("SELECT count() FROM games");
+    tryExecute(&countQuery);
     if(!countQuery.next())
     {
         return 0;
@@ -183,7 +184,7 @@ QString FDB::getTextPref(QString pref)
     QSqlQuery prefQuery;
     prefQuery.prepare("SELECT (text) FROM prefs WHERE key = :key AND valuetype = 1");
     prefQuery.bindValue(":key", pref);
-    prefQuery.exec();
+    tryExecute(&prefQuery);
     if(!prefQuery.next())
     {
         return QString();
@@ -200,7 +201,7 @@ bool FDB::addTextPref(QString pref, QString value)
     prefQuery.prepare("INSERT INTO prefs(key, valuetype, number, text) VALUES (:key, 1, 0, :value)");
     prefQuery.bindValue(":key", pref);
     prefQuery.bindValue(":value", value);
-    return prefQuery.exec();
+    return tryExecute(&prefQuery);
 }
 
 bool FDB::updateTextPref(QString pref, QString value)
@@ -209,7 +210,7 @@ bool FDB::updateTextPref(QString pref, QString value)
     prefQuery.prepare("UPDATE prefs SET text = :value WHERE key = :key");
     prefQuery.bindValue(":value", value);
     prefQuery.bindValue(":key", pref);
-    bool res = prefQuery.exec();
+    bool res = tryExecute(&prefQuery);
 
 
     if(prefQuery.numRowsAffected() == 0) {
@@ -226,7 +227,7 @@ bool FDB::deletePref(QString pref)
     QSqlQuery delQuery;
     delQuery.prepare("DELETE FROM prefs WHERE key = :key");
     delQuery.bindValue(":key", pref);
-    return delQuery.exec();
+    return tryExecute(&delQuery);
 }
 
 
@@ -249,7 +250,7 @@ int FDB::getIntPref(QString pref)
     QSqlQuery prefQuery;
     prefQuery.prepare("SELECT (number) FROM prefs WHERE key = :key AND valuetype = 2");
     prefQuery.bindValue(":key", pref);
-    prefQuery.exec();
+    tryExecute(&prefQuery);
     if(!prefQuery.next())
     {
         return -1;
@@ -266,8 +267,7 @@ bool FDB::addIntPref(QString pref, int value)
     prefQuery.prepare("INSERT INTO prefs(key, valuetype, number, text) VALUES (:key, 2, :value, '')");
     prefQuery.bindValue(":key", pref);
     prefQuery.bindValue(":value", value);
-    bool res = prefQuery.exec();
-    return res;
+    return tryExecute(&prefQuery);
 }
 
 bool FDB::updateIntPref(QString pref, int value)
@@ -277,7 +277,7 @@ bool FDB::updateIntPref(QString pref, int value)
     prefQuery.bindValue(":value", value);
     prefQuery.bindValue(":key", pref);
 
-    bool res = prefQuery.exec();
+    bool res = tryExecute(&prefQuery);
 
     if(prefQuery.numRowsAffected() == 0) {
         qDebug() << "Added Int-Pref:" << pref;
@@ -298,7 +298,6 @@ bool FDB::getBoolPref(QString pref, bool defaultValue)
 
             addBoolPref(pref, defaultValue);
             qDebug() << "added Pref: " << pref;
-
     }
 
     return val;
@@ -326,7 +325,7 @@ bool FDB::updateGame(FGame *g)
         q.bindValue(":gSavegameDir", QVariant(QVariant::String));
 		
     q.bindValue(":gID", g->dbId);
-    return q.exec();
+    return tryExecute(&q);
 
 }
 
@@ -339,7 +338,7 @@ bool FDB::updateLauncher(FLauncher launcher)
     q.bindValue(":lArgs", launcher.getArgs());
     q.bindValue(":lId", launcher.getDbId());
     q.bindValue(":lSuffix", launcher.getFileEndings());
-    return q.exec();
+    return tryExecute(&q);
 }
 
 
@@ -348,7 +347,7 @@ bool FDB::getBoolPref(QString pref)
     QSqlQuery prefQuery;
     prefQuery.prepare("SELECT (number) FROM prefs WHERE key = :key AND valuetype = 3");
     prefQuery.bindValue(":key", pref);
-    prefQuery.exec();
+    tryExecute(&prefQuery);
 
     if(!prefQuery.next())
         throw 20;
@@ -362,8 +361,7 @@ bool FDB::addBoolPref(QString pref, bool value)
     prefQuery.prepare("INSERT INTO prefs(key, valuetype, number, text) VALUES (:key, 3, :value, '')");
     prefQuery.bindValue(":key", pref);
     prefQuery.bindValue(":value", value);
-    bool res = prefQuery.exec();
-    return res;
+    return tryExecute(&prefQuery);
 }
 
 bool FDB::updateBoolPref(QString pref, bool value)
@@ -373,7 +371,7 @@ bool FDB::updateBoolPref(QString pref, bool value)
     prefQuery.bindValue(":value", value);
     prefQuery.bindValue(":key", pref);
 
-    bool res = prefQuery.exec();
+    bool res = tryExecute(&prefQuery);
 
     if(prefQuery.numRowsAffected() == 0) {
         qDebug() << "Added Int-Pref:" << pref;
@@ -388,7 +386,7 @@ bool FDB::updateWatchedFolders(QList<FWatchedFolder> data)
 {
     QSqlQuery updateQuery;
     updateQuery.prepare("DELETE FROM watchedFolders");
-    updateQuery.exec();
+    tryExecute(&updateQuery);
 
     QSqlQuery insertQuery;
     insertQuery.prepare("INSERT INTO watchedFolders (path, launcherID, forLauncher) VALUES(:folder, :launcherID, :forLauncher)");
@@ -486,7 +484,7 @@ bool FDB::gameExists(FGame game)
     QSqlQuery query;
     query.prepare("SELECT count(*) FROM games WHERE relExecutablePath = :Exe");
     query.bindValue(":Exe", game.getExe());
-    query.exec();
+    tryExecute(&query);
     query.next();
 
     if(query.value(0).toInt()>0)
@@ -501,7 +499,7 @@ bool FDB::launcherExists(FLauncher launcher)
     QSqlQuery query;
     query.prepare("SELECT count(*) FROM launchers WHERE id = :id");
     query.bindValue(":id", launcher.getDbId());
-    query.exec();
+    tryExecute(&query);
     query.next();
     return query.value(0).toInt()>0;
 }
@@ -520,7 +518,7 @@ int FDB::addLauncher(FLauncher launcher)
     query.bindValue(":path", launcher.getPath());
     query.bindValue(":args", launcher.getArgs());
     query.bindValue(":suffix", launcher.getFileEndings());
-    return query.exec();
+    return tryExecute(&query);
 }
 
 bool FDB::updateLaunchers(QList<FLauncher> launchers)
@@ -540,7 +538,7 @@ FLauncher FDB::getLauncher(int dbId)
     QSqlQuery query;
     query.prepare("SELECT launcherName, launcherPath, launcherArgs, suffix FROM launchers WHERE id = :id");
     query.bindValue(":id", dbId);
-    query.exec();
+    tryExecute(&query);
     qDebug() << "Getting launcher" << dbId;
     if(!query.next())
     {
@@ -560,7 +558,7 @@ QList<FLauncher> FDB::getLaunchers()
     QList<FLauncher> list;
     QSqlQuery query;
     query.prepare("SELECT launcherName, launcherPath, launcherArgs, id, suffix FROM launchers");
-    query.exec();
+    tryExecute(&query);
     while(query.next())
     {
         FLauncher launcher;
