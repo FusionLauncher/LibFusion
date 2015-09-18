@@ -2,6 +2,8 @@
 
 FWatchedFolder::FWatchedFolder()
 {
+    forLauncher = false;
+    launcherID = 0;
 
 }
 
