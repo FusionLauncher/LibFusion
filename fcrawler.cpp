@@ -47,6 +47,12 @@ void FCrawler::scanAllFolders()
 void FCrawler::scanforLauncher(FWatchedFolder folder) {
     QStringList fileEndings = db.getLauncher(folder.getLauncherID()).getFileEndings().split(",", QString::SkipEmptyParts);
 
+    if(fileEndings.length()==0)
+    {
+        qWarning() << "Carwler for " << folder.getDirectory().absolutePath() << " could not find any Roms!";
+        return;
+    }
+
     for(int i=0;i<fileEndings.length();++i)
         fileEndings[i] = "*." + fileEndings[i];
 
