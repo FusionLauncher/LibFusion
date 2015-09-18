@@ -3,7 +3,7 @@
 FWatchedFolder::FWatchedFolder()
 {
     forLauncher = false;
-    launcherID = 0;
+    LauncherID = 0;
 
 }
 
