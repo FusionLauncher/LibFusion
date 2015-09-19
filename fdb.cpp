@@ -460,9 +460,10 @@ bool FDB::tryExecute(QSqlQuery *q) {
         QMapIterator<QString, QVariant> i(q->boundValues());
         while (i.hasNext()) {
             i.next();
-            boundValues += i.key() + ": " + i.value().toString() + "\r\n";
+            boundValues += i.key() + ": '" + i.value().toString() + "'; ";
         }
 
+        qWarning() << "####################";
         qWarning() << e.databaseText();
         qWarning() << e.driverText();
         qWarning() << queryStr;
