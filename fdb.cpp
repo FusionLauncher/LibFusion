@@ -426,6 +426,28 @@ QList<FWatchedFolder> FDB::getWatchedFoldersList() {
 
 }
 
+bool FDB::watchedFolderExists(FWatchedFolder *wf)
+{
+    QSqlQuery q;
+    q.prepare("SELECT count(*) as c FROM watchedFolders WHERE path = :wfPath AND launcherID = :wfLauncherID AND forLauncher = :wfforLauncher");
+    q.bindValue(":wfLauncherID", wf->getLauncherID());
+    q.bindValue(":wfPath", wf->getDirectory().absolutePath());
+    q.bindValue(":wfforLauncher", wf->forLauncher);
+    tryExecute(&q);
+    q.next();
+    return q.value(0).toInt()>0;
+}
+
+bool FDB::addWatchedFolder(FWatchedFolder wf)
+{
+    QSqlQuery q;
+    q.prepare("INSERT INTO watchedFolders (path, launcherID, forLauncher) VALUES (:wfPath, :wfLauncherID, :wfforLauncher);");
+    q.bindValue(":wfLauncherID", wf.getLauncherID());
+    q.bindValue(":wfPath", wf.getDirectory().absolutePath());
+    q.bindValue(":wfforLauncher", wf.forLauncher?1:0);
+    return tryExecute(&q);
+}
+
 
 bool FDB::tryExecute(QSqlQuery *q) {
     bool queryOK = q->exec();

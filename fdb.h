@@ -37,25 +37,31 @@ public:
 
     bool updateWatchedFolders(QList<FWatchedFolder> data);
     QList<FWatchedFolder> getWatchedFoldersList();
+    bool watchedFolderExists(FWatchedFolder *wf);
+    bool addWatchedFolder(FWatchedFolder wf);
+
+
     bool beginTransaction();
     bool endTransaction();
     bool rollbackTransaction();
     bool gameExists(FGame game);
     bool runQuery(QSqlQuery q);
+
     bool updateBoolPref(QString pref, bool value);
     bool addBoolPref(QString pref, bool value);
     bool getBoolPref(QString pref);
     bool getBoolPref(QString pref, bool defaultValue);
 
+
     int addLauncher(FLauncher launcher);
     bool updateLaunchers(QList<FLauncher> launchers);
     FLauncher getLauncher(int id);
     QList<FLauncher> getLaunchers();
+    bool updateLauncher(FLauncher launcher);
+    bool launcherExists(FLauncher launcher);
 
 
     bool updateGame(FGame *g);
-    bool updateLauncher(FLauncher launcher);
-    bool launcherExists(FLauncher launcher);
 
     QDir getSavegameDir();
 
