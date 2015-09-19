@@ -52,6 +52,7 @@ private:
     void getOriginGames();
     void getGalaxyGames(FWatchedFolder folder);
     void scanforLauncher(FWatchedFolder folder);
+    void updateSteamDirs();
 };
 
 #endif // FCRAWLER_H

@@ -17,6 +17,8 @@ void FCrawler::scanAllFolders()
 {
     db.beginTransaction();
 
+    updateSteamDirs();
+
     QList<FWatchedFolder> folder =db.getWatchedFoldersList();
     for(int i=0;i<folder.length();++i) {
         FWatchedFolder f = folder[i];
@@ -42,6 +44,56 @@ void FCrawler::scanAllFolders()
     #endif
 
     db.endTransaction();
+}
+
+void FCrawler::updateSteamDirs() {
+    //Getting the Steam-Directories first
+    QStringList steamFolders;
+    steamFolders << "C:\\Program Files\\Steam\\steamapps\\libraryfolders.vdf";
+    steamFolders << "~/.local/share/Steam/steamapps/libraryfolders.vdf";
+    steamFolders << "C:\\Program Files (x86)\\Steam\\steamapps\\libraryfolders.vdf";
+
+    QFile libFolder;
+    libFolder.setFileName(steamFolders[0]);
+    int i = 1;
+    while(!libFolder.exists() && i< steamFolders.length())
+    {
+        libFolder.setFileName(steamFolders[i]);
+        ++i;
+    }
+
+    if (!libFolder.exists())
+        return;
+
+    libFolder.open(QIODevice::ReadOnly|QIODevice::Text);
+    QString fileContent = libFolder.readAll();
+    QStringList fileLines = fileContent.split("\n");
+    libFolder.close();
+
+    int found = 1;
+
+    for(int i =0;i<fileLines.length();++i)
+    {
+        if(fileLines[i].contains("\""+QString::number(found)+"\"")) { // = "1", "2",...
+
+            int last = fileLines[i].lastIndexOf("\"");
+            int prelast = fileLines[i].lastIndexOf("\"", -2);
+            QString dir = fileLines[i].mid(prelast+1, last-prelast-1) + QDir::separator() + "steamapps";
+
+            FWatchedFolder wf;
+            wf.setDirectory(QDir(dir));
+
+            if(!db.watchedFolderExists(&wf)) {
+                db.addWatchedFolder(wf);
+
+             //   "1"		"C:\\Games\\Steam"
+
+                ++found;
+            }
+        }
+    }
+
+
 }
 
 void FCrawler::scanforLauncher(FWatchedFolder folder) {
@@ -99,7 +151,7 @@ FGameType FCrawler::getType(FWatchedFolder folder) {
 void FCrawler::getGalaxyGames(FWatchedFolder folder) {
     QStringList subfolders = folder.getDirectory().entryList();
 
-       DBG_CRWL("Scanning Galaxy-Dir");
+    DBG_CRWL("Scanning Galaxy-Dir");
 
     for(int j=0;j<subfolders.length();++j) {
         if(subfolders[j]=="!Downloads")
