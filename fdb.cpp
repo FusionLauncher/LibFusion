@@ -141,7 +141,7 @@ QList<FGame*> FDB::getGameList()
     QList<FGame*> gameList;
     QSqlQuery libraryQuery;
     FGame game;
-    libraryQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, id, gameCommand, gameArgs, gameLauncher, savegameDir FROM games ORDER BY gameName ASC");
+    libraryQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id, savegameDir FROM games ORDER BY gameName ASC");
     tryExecute(&libraryQuery);
     while(libraryQuery.next())
     {
