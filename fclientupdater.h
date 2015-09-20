@@ -35,8 +35,9 @@ public:
     bool fileExists(QString filePath);
 
     //Read/Write version info
-    void writeVersion(QString version, QString filePath);
+    void writeVersion(QString version, QString currentPath);
     QString readVersion(QString filePath);
+    QString readPath();
 
 private:
 

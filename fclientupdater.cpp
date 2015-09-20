@@ -1,4 +1,5 @@
 #include "fclientupdater.h"
+#include "libfusion.h"
 
 FClientUpdater::FClientUpdater(QObject *parent) : QObject(parent)
 {
@@ -90,14 +91,24 @@ bool FClientUpdater::fileExists(QString filePath)
 }
 
 //Write version info
-void FClientUpdater::writeVersion(QString version, QString filePath)
+void FClientUpdater::writeVersion(QString version, QString currentPath)
 {
-    QFile file(filePath);
-    file.open(QIODevice::WriteOnly);
+    QFile file(LibFusion::getWorkingDir().absolutePath() + "/FVersion.txt");
+    if (!file.open(QIODevice::WriteOnly|QIODevice::Text))
+        return;
+
     QDataStream out(&file);
 
     out << version;
     file.close();
+
+    QFile filePath(LibFusion::getWorkingDir().absolutePath() + "/FPath.txt");
+    if (!filePath.open(QIODevice::ReadWrite|QIODevice::Text))
+            return;
+
+    QDataStream outP(&filePath);
+    outP << currentPath;
+    filePath.close();
 
 }
 
@@ -107,6 +118,21 @@ QString FClientUpdater::readVersion(QString filePath)
     QString fileVersion;
 
     QFile file(filePath);
+    file.open(QIODevice::ReadOnly);
+    QDataStream in(&file);
+
+    in >> fileVersion;
+    file.close();
+    return fileVersion;
+}
+
+
+QString FClientUpdater::readPath()
+{
+
+    QString fileVersion;
+
+    QFile file(LibFusion::getWorkingDir().absolutePath() + "/FPath.txt");
     file.open(QIODevice::ReadOnly);
     QDataStream in(&file);
 
