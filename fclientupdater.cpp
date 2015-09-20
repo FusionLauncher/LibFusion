@@ -12,7 +12,7 @@ QString FClientUpdater::getCRClientVersion()
     QEventLoop loop;
     QObject::connect(manager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
 
-    QNetworkRequest request(QUrl("https://pacific-citadel-1552.herokuapp.com/api/version/fusionClient"));
+    QNetworkRequest request(QUrl("http://projfusion.com/files/Releases/version.txt"));
     QNetworkReply *reply = manager->get(request);
     reply->ignoreSslErrors();
 
