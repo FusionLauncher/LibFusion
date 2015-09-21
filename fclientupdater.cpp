@@ -86,7 +86,7 @@ bool FClientUpdater::isCurrentClient(QString path)
 bool FClientUpdater::fileExists(QString filePath)
 {
 
-    qDebug() << filePath << " exists: " << qd->exists(filePath);
+ //   qDebug() << filePath << " exists: " << qd->exists(filePath);
     return qd->exists(filePath);
 }
 
@@ -94,27 +94,26 @@ bool FClientUpdater::fileExists(QString filePath)
 void FClientUpdater::writeVersion(QString version, QString currentPath)
 {
     QFile file(LibFusion::getWorkingDir().absolutePath() + "/FVersion.txt");
-    if (!file.open(QIODevice::WriteOnly|QIODevice::Text))
+    if (!file.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate))
         return;
 
     QDataStream out(&file);
 
-    out << version;
+    out << version.toLatin1();
     file.close();
 
     QFile filePath(LibFusion::getWorkingDir().absolutePath() + "/FPath.txt");
-    if (!filePath.open(QIODevice::ReadWrite|QIODevice::Text))
+    if (!filePath.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate))
             return;
 
     QDataStream outP(&filePath);
-    outP << currentPath;
+    outP << currentPath.toLatin1();
     filePath.close();
 
 }
 
 QString FClientUpdater::readVersion(QString filePath)
 {
-
     QString fileVersion;
 
     QFile file(filePath);
@@ -122,6 +121,7 @@ QString FClientUpdater::readVersion(QString filePath)
     QDataStream in(&file);
 
     in >> fileVersion;
+    fileVersion = file.readAll();
     file.close();
     return fileVersion;
 }
@@ -129,7 +129,6 @@ QString FClientUpdater::readVersion(QString filePath)
 
 QString FClientUpdater::readPath()
 {
-
     QString fileVersion;
 
     QFile file(LibFusion::getWorkingDir().absolutePath() + "/FPath.txt");
@@ -137,6 +136,8 @@ QString FClientUpdater::readPath()
     QDataStream in(&file);
 
     in >> fileVersion;
+    fileVersion = file.readAll();
     file.close();
     return fileVersion;
+
 }
