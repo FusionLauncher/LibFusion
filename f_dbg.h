@@ -2,10 +2,13 @@
 #define F_DBG
 
 #include "qdebug.h"
+#include "flogger.h"
 
 //Globally enable DBG-Outputs
 #define DBG_PRINT_ENABLED
 
+//FLogger::append("Main.log", "FusionCLient started");
+//#define LOG_DBGS
 
 //Enable Debug for Sections
 #ifdef DBG_PRINT_ENABLED
@@ -26,13 +29,23 @@
 //Macros for Each Debug-Section below.
 //Doesn't need to be edited after declaration
 #ifdef DBG_CRWL_EN
-    #define DBG_CRWL(x) qDebug() << x
+    #ifdef LOG_DBGS
+        #define DBG_CRWL(x) FLogger::append("Crawler.log", x)
+    #else
+        #define DBG_CRWL(x) qDebug() << x
+    #endif
 #else
     #define DBG_CRWL(x)
 #endif
 
+
+
 #ifdef DBG_CRWL2_EN
-    #define DBG_CRWL2(x) qDebug() << x
+    #ifdef LOG_DBGS
+        #define DBG_CRWL2(x) FLogger::append("Crawler.log", x)
+    #else
+        #define DBG_CRWL2(x) qDebug() << x
+    #endif
 #else
     #define DBG_CRWL2(x)
 #endif
@@ -40,13 +53,21 @@
 
 
 #ifdef DBG_DB_EN
-    #define DBG_DB(x) qDebug() << x
+    #ifdef LOG_DBGS
+        #define DBG_DB(x) FLogger::append("DB.log", x)
+    #else
+        #define DBG_DB(x) qDebug() << x
+    #endif
 #else
     #define DBG_DB(x)
 #endif
 
 #ifdef DBG_DBU_EN
-    #define DBG_DBU(x) qDebug() << x
+    #ifdef LOG_DBGS
+        #define DBG_DBU(x) FLogger::append("DB.log", x)
+    #else
+        #define DBG_DBU(x) qDebug() << x
+    #endif
 #else
     #define DBG_DBU(x)
 #endif
