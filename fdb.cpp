@@ -20,6 +20,7 @@ bool FDB::init()
 {
     if(!LibFusion::makeSureWorkingDirExists())
     {
+        DBG_DB("Unable to create/access working Dir!");
 	    return false;
     }
     QDir workingDir = LibFusion::getWorkingDir();
@@ -28,6 +29,7 @@ bool FDB::init()
     bool createDB = false;
     if(!dbFile.exists())
     {
+        DBG_DB("Database will be created.");
         createDB = true;
     }
     bool initSuccessful = true;
@@ -36,12 +38,12 @@ bool FDB::init()
 
     db.setDatabaseName(QFileInfo(dbFile).absoluteFilePath());
     bool ok = db.open();
-    //ui->label->setText(ok ? "Connected!" : "Failed");
     if(!ok)
     {
-        //show a popup window / alert about the error
+        DBG_DB("Unable to open Database!");
         return false;
     }
+
     QSqlQuery query;
     FDBUpdater updater(this, this);
     if(createDB)
@@ -55,13 +57,16 @@ bool FDB::init()
         query.exec("CREATE TABLE IF NOT EXISTS launchers(id INTEGER PRIMARY KEY ASC, launcherName TEXT NOT NULL, launcherPath TEXT NOT NULL, launcherArgs TEXT NOT NULL, suffix TEXT)");
 
 
+        DBG_DB("Database created.");
         updater.initVersion();
     }
+
     if(updater.checkForDBUpdate())
     {
-        DBG_DB("Found an update, updating!");
+        DBG_DB("Found an update, updating db!");
         initSuccessful = updater.updateDB();
     }
+
     return initSuccessful;
 }
 
@@ -215,7 +220,7 @@ bool FDB::updateTextPref(QString pref, QString value)
 
 
     if(prefQuery.numRowsAffected() == 0) {
-        DBG_DB("Added Text-Pref:" << pref);
+        DBG_DB("Added Text-Pref:" + pref);
         return addTextPref(pref, value);
     } else {
         return res;
@@ -281,7 +286,7 @@ bool FDB::updateIntPref(QString pref, int value)
     bool res = tryExecute(&prefQuery);
 
     if(prefQuery.numRowsAffected() == 0) {
-        DBG_DB("Added Int-Pref:" << pref);
+        DBG_DB("Added Int-Pref:" + pref);
         return addIntPref(pref, value);
     } else {
         return res;
@@ -298,7 +303,7 @@ bool FDB::getBoolPref(QString pref, bool defaultValue)
     } catch(int i) {
 
             addBoolPref(pref, defaultValue);
-            DBG_DB("added Pref: " << pref);
+            DBG_DB("added Pref: " + pref);
     }
 
     return val;
@@ -375,7 +380,7 @@ bool FDB::updateBoolPref(QString pref, bool value)
     bool res = tryExecute(&prefQuery);
 
     if(prefQuery.numRowsAffected() == 0) {
-        DBG_DB("Added Int-Pref:" << pref);
+        DBG_DB("Added Int-Pref:" + pref);
         return addBoolPref(pref, value);
     } else {
         return res;
@@ -463,11 +468,11 @@ bool FDB::tryExecute(QSqlQuery *q) {
             boundValues += i.key() + ": '" + i.value().toString() + "'; ";
         }
 
-        qWarning() << "####################";
-        qWarning() << e.databaseText();
-        qWarning() << e.driverText();
-        qWarning() << queryStr;
-        qWarning() << boundValues;
+        DBG_DB("####################");
+        DBG_DB(e.databaseText());
+        DBG_DB(e.driverText());
+        DBG_DB(queryStr);
+        DBG_DB(boundValues);
     }
 
     return queryOK;
@@ -563,7 +568,7 @@ FLauncher FDB::getLauncher(int dbId)
     query.prepare("SELECT launcherName, launcherPath, launcherArgs, suffix FROM launchers WHERE id = :id");
     query.bindValue(":id", dbId);
     tryExecute(&query);
-    DBG_DB("Getting launcher" << dbId);
+    DBG_DB("Getting launcher" + dbId);
     if(!query.next())
     {
         DBG_DB("Didn't find the launcher..");

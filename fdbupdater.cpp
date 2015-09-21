@@ -29,7 +29,7 @@ bool FDBUpdater::checkForDBUpdate()
             line = updateFile.readLine();
             if(!line.startsWith("#") && !line.isEmpty() && line != "\n")
             {
-                DBG_DBU("Found update content" << line);
+                DBG_DBU("Found update content" + line);
                 if(line.startsWith("_"))
                 {
                     DBG_DBU("Found feature or release");
@@ -39,7 +39,7 @@ bool FDBUpdater::checkForDBUpdate()
             }
             DBG_DBU("Found comment, ignoring...");
         }
-        DBG_DBU("Current version: " << db->getTextPref("dbVersion"));
+        DBG_DBU("Current version: " + db->getTextPref("dbVersion"));
 
         if(!foundVersion || line == db->getTextPref("dbVersion"))
         {
@@ -47,7 +47,7 @@ bool FDBUpdater::checkForDBUpdate()
         }
         else
         {
-            DBG_DBU("Update found!" << line);
+            DBG_DBU("Update found!" + line);
             return true;
         }
     }
@@ -79,7 +79,7 @@ bool FDBUpdater::updateDB()
         QString currentVersion = db->getTextPref("dbVersion",0);
         QStack<QString> stack;
         line = updateFile.readLine();
-        DBG_DBU("New version:" << line << ", old version:" << currentVersion);
+        DBG_DBU("New version:" + line + ", old version:" + currentVersion);
         QString newVersion;
 
         if(line.startsWith("_"))
@@ -100,7 +100,7 @@ bool FDBUpdater::updateDB()
             while(!stack.isEmpty())
             {
                 QString query = stack.pop();
-                DBG_DBU("Running:" << query);
+                DBG_DBU("Running:" + query);
                 failed |= db->runQuery(QSqlQuery(query));
             }
         }
@@ -135,6 +135,6 @@ void FDBUpdater::initVersion()
         DBG_DBU("Didn't find a version");
         return;
     }
-    DBG_DBU("Setting version to" << latestVersion);
+    DBG_DBU("Setting version to " + latestVersion);
     db->addTextPref("dbVersion", latestVersion);
 }

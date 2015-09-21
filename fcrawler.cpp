@@ -112,7 +112,7 @@ void FCrawler::scanforLauncher(FWatchedFolder folder) {
     target.setNameFilters(fileEndings);
     QStringList launcherFiles = target.entryList();
     for(QString foundGame : launcherFiles) {
-        DBG_CRWL("Found " << foundGame << " in " << target.absolutePath());
+        DBG_CRWL("Found " + foundGame + " in " + target.absolutePath());
         FGame g;
         g.setName(foundGame.left(foundGame.length()-4));
         g.setExe(foundGame);
@@ -121,10 +121,10 @@ void FCrawler::scanforLauncher(FWatchedFolder folder) {
         g.setPath(target.absolutePath());
         if(!db.gameExists(g)){
            if(!db.addGame(g))
-               DBG_CRWL("Error on insert Game "<< g.getName());
+               DBG_CRWL("Error on insert Game " + g.getName());
         }
         else
-            DBG_CRWL("Game exists: " << g.getName());
+            DBG_CRWL("Game exists: " + g.getName());
     }
 
 
@@ -184,25 +184,25 @@ void FCrawler::getGalaxyGames(FWatchedFolder folder) {
                     if(line.contains("\"name\"") && !nameFound) {
                         val =line.mid(26, line.lastIndexOf("\"")-26);
                         g.setName(val);
-                        DBG_CRWL2("Name: " << val);
+                        DBG_CRWL2("Name: " + val);
                         nameFound = true;
                     }
                     else if(line.contains("\"path\"") && !pathFound){
                         val = line.mid(27, line.lastIndexOf("\"")-27);
                         g.setExe(val);
                         pathFound = true;
-                        DBG_CRWL2("Path: " << val);
+                        DBG_CRWL2("Path: " + val);
                     }
                     else if(line.contains("\"workingDir\"") && !workingdirFound){
                         val = line.mid(28, line.lastIndexOf("\"")-28);
                         g.setPath(folder.getDirectory().absolutePath() + QDir::separator() + subfolders[j] + QDir::separator() + val);
                         workingdirFound = true;
-                        DBG_CRWL2("workingDir: " << val);
+                        DBG_CRWL2("workingDir: " + val);
                     }
                     else if(line.contains("\"arguments\"") && !argumentFound){
                         val  =line.mid(28, line.lastIndexOf("\"")-28);
                         argumentFound = true;
-                        DBG_CRWL2("arguments: " << val);
+                        DBG_CRWL2("arguments: " + val);
                     }
 
                     if(pathFound && nameFound && argumentFound && workingdirFound)
@@ -220,7 +220,7 @@ void FCrawler::getGalaxyGames(FWatchedFolder folder) {
                 }
                 else
                 {
-                    DBG_CRWL("Game exists: " << g.getName());
+                    DBG_CRWL("Game exists: " + g.getName());
                 }
             }
         }
@@ -271,7 +271,7 @@ void FCrawler::getOriginGames() {
                        DBG_CRWL("Error on insert Game!");
                 }
                 else
-                    DBG_CRWL("Game exists: " << g.getName());
+                    DBG_CRWL("Game exists: " + g.getName());
             }
         }
 
@@ -307,6 +307,6 @@ void FCrawler::getSteamGames(FWatchedFolder folder) {
                DBG_CRWL("Error on insert Game!");
         }
         else
-            DBG_CRWL("Game exists: " << g.getName());
+            DBG_CRWL("Game exists: " + g.getName());
     }
 }
