@@ -13,11 +13,21 @@ LibFusion::LibFusion()
 
 QDir LibFusion::getWorkingDir()
 {
+    QString p = QDir::currentPath();
+
     #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-    return QDir(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+        p = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
     #else
-    return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+        p = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     #endif
+
+    int idx = p.lastIndexOf("/");
+    if(idx==-1)
+        idx = p.lastIndexOf("\\");
+
+    p = p.left(idx+1);
+    p += "Fusion";
+    return QDir(p);
 }
 
 bool LibFusion::makeSureWorkingDirExists()

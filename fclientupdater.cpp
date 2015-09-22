@@ -1,4 +1,5 @@
 #include "fclientupdater.h"
+#include "libfusion.h"
 
 FClientUpdater::FClientUpdater(QObject *parent) : QObject(parent)
 {
@@ -12,7 +13,7 @@ QString FClientUpdater::getCRClientVersion()
     QEventLoop loop;
     QObject::connect(manager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
 
-    QNetworkRequest request(QUrl("https://pacific-citadel-1552.herokuapp.com/api/version/fusionClient"));
+    QNetworkRequest request(QUrl("http://projfusion.com/files/Releases/version.txt"));
     QNetworkReply *reply = manager->get(request);
     reply->ignoreSslErrors();
 
@@ -22,7 +23,9 @@ QString FClientUpdater::getCRClientVersion()
     reply->deleteLater();
     text.remove('"');
 
-    if ((text.isEmpty()) || (text.isNull())) { qDebug() << "[ERROR] Client version from API is empty or null. There may be no connection to the API."; return "NA"; }
+    if ((text.isEmpty()) || (text.isNull())) {
+        qDebug() << "[ERROR] Client version from API is empty or null. There may be no connection to the API."; return "NA";
+    }
     qDebug() << "Current client version: " << text;
     return text;
 }
@@ -83,25 +86,34 @@ bool FClientUpdater::isCurrentClient(QString path)
 bool FClientUpdater::fileExists(QString filePath)
 {
 
-    qDebug() << filePath << " exists: " << qd->exists(filePath);
+ //   qDebug() << filePath << " exists: " << qd->exists(filePath);
     return qd->exists(filePath);
 }
 
 //Write version info
-void FClientUpdater::writeVersion(QString version, QString filePath)
+void FClientUpdater::writeVersion(QString version, QString currentPath)
 {
-    QFile file(filePath);
-    file.open(QIODevice::WriteOnly);
+    QFile file(LibFusion::getWorkingDir().absolutePath() + "/FVersion.txt");
+    if (!file.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate))
+        return;
+
     QDataStream out(&file);
 
-    out << version;
+    out << version.toLatin1();
     file.close();
+
+    QFile filePath(LibFusion::getWorkingDir().absolutePath() + "/FPath.txt");
+    if (!filePath.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate))
+            return;
+
+    QDataStream outP(&filePath);
+    outP << currentPath.toLatin1();
+    filePath.close();
 
 }
 
 QString FClientUpdater::readVersion(QString filePath)
 {
-
     QString fileVersion;
 
     QFile file(filePath);
@@ -109,6 +121,23 @@ QString FClientUpdater::readVersion(QString filePath)
     QDataStream in(&file);
 
     in >> fileVersion;
+    fileVersion = file.readAll();
     file.close();
     return fileVersion;
+}
+
+
+QString FClientUpdater::readPath()
+{
+    QString fileVersion;
+
+    QFile file(LibFusion::getWorkingDir().absolutePath() + "/FPath.txt");
+    file.open(QIODevice::ReadOnly);
+    QDataStream in(&file);
+
+    in >> fileVersion;
+    fileVersion = file.readAll();
+    file.close();
+    return fileVersion;
+
 }

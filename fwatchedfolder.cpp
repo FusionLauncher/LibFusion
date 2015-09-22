@@ -2,6 +2,9 @@
 
 FWatchedFolder::FWatchedFolder()
 {
+    forLauncher = false;
+    LauncherID = -1;
+    dbID = -1;
 
 }
 

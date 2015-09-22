@@ -1,6 +1,6 @@
 #include "fcrawler.h"
 #include "fgame.h"
-
+#include "f_dbg.h"
 #include <QVariantMap>
 
 FCrawler::FCrawler()
@@ -16,6 +16,8 @@ FCrawler::~FCrawler()
 void FCrawler::scanAllFolders()
 {
     db.beginTransaction();
+
+    updateSteamDirs();
 
     QList<FWatchedFolder> folder =db.getWatchedFoldersList();
     for(int i=0;i<folder.length();++i) {
@@ -44,8 +46,64 @@ void FCrawler::scanAllFolders()
     db.endTransaction();
 }
 
+void FCrawler::updateSteamDirs() {
+    //Getting the Steam-Directories first
+    QStringList steamFolders;
+    steamFolders << "C:\\Program Files\\Steam\\steamapps\\libraryfolders.vdf";
+    steamFolders << "~/.local/share/Steam/steamapps/libraryfolders.vdf";
+    steamFolders << "C:\\Program Files (x86)\\Steam\\steamapps\\libraryfolders.vdf";
+
+    QFile libFolder;
+    libFolder.setFileName(steamFolders[0]);
+    int i = 1;
+    while(!libFolder.exists() && i< steamFolders.length())
+    {
+        libFolder.setFileName(steamFolders[i]);
+        ++i;
+    }
+
+    if (!libFolder.exists())
+        return;
+
+    libFolder.open(QIODevice::ReadOnly|QIODevice::Text);
+    QString fileContent = libFolder.readAll();
+    QStringList fileLines = fileContent.split("\n");
+    libFolder.close();
+
+    int found = 1;
+
+    for(int i =0;i<fileLines.length();++i)
+    {
+        if(fileLines[i].contains("\""+QString::number(found)+"\"")) { // = "1", "2",...
+
+            int last = fileLines[i].lastIndexOf("\"");
+            int prelast = fileLines[i].lastIndexOf("\"", -2);
+            QString dir = fileLines[i].mid(prelast+1, last-prelast-1) + QDir::separator() + "steamapps";
+
+            FWatchedFolder wf;
+            wf.setDirectory(QDir(dir));
+
+            if(!db.watchedFolderExists(&wf)) {
+                db.addWatchedFolder(wf);
+
+             //   "1"		"C:\\Games\\Steam"
+
+                ++found;
+            }
+        }
+    }
+
+
+}
+
 void FCrawler::scanforLauncher(FWatchedFolder folder) {
     QStringList fileEndings = db.getLauncher(folder.getLauncherID()).getFileEndings().split(",", QString::SkipEmptyParts);
+
+    if(fileEndings.length()==0)
+    {
+        qWarning() << "Carwler for " << folder.getDirectory().absolutePath() << " could not find any Roms!";
+        return;
+    }
 
     for(int i=0;i<fileEndings.length();++i)
         fileEndings[i] = "*." + fileEndings[i];
@@ -54,7 +112,7 @@ void FCrawler::scanforLauncher(FWatchedFolder folder) {
     target.setNameFilters(fileEndings);
     QStringList launcherFiles = target.entryList();
     for(QString foundGame : launcherFiles) {
-        qDebug() << "Found " << foundGame << " in " << target.absolutePath();
+        DBG_CRWL("Found " + foundGame + " in " + target.absolutePath());
         FGame g;
         g.setName(foundGame.left(foundGame.length()-4));
         g.setExe(foundGame);
@@ -63,10 +121,10 @@ void FCrawler::scanforLauncher(FWatchedFolder folder) {
         g.setPath(target.absolutePath());
         if(!db.gameExists(g)){
            if(!db.addGame(g))
-               qDebug() << "Error on insert Game "<< g.getName();;
+               DBG_CRWL("Error on insert Game " + g.getName());
         }
         else
-            qDebug() << "Game exists: " << g.getName();
+            DBG_CRWL("Game exists: " + g.getName());
     }
 
 
@@ -81,7 +139,7 @@ FGameType FCrawler::getType(FWatchedFolder folder) {
     if(steamFiles.length()>0)
         return FGameType::Steam;
 
-    qDebug() << "Check if Galaxy-Folder";
+    DBG_CRWL("Check if Galaxy-Folder");
 
     QDir f = folder.getDirectory().absolutePath() + QDir::separator() + "!Downloads";
     if(f.exists())
@@ -93,7 +151,7 @@ FGameType FCrawler::getType(FWatchedFolder folder) {
 void FCrawler::getGalaxyGames(FWatchedFolder folder) {
     QStringList subfolders = folder.getDirectory().entryList();
 
-       qDebug() << "Scanning Galaxy-Dir";
+    DBG_CRWL("Scanning Galaxy-Dir");
 
     for(int j=0;j<subfolders.length();++j) {
         if(subfolders[j]=="!Downloads")
@@ -126,25 +184,25 @@ void FCrawler::getGalaxyGames(FWatchedFolder folder) {
                     if(line.contains("\"name\"") && !nameFound) {
                         val =line.mid(26, line.lastIndexOf("\"")-26);
                         g.setName(val);
-                 //       qDebug() << "Name: " << val;
+                        DBG_CRWL2("Name: " + val);
                         nameFound = true;
                     }
                     else if(line.contains("\"path\"") && !pathFound){
                         val = line.mid(27, line.lastIndexOf("\"")-27);
                         g.setExe(val);
                         pathFound = true;
-                   //     qDebug() << "Path: " << val;
+                        DBG_CRWL2("Path: " + val);
                     }
                     else if(line.contains("\"workingDir\"") && !workingdirFound){
                         val = line.mid(28, line.lastIndexOf("\"")-28);
                         g.setPath(folder.getDirectory().absolutePath() + QDir::separator() + subfolders[j] + QDir::separator() + val);
                         workingdirFound = true;
-                   //     qDebug() << "workingDir: " << val;
+                        DBG_CRWL2("workingDir: " + val);
                     }
                     else if(line.contains("\"arguments\"") && !argumentFound){
                         val  =line.mid(28, line.lastIndexOf("\"")-28);
                         argumentFound = true;
-                    //    qDebug() << "arguments: " << val;
+                        DBG_CRWL2("arguments: " + val);
                     }
 
                     if(pathFound && nameFound && argumentFound && workingdirFound)
@@ -157,12 +215,12 @@ void FCrawler::getGalaxyGames(FWatchedFolder folder) {
                 {
                    if(!db.addGame(g))
                    {
-                       qDebug() << "Error on insert Game!";
+                       DBG_CRWL("Error on insert Game!");
                    }
                 }
                 else
                 {
-                    qDebug() << "Game exists: " << g.getName();
+                    DBG_CRWL("Game exists: " + g.getName());
                 }
             }
         }
@@ -210,10 +268,10 @@ void FCrawler::getOriginGames() {
 
                 if(!db.gameExists(g)){
                    if(!db.addGame(g))
-                       qDebug() << "Error on insert Game!";
+                       DBG_CRWL("Error on insert Game!");
                 }
                 else
-                    qDebug() << "Game exists: " << g.getName();
+                    DBG_CRWL("Game exists: " + g.getName());
             }
         }
 
@@ -246,9 +304,9 @@ void FCrawler::getSteamGames(FWatchedFolder folder) {
 
         if(!db.gameExists(g)){
            if(!db.addGame(g))
-               qDebug() << "Error on insert Game!";
+               DBG_CRWL("Error on insert Game!");
         }
         else
-            qDebug() << "Game exists: " << g.getName();
+            DBG_CRWL("Game exists: " + g.getName());
     }
 }
