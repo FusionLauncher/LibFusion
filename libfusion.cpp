@@ -26,7 +26,7 @@ QDir LibFusion::getWorkingDir()
         idx = p.lastIndexOf("\\");
 
     p = p.left(idx+1);
-    p += "FusionClient";
+    p += "Fusion";
     return QDir(p);
 }
 
