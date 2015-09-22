@@ -41,6 +41,11 @@ bool FDB::init()
     if(!ok)
     {
         DBG_DB("Unable to open Database!");
+        QSqlError e = db.lastError();
+        DBG_DB(e.databaseText());
+        DBG_DB(e.driverText());
+        DBG_DB(e.nativeErrorCode());
+        DBG_DB(QString::number(e.type()));
         return false;
     }
 
