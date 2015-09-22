@@ -44,7 +44,9 @@ bool FDB::init()
         QSqlError e = db.lastError();
         DBG_DB(e.databaseText());
         DBG_DB(e.driverText());
-        DBG_DB(e.nativeErrorCode());
+        #if (QT_VERSION > QT_VERSION_CHECK(5, 0, 0))
+            DBG_DB(e.nativeErrorCode());
+        #endif
         DBG_DB(QString::number(e.type()));
         return false;
     }
