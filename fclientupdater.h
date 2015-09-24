@@ -20,9 +20,14 @@
 #include "libfusion_global.h"
 
 struct FusionVersion {
-    int Major;
-    int Minor;
-    int Build;
+    int Major = 0;
+    int Minor = 0;
+    int Build = 0;
+    bool initialized = false;
+
+    bool operator==(FusionVersion a) {
+       return a.Build==Build && a.Minor==Minor && a.Major==Major;
+    }
 };
 
 class LIBFUSIONSHARED_EXPORT FClientUpdater : public QObject
