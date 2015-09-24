@@ -19,18 +19,26 @@
 
 #include "libfusion_global.h"
 
+struct FusionVersion {
+    int Major = 0;
+    int Minor = 0;
+    int Build = 0;
+    bool initialized = false;
+
+    bool operator==(FusionVersion a) {
+       return a.Build==Build && a.Minor==Minor && a.Major==Major;
+    }
+};
+
 class LIBFUSIONSHARED_EXPORT FClientUpdater : public QObject
 {
     Q_OBJECT
 public:
     explicit FClientUpdater(QObject *parent = 0);
-    QString getCRClientVersion();
+    FusionVersion getCRClientVersion();
 
     //Get downloaded client version.
-    QString getDLClientVersion(QString filePath);
-
-    //Check if current client
-    bool isCurrentClient(QString filePath);
+    FusionVersion getDLClientVersion(QString filePath);
 
     bool fileExists(QString filePath);
 
@@ -39,6 +47,8 @@ public:
     QString readVersion(QString filePath);
     QString readPath();
 
+    FusionVersion strToVersion(QString VStr);
+    QString VersionToStr(FusionVersion v);
 private:
 
     QNetworkAccessManager *manager;
