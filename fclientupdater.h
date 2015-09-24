@@ -19,6 +19,12 @@
 
 #include "libfusion_global.h"
 
+struct FusionVersion {
+    int Major;
+    int Minor;
+    int Build;
+};
+
 class LIBFUSIONSHARED_EXPORT FClientUpdater : public QObject
 {
     Q_OBJECT
@@ -39,6 +45,7 @@ public:
     QString readVersion(QString filePath);
     QString readPath();
 
+    FusionVersion strToVersion(QString VStr);
 private:
 
     QNetworkAccessManager *manager;

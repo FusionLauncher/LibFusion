@@ -47,6 +47,40 @@ QString FClientUpdater::getDLClientVersion(QString filePath)
     }
 }
 
+FusionVersion FClientUpdater::strToVersion(QString VStr) {
+    FusionVersion v;
+    v.Build = v.Minor = v.Major = 0;
+    //Proper Version: 1.2.3
+
+    if(VStr.length() != 5)
+        return v;
+
+    bool convOK;
+
+    int Major = VStr.left(1).toInt(&convOK);
+
+    if(!convOK)
+        return v;
+
+
+    int Minor = VStr.mid(2,1).toInt(&convOK);
+
+    if(!convOK)
+        return v;
+
+
+    int Build = VStr.mid(4,1).toInt(&convOK);
+
+    if(!convOK)
+        return v;
+
+    v.Build = Build;
+    v.Minor = Minor;
+    v.Major = Major;
+
+    return v;
+}
+
 //Compare downloaded client version with current client version.
 bool FClientUpdater::isCurrentClient(QString path)
 {
