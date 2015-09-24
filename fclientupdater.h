@@ -35,13 +35,10 @@ class LIBFUSIONSHARED_EXPORT FClientUpdater : public QObject
     Q_OBJECT
 public:
     explicit FClientUpdater(QObject *parent = 0);
-    QString getCRClientVersion();
+    FusionVersion getCRClientVersion();
 
     //Get downloaded client version.
-    QString getDLClientVersion(QString filePath);
-
-    //Check if current client
-    bool isCurrentClient(QString filePath);
+    FusionVersion getDLClientVersion(QString filePath);
 
     bool fileExists(QString filePath);
 
@@ -51,6 +48,7 @@ public:
     QString readPath();
 
     FusionVersion strToVersion(QString VStr);
+    QString VersionToStr(FusionVersion v);
 private:
 
     QNetworkAccessManager *manager;
