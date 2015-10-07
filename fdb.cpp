@@ -353,6 +353,22 @@ bool FDB::updateLastLaunched(FGame *g)
 
 }
 
+QList<FGame *> FDB::getLatestLaunchedGames(int limit)
+{
+    QList<FGame*> gameList;
+    QSqlQuery q;
+    FGame game;
+    q.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id, savegameDir FROM games  ORDER BY lastLaunched DESC LIMIT :limit");
+    q.bindValue(":limit", limit);
+
+    tryExecute(&q);
+    while(q.next())
+    {
+        gameList.append(createGameFromQuery(q));
+    }
+    return gameList;
+}
+
 bool FDB::updateLauncher(FLauncher launcher)
 {
     QSqlQuery q;
