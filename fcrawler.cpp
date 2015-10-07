@@ -133,15 +133,16 @@ void FCrawler::scanforLauncher(FWatchedFolder folder) {
 FGameType FCrawler::getType(FWatchedFolder folder) {
 
     //TODO: Proper Type-Check
-    folder.getDirectory().setNameFilters(QStringList()<<"*.acf");
-    QStringList steamFiles = folder.getDirectory().entryList();
+    QDir fldr =  folder.getDirectory();
+    fldr.setNameFilters(QStringList()<<"*.acf");
+    QStringList steamFiles = fldr.entryList();
 
     if(steamFiles.length()>0)
         return FGameType::Steam;
 
     DBG_CRWL("Check if Galaxy-Folder");
 
-    QDir f = folder.getDirectory().absolutePath() + QDir::separator() + "!Downloads";
+    QDir f = fldr.absolutePath() + QDir::separator() + "!Downloads";
     if(f.exists())
       return FGameType::Galaxy;
 
