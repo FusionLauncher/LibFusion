@@ -62,6 +62,7 @@ public:
 
 
     bool updateGame(FGame *g);
+    bool updateLastLaunched(FGame *g);
 
     QDir getSavegameDir();
 

@@ -59,7 +59,7 @@ bool FDB::init()
         query.exec("CREATE TABLE IF NOT EXISTS prefs(key TINYTEXT NOT NULL, valuetype TINYINT NOT NULL, number TINYINT NOT NULL, text VARCHAR(255) NOT NULL)");
         //(later) if clientToken doesnt exists, show login and run registerClient(), if no account, //run register()
         //(later) if lang is not set, set it to the default system language
-        query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL, gameCommand TEXT, gameArgs TEXT, gameLauncher INTEGER, savegameDir TEXT)");
+        query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL, gameCommand TEXT, gameArgs TEXT, gameLauncher INTEGER, savegameDir TEXT, lastLaunched datetime DEFAULT NULL)");
         query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255),forLauncher TINY INT DEFAULT '0', launcherID INT DEFAULT NULL );");
         query.exec("CREATE TABLE IF NOT EXISTS launchers(id INTEGER PRIMARY KEY ASC, launcherName TEXT NOT NULL, launcherPath TEXT NOT NULL, launcherArgs TEXT NOT NULL, suffix TEXT)");
 
@@ -338,6 +338,17 @@ bool FDB::updateGame(FGame *g)
         q.bindValue(":gSavegameDir", QVariant(QVariant::String));
 		
     q.bindValue(":gID", g->dbId);
+    return tryExecute(&q);
+
+}
+
+bool FDB::updateLastLaunched(FGame *g)
+{
+    QString currentDateTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+    QSqlQuery q;
+    q.prepare("UPDATE games SET lastLaunched = :dateTime WHERE id = :gID");
+    q.bindValue(":dateTime", g->dbId);
+    q.bindValue(":gID", currentDateTime);
     return tryExecute(&q);
 
 }
