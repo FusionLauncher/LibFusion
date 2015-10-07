@@ -63,7 +63,7 @@ public:
 
     bool updateGame(FGame *g);
     bool updateLastLaunched(FGame *g);
-    QList<FGame *> getLatestLaunchedGames();
+    QList<FGame *> getLatestLaunchedGames(int limit);
 
     QDir getSavegameDir();
 
