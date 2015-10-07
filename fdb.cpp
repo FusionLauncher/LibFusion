@@ -347,8 +347,8 @@ bool FDB::updateLastLaunched(FGame *g)
     QString currentDateTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
     QSqlQuery q;
     q.prepare("UPDATE games SET lastLaunched = :dateTime WHERE id = :gID");
-    q.bindValue(":dateTime", g->dbId);
-    q.bindValue(":gID", currentDateTime);
+    q.bindValue(":gID", g->dbId);
+    q.bindValue(":dateTime", currentDateTime);
     return tryExecute(&q);
 
 }
