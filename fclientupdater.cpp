@@ -46,7 +46,6 @@ FusionVersion FClientUpdater::getDLClientVersion(QString filePath)
     }
     else
     {
-
         qDebug() << "Unable to find version file.";
         return strToVersion("");//Returns 0.0.0
     }
@@ -57,31 +56,41 @@ FusionVersion FClientUpdater::strToVersion(QString VStr) {
     v.Build = v.Minor = v.Major = 0;
     //Proper Version: 1.2.3
 
-    if(VStr.length() != 5)
+    QStringList tmp = VStr.split("\n");
+
+    if(tmp.length()!=2)
+        return v;
+
+    if(tmp[0].length() != 5)
         return v;
 
     bool convOK;
 
-    int Major = VStr.left(1).toInt(&convOK);
+    int Major = tmp[0].left(1).toInt(&convOK);
 
     if(!convOK)
         return v;
 
 
-    int Minor = VStr.mid(2,1).toInt(&convOK);
+    int Minor = tmp[0].mid(2,1).toInt(&convOK);
 
     if(!convOK)
         return v;
 
 
-    int Build = VStr.mid(4,1).toInt(&convOK);
+    int Build = tmp[0].mid(4,1).toInt(&convOK);
 
     if(!convOK)
+        return v;
+
+    QString Name = tmp[1];
+    if(Name.length()<=0)
         return v;
 
     v.Build = Build;
     v.Minor = Minor;
     v.Major = Major;
+    v.Name = Name;
     v.initialized = true;
     return v;
 }
@@ -127,6 +136,7 @@ QString FClientUpdater::readVersion(QString filePath)
 
     in >> fileVersion;
     fileVersion = file.readAll();
+
     file.close();
     return fileVersion;
 }
