@@ -23,6 +23,7 @@ struct FusionVersion {
     int Major = 0;
     int Minor = 0;
     int Build = 0;
+    QString Name = "";
     bool initialized = false;
 
     bool operator==(FusionVersion a) {
