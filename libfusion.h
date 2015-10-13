@@ -9,6 +9,11 @@
 
 #include <QDir>
 
+#define VersionNumber QString("0.9.1")
+#define VersionName QString("Pluto")
+#define VersionString VersionNumber + "\n" + VersionName
+
+
 class LIBFUSIONSHARED_EXPORT LibFusion
 {
 
