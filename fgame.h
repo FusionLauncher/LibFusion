@@ -30,6 +30,7 @@ public:
     FGameType getType();
     QString getCommand();
     FLauncher getLauncher();
+    QDateTime getGameLastPlayed() const;
 
     void setName(QString val);
     void setExe(QString val);
@@ -38,6 +39,7 @@ public:
     void setType(FGameType val);
     void setCommand(QString val);
     void setLauncher(FLauncher launcher);
+    void setGameLastPlayed(const QDateTime &value);
     void disableLauncher();
     bool doesUseLauncher();
     bool execute();
@@ -62,6 +64,7 @@ public:
 
     bool syncData();
 
+
 protected:
     QString gameName;
     FGameType gameType;
@@ -69,6 +72,7 @@ protected:
     QString gameExe;
     QStringList gameArgs;
     QString gameCommand;
+    QDateTime gameLastPlayed;
     QDir savegameDir;
     FLauncher launcher;
     bool launcherEnabled;
