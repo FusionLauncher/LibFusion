@@ -121,6 +121,8 @@ FGame* FDB::createGameFromQuery(QSqlQuery query)
     game->setCommand(query.value(4).toString());
     game->setArgs(query.value(5).toStringList());
     game->dbId = query.value(7).toInt();
+    QString lp = query.value(9).toString();
+    game->setGameLastPlayed(QDateTime::fromString(lp, "yyyy-MM-dd HH:mm:ss"));
 
     bool getLauncherOK;
     int launcherID = query.value(6).toInt(&getLauncherOK);
@@ -136,7 +138,7 @@ FGame* FDB::createGameFromQuery(QSqlQuery query)
 FGame* FDB::getGame(int id)
 {
     QSqlQuery gameQuery;
-    gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id, savegameDir FROM games WHERE id = :id");
+    gameQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id, savegameDir, lastLaunched FROM games WHERE id = :id");
     gameQuery.bindValue(":id", id);
     tryExecute(&gameQuery);
 
@@ -153,7 +155,7 @@ QList<FGame*> FDB::getGameList()
     QList<FGame*> gameList;
     QSqlQuery libraryQuery;
     FGame game;
-    libraryQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id, savegameDir FROM games ORDER BY gameName ASC");
+    libraryQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id, savegameDir, lastLaunched FROM games ORDER BY gameName ASC");
     tryExecute(&libraryQuery);
     while(libraryQuery.next())
     {
@@ -358,7 +360,7 @@ QList<FGame *> FDB::getLatestLaunchedGames(int limit)
     QList<FGame*> gameList;
     QSqlQuery q;
     FGame game;
-    q.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id, savegameDir FROM games  ORDER BY lastLaunched DESC LIMIT :limit");
+    q.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id, savegameDir, lastLaunched FROM games  ORDER BY lastLaunched DESC LIMIT :limit");
     q.bindValue(":limit", limit);
 
     tryExecute(&q);

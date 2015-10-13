@@ -211,6 +211,16 @@ bool FGame::syncData()
     return true;
 }
 
+QDateTime FGame::getGameLastPlayed() const
+{
+    return gameLastPlayed;
+}
+
+void FGame::setGameLastPlayed(const QDateTime &value)
+{
+    gameLastPlayed = value;
+}
+
 
 QStringList FGame::getArgs()
 {
