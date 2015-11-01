@@ -7,13 +7,13 @@ FClientUpdater::FClientUpdater(QObject *parent) : QObject(parent)
 }
 
 //Gets current client version from API.
-FusionVersion FClientUpdater::getCRClientVersion()
+FusionVersion FClientUpdater::getCRClientVersion(QUrl versionFile)
 {
     manager = new QNetworkAccessManager(this);
     QEventLoop loop;
     QObject::connect(manager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
 
-    QNetworkRequest request(QUrl("http://projfusion.com/files/Releases/version.txt"));
+    QNetworkRequest request(versionFile);
     QNetworkReply *reply = manager->get(request);
     reply->ignoreSslErrors();
 

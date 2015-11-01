@@ -36,7 +36,7 @@ class LIBFUSIONSHARED_EXPORT FClientUpdater : public QObject
     Q_OBJECT
 public:
     explicit FClientUpdater(QObject *parent = 0);
-    FusionVersion getCRClientVersion();
+    FusionVersion getCRClientVersion(QUrl versionFile);
 
     //Get downloaded client version.
     FusionVersion getDLClientVersion(QString filePath);
