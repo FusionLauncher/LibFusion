@@ -65,29 +65,31 @@ FusionVersion FClientUpdater::strToVersion(QString VStr) {
     v.Build = v.Minor = v.Major = 0;
     //Proper Version: 1.2.3
 
-    QStringList tmp = VStr.split("\n");
+    QStringList tmp = VStr.split("\n", QString::SkipEmptyParts);
+    tmp[0] = QString(tmp.at(0)).replace("\r", "");
 
     if(tmp.length()!=2)
         return v;
 
-    if(tmp[0].length() != 5)
+    QStringList versionParts = tmp[0].split(".", QString::SkipEmptyParts);
+    if(versionParts.length() != 3)
         return v;
 
     bool convOK;
 
-    int Major = tmp[0].left(1).toInt(&convOK);
+    int Major = versionParts[0].toInt(&convOK);
 
     if(!convOK)
         return v;
 
 
-    int Minor = tmp[0].mid(2,1).toInt(&convOK);
+    int Minor = versionParts[1].toInt(&convOK);
 
     if(!convOK)
         return v;
 
 
-    int Build = tmp[0].mid(4,1).toInt(&convOK);
+    int Build = versionParts[2].toInt(&convOK);
 
     if(!convOK)
         return v;
