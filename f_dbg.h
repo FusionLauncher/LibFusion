@@ -17,8 +17,11 @@
    #define DBG_CRWL_EN
    #define DBG_CRWL2_EN
 
+    //Laguages
+    #define DBG_LANG_EN
+
     //Database in fdb.cpp
-   #define DBG_DB_EN
+    #define DBG_DB_EN
 
     //Database-Updates in fdbupdater.cpp
    #define DBG_DBU_EN
@@ -38,6 +41,17 @@
     #define DBG_CRWL(x)
 #endif
 
+
+
+#ifdef DBG_LANG_EN
+    #ifdef LOG_DBGS
+        #define DBG_LANG(x) FLogger::append("Language.log", x)
+    #else
+        #define DBG_LANG(x) qDebug() << x
+    #endif
+#else
+    #define DBG_CRWL2(x)
+#endif
 
 
 #ifdef DBG_CRWL2_EN

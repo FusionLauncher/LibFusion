@@ -95,6 +95,8 @@ bool FDB::addGame(FGame game)
 
     if(game.doesUseLauncher())
         gameQuery.bindValue(":gameLauncher", game.getLauncher().getDbId());
+    else
+        gameQuery.bindValue(":gameLauncher", -1);
 
 
     qDebug("Game Added: " + game.getName().toLatin1());

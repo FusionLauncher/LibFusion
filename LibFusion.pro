@@ -45,7 +45,8 @@ HEADERS += libfusion.h\
     ffilesync.h \
     fexception.h \
     f_dbg.h \
-    flogger.h
+    flogger.h \
+    buildno.h
 
 unix {
     target.path = /usr/lib
