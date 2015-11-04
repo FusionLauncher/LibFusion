@@ -31,12 +31,18 @@ struct FusionVersion {
     }
 };
 
+
+struct VersionCheckResult {
+    FusionVersion version;
+    QString error;
+};
+
 class LIBFUSIONSHARED_EXPORT FClientUpdater : public QObject
 {
     Q_OBJECT
 public:
     explicit FClientUpdater(QObject *parent = 0);
-    FusionVersion getCRClientVersion();
+    VersionCheckResult getCRClientVersion(QUrl versionFile);
 
     //Get downloaded client version.
     FusionVersion getDLClientVersion(QString filePath);

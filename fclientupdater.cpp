@@ -7,17 +7,24 @@ FClientUpdater::FClientUpdater(QObject *parent) : QObject(parent)
 }
 
 //Gets current client version from API.
-FusionVersion FClientUpdater::getCRClientVersion()
+VersionCheckResult FClientUpdater::getCRClientVersion(QUrl versionFile)
 {
+    VersionCheckResult vcr;
     manager = new QNetworkAccessManager(this);
     QEventLoop loop;
     QObject::connect(manager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
 
-    QNetworkRequest request(QUrl("http://projfusion.com/files/Releases/version.txt"));
+    QNetworkRequest request(versionFile);
     QNetworkReply *reply = manager->get(request);
     reply->ignoreSslErrors();
 
     loop.exec();
+
+    QNetworkReply::NetworkError err = reply->error();
+    if(err != QNetworkReply::NoError) {
+        vcr.error = reply->errorString();
+        return vcr;
+    }
 
     QString text = reply->readAll();
     reply->deleteLater();
@@ -30,7 +37,9 @@ FusionVersion FClientUpdater::getCRClientVersion()
     qDebug() << "Current client version: " << text;
 
     FusionVersion v = strToVersion(text);
-    return v;
+    vcr.version = v;
+    vcr.error = "NoError";
+    return vcr;
 }
 
 QString FClientUpdater::VersionToStr(FusionVersion v) {
@@ -56,31 +65,31 @@ FusionVersion FClientUpdater::strToVersion(QString VStr) {
     v.Build = v.Minor = v.Major = 0;
     //Proper Version: 1.2.3
 
-    QStringList tmp = VStr.split("\n");
-    QString versionNo = tmp[0];
-    versionNo = versionNo.replace("\r", "");
+    QStringList tmp = VStr.split("\n", QString::SkipEmptyParts);
+    tmp[0] = QString(tmp.at(0)).replace("\r", "");
 
     if(tmp.length()!=2)
         return v;
 
-    if(versionNo.length() != 5)
+    QStringList versionParts = tmp[0].split(".", QString::SkipEmptyParts);
+    if(versionParts.length() != 3)
         return v;
 
     bool convOK;
 
-    int Major = versionNo.left(1).toInt(&convOK);
+    int Major = versionParts[0].toInt(&convOK);
 
     if(!convOK)
         return v;
 
 
-    int Minor = versionNo.mid(2,1).toInt(&convOK);
+    int Minor = versionParts[1].toInt(&convOK);
 
     if(!convOK)
         return v;
 
 
-    int Build = versionNo.mid(4,1).toInt(&convOK);
+    int Build = versionParts[2].toInt(&convOK);
 
     if(!convOK)
         return v;
