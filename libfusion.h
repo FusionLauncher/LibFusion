@@ -1,3 +1,11 @@
+/**
+ * @class LibFusion
+ *
+ * @brief This is the Base-Class of the Library and contains generic Functions.
+ *
+ * @defgroup LibFusion
+ */
+
 #ifndef LIBFUSION_H
 #define LIBFUSION_H
 
