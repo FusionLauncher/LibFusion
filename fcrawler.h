@@ -24,7 +24,10 @@ private:
     FDB db;
 
     /**
-     * @brief getType
+     * @brief Tries to Detect the Type of given Directory
+     *
+     * If it is from Steam, Origin, GOG or something else
+     *
      * @param folder Folder to Check
      * @return Type of Folder
      *
@@ -41,17 +44,44 @@ private:
     void getSteamGames(FWatchedFolder folder);
 
     /**
-     * @brief getOriginGames  Scans the Origin Logfile for new Games and adds them
+     * @brief  Scans the Origin Logfile for new Games and adds them
      *
      * Reads the Logfile, located in "C:\\ProgramData\\Origin\\Logs\\Client_Log.txt"; for new Games
-     * Adds them, if they are not found in the Library.
+     * Adds them, if they are not found, in the Library.
      *
-     * Succeeds for 80% of games.
+     * Succeeds for like 80% of games.
      *
      */
     void getOriginGames();
+
+    /**
+     * @brief Scans the given Folder for GOG-Galaxy Games
+     *
+     * This is done by Reading all the "goggame-*.info"-Files from the Subdirectories.
+     * All found Games are inserted into the DB.
+     *
+     * @param folder Folder to Check
+     *
+     */
     void getGalaxyGames(FWatchedFolder folder);
+
+    /**
+     * @brief Scans the given Folder for Files with specific File-Endings
+     *
+     * The File-Endings are determined by Reading the Launcher from the DB witht the folder as the Key.
+     * All found Games are inserted into the DB.
+     * @param folder Folder to Check
+     *
+     */
     void scanforLauncher(FWatchedFolder folder);
+
+    /**
+     * @brief Get all the Steam-Gamedirectories
+     *
+     * The directiries are read from the libraryfolders.vdf in the Steam-Dir.
+     * The found directories are added to the WatchedFolder list.
+     *
+     */
     void updateSteamDirs();
 };
 
