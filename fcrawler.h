@@ -1,3 +1,17 @@
+/**
+ * @class FCrawler
+ *
+ * @ingroup LibFusion
+ *
+ * @brief FCrawler is responsible for searching games in defined Folders
+ *
+ * This class searches given Folders for Games.
+ * It is also capable of determining the Type of an folder.
+ * FCrawler can also search for all Steam-directories.
+ *
+ */
+
+
 #ifndef FCRAWLER_H
 #define FCRAWLER_H
 
