@@ -1,11 +1,11 @@
 #ifndef FWATCHEDFOLDER_H
 #define FWATCHEDFOLDER_H
 
+#include <QDir>
 
 #include "flauncher.h"
 #include "libfusion_global.h"
 
-#include <QDir>
 
 class LIBFUSIONSHARED_EXPORT FWatchedFolder
 {

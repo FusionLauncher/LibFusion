@@ -1,10 +1,9 @@
-#ifndef QTCORE
-#include <QtCore>
-#endif
-
-
 #ifndef FGAME_H
 #define FGAME_H
+
+#ifndef QTCORE
+    #include <QtCore>
+#endif
 
 #include "flauncher.h"
 #include "ffilesync.h"

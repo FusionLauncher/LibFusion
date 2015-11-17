@@ -13,11 +13,12 @@
 #ifndef FCRAWLER_H
 #define FCRAWLER_H
 
-#include "fdb.h"
 #include <QDir>
 
-
+#include "fdb.h"
 #include "libfusion_global.h"
+
+
 
 class LIBFUSIONSHARED_EXPORT FCrawler
 {

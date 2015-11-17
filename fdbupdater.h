@@ -12,7 +12,7 @@ public:
     bool checkForDBUpdate();
     bool updateDB();
     bool versionExists();
-    void initVersion();
+    void initUpdater();
 private:
     FDB *db;
     bool foundVersion;

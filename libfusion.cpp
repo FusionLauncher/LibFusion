@@ -1,9 +1,9 @@
 #include "libfusion.h"
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-#include <QStandardPaths>
+    #include <QStandardPaths>
 #else
-#include <QDesktopServices>
+    #include <QDesktopServices>
 #endif
 
 LibFusion::LibFusion()
@@ -22,19 +22,22 @@ QDir LibFusion::getWorkingDir()
     #endif
 
     int idx = p.lastIndexOf("/");
-    if(idx==-1)
+
+    if( idx == -1)
         idx = p.lastIndexOf("\\");
 
     p = p.left(idx+1);
     p += "Fusion";
+
     return QDir(p);
 }
 
 bool LibFusion::makeSureWorkingDirExists()
 {
-    if(!getWorkingDir().exists())
+    if (!getWorkingDir().exists())
     {
         return getWorkingDir().mkpath(".");
     }
+
     return true;
 }

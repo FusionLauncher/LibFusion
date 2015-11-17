@@ -73,6 +73,8 @@ private:
 
     FGame *createGameFromQuery(QSqlQuery query);
     bool tryExecute(QSqlQuery *q);
+    bool createDatabase();
+    bool connect(QSqlDatabase *database, QFileInfo dbFile);
 signals:
 
 public slots:

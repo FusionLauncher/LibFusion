@@ -1,7 +1,8 @@
+#include <QVariantMap>
+
 #include "fcrawler.h"
 #include "fgame.h"
 #include "f_dbg.h"
-#include <QVariantMap>
 
 FCrawler::FCrawler()
 {
@@ -20,6 +21,7 @@ void FCrawler::scanAllFolders()
     updateSteamDirs();
 
     QList<FWatchedFolder> folder = db.getWatchedFoldersList();
+
     for (int i=0; i<folder.length(); ++i)
     {
         FWatchedFolder f = folder[i];
@@ -32,6 +34,7 @@ void FCrawler::scanAllFolders()
         else
         {
             FGameType folderType = getType(folder.at(i));
+
             if(folderType==FGameType::Steam)
             {
                 getSteamGames(f);
@@ -42,7 +45,6 @@ void FCrawler::scanAllFolders()
             }
         }
     }
-
 
 
     //Origin only on Windows
@@ -63,6 +65,7 @@ void FCrawler::updateSteamDirs()
 
     QFile libFolder;
     libFolder.setFileName(steamFolders[0]);
+
     int i = 1;
 
     while( !libFolder.exists() && i < steamFolders.length())
@@ -96,9 +99,6 @@ void FCrawler::updateSteamDirs()
             if (!db.watchedFolderExists(&wf))
             {
                 db.addWatchedFolder(wf);
-
-             //   "1"		"C:\\Games\\Steam"
-
                 ++found;
             }
         }
@@ -123,6 +123,7 @@ void FCrawler::scanforLauncher(FWatchedFolder folder)
     QDir target =  folder.getDirectory();
     target.setNameFilters(fileEndings);
     QStringList launcherFiles = target.entryList();
+
     for (QString foundGame : launcherFiles)
     {
         DBG_CRWL("Found " + foundGame + " in " + target.absolutePath());
@@ -134,10 +135,8 @@ void FCrawler::scanforLauncher(FWatchedFolder folder)
         g.setPath(target.absolutePath());
 
         if (!db.gameExists(g))
-        {
-           if(!db.addGame(g))
-               DBG_CRWL("Error on insert Game " + g.getName());
-        }
+           if (!db.addGame(g))
+               DBG_CRWL("Error on insert Game " + g.getName());        
         else
             DBG_CRWL("Game exists: " + g.getName());
     }
@@ -153,14 +152,14 @@ FGameType FCrawler::getType(FWatchedFolder folder)
     fldr.setNameFilters(QStringList()<<"*.acf");
     QStringList steamFiles = fldr.entryList();
 
-    if(steamFiles.length()>0)
+    if (steamFiles.length() > 0)
         return FGameType::Steam;
 
     DBG_CRWL("Check if Galaxy-Folder");
 
     QDir f = fldr.absolutePath() + QDir::separator() + "!Downloads";
 
-    if(f.exists())
+    if (f.exists())
       return FGameType::Galaxy;
 
     return FGameType::unknown;
@@ -183,6 +182,7 @@ void FCrawler::getGalaxyGames(FWatchedFolder folder)
 
         QDir dir(folder.getDirectory().absolutePath()  + QDir::separator() + subfolders[j]);
         QStringList InfoFile = dir.entryList(filters);
+
         if (InfoFile.length()==1)
         {
             QFile oLogFile;
@@ -203,6 +203,7 @@ void FCrawler::getGalaxyGames(FWatchedFolder folder)
             {
                 QString line = fileLines[i].replace(QString("\t"), QString("    "));
                 QString val;
+
                 if (line.contains("\"name\"") && !nameFound)
                 {
                     val =line.mid(26, line.lastIndexOf("\"")-26);
@@ -231,7 +232,7 @@ void FCrawler::getGalaxyGames(FWatchedFolder folder)
                     DBG_CRWL2("arguments: " + val);
                 }
 
-                if(pathFound && nameFound && argumentFound && workingdirFound)
+                if (pathFound && nameFound && argumentFound && workingdirFound)
                     break;
             }
 
