@@ -1,15 +1,15 @@
 #ifndef FDB_H
 #define FDB_H
 
-
 #include <QObject>
 #include <QSqlDatabase>
 #include <QSqlQuery>
-#include "flauncher.h"
 
+#include "flauncher.h"
 #include "fgame.h"
 #include "fwatchedfolder.h"
 #include "libfusion_global.h"
+
 
 
 class LIBFUSIONSHARED_EXPORT FDB : public QObject

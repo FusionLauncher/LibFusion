@@ -1,8 +1,7 @@
-#include "ffiledownloader.h"
-
 #include <QDir>
 #include <QFileInfo>
 
+#include "ffiledownloader.h"
 
 FFileDownloader::FFileDownloader(QUrl fileUrl, QObject *parent) :
  QObject(parent)

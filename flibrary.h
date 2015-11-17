@@ -2,9 +2,9 @@
 #define FLIBRARY_H
 
 #include <QObject>
+
 #include "fdb.h"
 #include "fgame.h"
-
 #include "libfusion_global.h"
 
 class LIBFUSIONSHARED_EXPORT FLibrary : public QObject

@@ -3,8 +3,8 @@
 
 #include <QObject>
 
-
 #include "libfusion_global.h"
+
 class LIBFUSIONSHARED_EXPORT  FLauncher
 {
 public:
