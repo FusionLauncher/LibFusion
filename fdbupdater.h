@@ -2,6 +2,7 @@
 #define FDBUPDATER_H
 
 #include <QObject>
+
 #include "fdb.h"
 
 class FDBUpdater : public QObject
@@ -12,7 +13,7 @@ public:
     bool checkForDBUpdate();
     bool updateDB();
     bool versionExists();
-    void initVersion();
+    void initUpdater();
 private:
     FDB *db;
     bool foundVersion;

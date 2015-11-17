@@ -72,34 +72,36 @@ FusionVersion FClientUpdater::strToVersion(QString VStr)
     QStringList tmp = VStr.split("\n", QString::SkipEmptyParts);
     tmp[0] = QString(tmp.at(0)).replace("\r", "");
 
-    if(tmp.length()!=2)
+    if (tmp.length()!= 2)
         return v;
 
     QStringList versionParts = tmp[0].split(".", QString::SkipEmptyParts);
-    if(versionParts.length() != 3)
+
+    if (versionParts.length() != 3)
         return v;
 
     bool convOK;
 
     int Major = versionParts[0].toInt(&convOK);
 
-    if(!convOK)
+    if (!convOK)
         return v;
 
 
     int Minor = versionParts[1].toInt(&convOK);
 
-    if(!convOK)
+    if (!convOK)
         return v;
 
 
     int Build = versionParts[2].toInt(&convOK);
 
-    if(!convOK)
+    if (!convOK)
         return v;
 
     QString Name = tmp[1];
-    if(Name.length() <= 0)
+
+    if (Name.length() <= 0)
         return v;
 
     v.Build = Build;
@@ -111,7 +113,6 @@ FusionVersion FClientUpdater::strToVersion(QString VStr)
 }
 
 
-//Returns true if file exists
 bool FClientUpdater::fileExists(QString filePath)
 {
 
@@ -119,10 +120,11 @@ bool FClientUpdater::fileExists(QString filePath)
     return qd->exists(filePath);
 }
 
-//Write version info
+
 void FClientUpdater::writeVersion(QString version, QString currentPath)
 {
     QFile file(LibFusion::getWorkingDir().absolutePath() + "/FVersion.txt");
+
     if (!file.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate))
         return;
 
@@ -132,13 +134,13 @@ void FClientUpdater::writeVersion(QString version, QString currentPath)
     file.close();
 
     QFile filePath(LibFusion::getWorkingDir().absolutePath() + "/FPath.txt");
+
     if (!filePath.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate))
             return;
 
     QDataStream outP(&filePath);
     outP << currentPath.toLatin1();
     filePath.close();
-
 }
 
 QString FClientUpdater::readVersion(QString filePath)
@@ -153,6 +155,7 @@ QString FClientUpdater::readVersion(QString filePath)
     fileVersion = file.readAll();
 
     file.close();
+
     return fileVersion;
 }
 
@@ -168,6 +171,6 @@ QString FClientUpdater::readPath()
     in >> fileVersion;
     fileVersion = file.readAll();
     file.close();
-    return fileVersion;
 
+    return fileVersion;
 }

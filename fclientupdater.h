@@ -2,7 +2,6 @@
 #define FCLIENTUPDATER_H
 
 #include <QObject>
-
 #include <QNetworkAccessManager>
 #include <QUrl>
 #include <QString>
@@ -13,7 +12,6 @@
 #include <QDir>
 #include <QFile>
 #include <QDataStream>
-
 #include <QDebug>
 
 

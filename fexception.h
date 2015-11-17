@@ -1,8 +1,8 @@
 #ifndef FEXCEPTION_H
 #define FEXCEPTION_H
 
-
 #include <QString>
+
 //#include <exception>
 
 class FException // :public std::exception

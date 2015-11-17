@@ -2,7 +2,6 @@
 #define FARTMANAGER_H
 
 #include <QXmlStreamReader>
-
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>

@@ -8,6 +8,8 @@
 #ifndef LIBFUSION_H
 #define LIBFUSION_H
 
+#include <QDir>
+
 #include "libfusion_global.h"
 #include "buildno.h"
 
@@ -15,7 +17,6 @@
 #include <QtCore>
 #endif
 
-#include <QDir>
 
 #define VersionNumber QString("0.9.") + QString(BUILD_NO)
 #define VersionName QString("Pluto")

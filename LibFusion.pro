@@ -18,7 +18,6 @@ DEFINES += LIBFUSION_LIBRARY
 SOURCES += libfusion.cpp \
     fgame.cpp \
     fdb.cpp \
-    flibrary.cpp \
     fcrawler.cpp \
     fartmanager.cpp \
     ffiledownloader.cpp \
@@ -33,7 +32,6 @@ HEADERS += libfusion.h\
     libfusion_global.h \
     fgame.h \
     fdb.h \
-    flibrary.h \
     fcrawler.h \
     fartmanager.h \
     ffiledownloader.h \

@@ -1,6 +1,8 @@
-#include "fdbupdater.h"
 #include <QFile>
 #include <QByteArray>
+
+#include "fdbupdater.h"
+
 #include "fdb.h"
 #include "f_dbg.h"
 #include "libfusion.h"
@@ -16,21 +18,21 @@ bool FDBUpdater::checkForDBUpdate()
     QDir workingDir = LibFusion::getWorkingDir();
   //  QFile updateFile(workingDir.absolutePath() + QDir::separator() + "dbUpdate");
     QFile updateFile("dbUpdate");
-    if(updateFile.exists())
+    if (updateFile.exists())
     {
-        if(!updateFile.open(QIODevice::ReadOnly))
-        {
+        if (!updateFile.open(QIODevice::ReadOnly))
             return false;
-        }
+
         QByteArray line;
         foundVersion = false;
-        while(!foundVersion && !updateFile.atEnd())
+
+        while (!foundVersion && !updateFile.atEnd())
         {
             line = updateFile.readLine();
-            if(!line.startsWith("#") && !line.isEmpty() && line != "\n")
+            if (!line.startsWith("#") && !line.isEmpty() && line != "\n")
             {
                 DBG_DBU("Found update content" + line);
-                if(line.startsWith("_"))
+                if (line.startsWith("_"))
                 {
                     DBG_DBU("Found feature or release");
                     foundVersion = true;
@@ -41,7 +43,7 @@ bool FDBUpdater::checkForDBUpdate()
         }
         DBG_DBU("Current version: " + db->getTextPref("dbVersion"));
 
-        if(!foundVersion || line == db->getTextPref("dbVersion"))
+        if (!foundVersion || line == db->getTextPref("dbVersion"))
         {
             DBG_DBU("No update found");
         }
@@ -66,10 +68,10 @@ bool FDBUpdater::updateDB()
  //   QFile updateFile(workingDir.absolutePath() + QDir::separator() + "dbUpdate");
     QFile updateFile("dbUpdate");
 
-    if(updateFile.exists())
+    if (updateFile.exists())
     {
         DBG_DBU("dbUpdate-File Opend...");
-        if(!updateFile.open(QIODevice::ReadOnly))
+        if (!updateFile.open(QIODevice::ReadOnly))
         {
             DBG_DBU("Couldn't open");
             return false;
@@ -82,20 +84,20 @@ bool FDBUpdater::updateDB()
         DBG_DBU("New version:" + line + ", old version:" + currentVersion);
         QString newVersion;
 
-        if(line.startsWith("_"))
-        {
+        if (line.startsWith("_"))
             newVersion = line;
-        }
-        while(line != currentVersion && !updateFile.atEnd())
+
+        while (line != currentVersion && !updateFile.atEnd())
         {
             if(!(line.startsWith("_") || line.startsWith("#") || line == "\n" || line.isEmpty()))
-            {
                 stack.push(line);
-            }
+
             line = updateFile.readLine();
         }
+
         bool failed = false;
-        if(!stack.isEmpty())
+
+        if (!stack.isEmpty())
         {
             while(!stack.isEmpty())
             {
@@ -104,7 +106,8 @@ bool FDBUpdater::updateDB()
                 failed |= db->runQuery(QSqlQuery(query));
             }
         }
-        if(!failed)
+
+        if (!failed)
         {
             db->updateTextPref("dbVersion", newVersion);
             db->endTransaction();
@@ -116,25 +119,26 @@ bool FDBUpdater::updateDB()
             DBG_DBU("Failed to update DB. The client may not work correctly.");
             return false;
         }
-
-
     }
     else
     {
         DBG_DBU("Couldn't find a dbUpdate file.");
         return false;
     }
+
     return true;
 }
 
-void FDBUpdater::initVersion()
+void FDBUpdater::initUpdater()
 {
     checkForDBUpdate();
-    if(latestVersion.isEmpty())
+
+    if (latestVersion.isEmpty())
     {
         DBG_DBU("Didn't find a version");
         return;
     }
+
     DBG_DBU("Setting version to " + latestVersion);
     db->addTextPref("dbVersion", latestVersion);
 }

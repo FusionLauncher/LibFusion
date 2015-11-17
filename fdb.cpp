@@ -1,15 +1,14 @@
-#include "fdb.h"
-#include "fwatchedfolder.h"
-
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
-#include <fgame.h>
-#include <fdb.h>
-#include <libfusion.h>
+#include <QFile>
+
+#include "fdb.h"
+#include "fwatchedfolder.h"
+#include "fgame.h"
+#include "libfusion.h"
 #include "fdbupdater.h"
 #include "f_dbg.h"
-#include <QFile>
 
 FDB::FDB(QObject *parent)
 {
@@ -36,15 +35,35 @@ bool FDB::init()
 
     bool initSuccessful = true;
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setHostName("localhost");
+    connect(&db, QFileInfo(dbFile));
 
-    db.setDatabaseName(QFileInfo(dbFile).absoluteFilePath());
 
-    bool ok = db.open();    
+
+    QSqlQuery query;
+    FDBUpdater updater(this, this);
+
+    if (createDB)
+        createDatabase();
+
+    if (!createDB && updater.checkForDBUpdate())
+    {
+        DBG_DB("Found an update, updating db!");
+        initSuccessful = updater.updateDB();
+    }
+
+    return initSuccessful;
+}
+
+bool FDB::connect(QSqlDatabase *database, QFileInfo dbFile) {
+
+    database->setHostName("localhost");
+    database->setDatabaseName(dbFile.absoluteFilePath());
+
+    bool ok = database->open();
     if (!ok)
     {
         DBG_DB("Unable to open Database!");
-        QSqlError e = db.lastError();
+        QSqlError e = database->lastError();
         DBG_DB(e.databaseText());
         DBG_DB(e.driverText());
         #if (QT_VERSION > QT_VERSION_CHECK(5, 0, 0))
@@ -54,31 +73,22 @@ bool FDB::init()
         return false;
     }
 
-    QSqlQuery query;
+    return ok;
+}
+
+
+bool FDB::createDatabase() {
+    DBG_DB("Creating database.");
+    query.exec("CREATE TABLE IF NOT EXISTS prefs(key TINYTEXT NOT NULL, valuetype TINYINT NOT NULL, number TINYINT NOT NULL, text VARCHAR(255) NOT NULL)");
+    query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL, gameCommand TEXT, gameArgs TEXT, gameLauncher INTEGER, savegameDir TEXT, lastLaunched datetime DEFAULT NULL)");
+    query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255),forLauncher TINY INT DEFAULT '0', launcherID INT DEFAULT NULL );");
+    query.exec("CREATE TABLE IF NOT EXISTS launchers(id INTEGER PRIMARY KEY ASC, launcherName TEXT NOT NULL, launcherPath TEXT NOT NULL, launcherArgs TEXT NOT NULL, suffix TEXT)");
+
     FDBUpdater updater(this, this);
+    updater.initUpdater();
 
-    if (createDB)
-    {
-        DBG_DB("Creating database.");
-        query.exec("CREATE TABLE IF NOT EXISTS prefs(key TINYTEXT NOT NULL, valuetype TINYINT NOT NULL, number TINYINT NOT NULL, text VARCHAR(255) NOT NULL)");
-        //(later) if clientToken doesnt exists, show login and run registerClient(), if no account, //run register()
-        //(later) if lang is not set, set it to the default system language
-        query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL, gameCommand TEXT, gameArgs TEXT, gameLauncher INTEGER, savegameDir TEXT, lastLaunched datetime DEFAULT NULL)");
-        query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255),forLauncher TINY INT DEFAULT '0', launcherID INT DEFAULT NULL );");
-        query.exec("CREATE TABLE IF NOT EXISTS launchers(id INTEGER PRIMARY KEY ASC, launcherName TEXT NOT NULL, launcherPath TEXT NOT NULL, launcherArgs TEXT NOT NULL, suffix TEXT)");
+    DBG_DB("Database created.");
 
-
-        DBG_DB("Database created.");
-        updater.initVersion();
-    }
-
-    if (updater.checkForDBUpdate())
-    {
-        DBG_DB("Found an update, updating db!");
-        initSuccessful = updater.updateDB();
-    }
-
-    return initSuccessful;
 }
 
 bool FDB::addGame(FGame game)
@@ -86,9 +96,7 @@ bool FDB::addGame(FGame game)
     QSqlQuery gameQuery;
 
     if (!launcherExists(game.getLauncher()))
-    {
         addLauncher(game.getLauncher());
-    }
 
     gameQuery.prepare("INSERT INTO games(gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher) VALUES (:gameName, :gameType, :gameDirectory, :relExecutablePath, :gameCommand, :gameArgs, :gameLauncher)");
     gameQuery.bindValue(":gameName", game.getName());
@@ -98,7 +106,7 @@ bool FDB::addGame(FGame game)
     gameQuery.bindValue(":gameCommand", game.getCommand());
     gameQuery.bindValue(":gameArgs", game.getArgs());
 
-    if(game.doesUseLauncher())
+    if (game.doesUseLauncher())
         gameQuery.bindValue(":gameLauncher", game.getLauncher().getDbId());
     else
         gameQuery.bindValue(":gameLauncher", -1);
@@ -244,7 +252,7 @@ bool FDB::updateTextPref(QString pref, QString value)
     bool res = tryExecute(&prefQuery);
 
 
-    if(prefQuery.numRowsAffected() == 0)
+    if (prefQuery.numRowsAffected() == 0)
     {
         DBG_DB("Added Text-Pref:" + pref);
         return addTextPref(pref, value);
@@ -286,7 +294,7 @@ int FDB::getIntPref(QString pref)
     prefQuery.bindValue(":key", pref);
     tryExecute(&prefQuery);
 
-    if(!prefQuery.next())
+    if (!prefQuery.next())
     {
         return -1;
     }
@@ -330,14 +338,14 @@ bool FDB::updateIntPref(QString pref, int value)
 bool FDB::getBoolPref(QString pref, bool defaultValue)
 {
     bool val = defaultValue;
+
     try {
           val = getBoolPref(pref);
     }
     catch(int i)
     {
-
-            addBoolPref(pref, defaultValue);
-            DBG_DB("added Pref: " + pref);
+        addBoolPref(pref, defaultValue);
+        DBG_DB("added Pref: " + pref);
     }
 
     return val;
@@ -351,7 +359,7 @@ bool FDB::updateGame(FGame *g)
     q.bindValue(":gDir", g->getPath());
     q.bindValue(":exec", g->getExe());
 
-    if(g->doesUseLauncher())
+    if (g->doesUseLauncher())
     {
         q.bindValue(":gLauncher", g->getLauncher().getDbId());
     }
@@ -360,14 +368,16 @@ bool FDB::updateGame(FGame *g)
         q.bindValue(":gLauncher", QVariant(QVariant::String));
     }
 	
-	if(g->savegameSyncEndabled())
+
+    if (g->savegameSyncEndabled())
         q.bindValue(":gSavegameDir", g->getSavegameDir().absolutePath());
     else
         q.bindValue(":gSavegameDir", QVariant(QVariant::String));
 		
-    q.bindValue(":gID", g->dbId);
-    return tryExecute(&q);
 
+    q.bindValue(":gID", g->dbId);
+
+    return tryExecute(&q);
 }
 
 bool FDB::updateLastLaunched(FGame *g)
@@ -467,7 +477,8 @@ bool FDB::updateWatchedFolders(QList<FWatchedFolder> data)
     QSqlQuery insertQuery;
     insertQuery.prepare("INSERT INTO watchedFolders (path, launcherID, forLauncher) VALUES(:folder, :launcherID, :forLauncher)");
 
-    for (FWatchedFolder dir : data) {
+    for (FWatchedFolder dir : data)
+    {
         insertQuery.bindValue(":folder", dir.getDirectory().absolutePath());
         insertQuery.bindValue(":launcherID", dir.getLauncherID());
         insertQuery.bindValue(":forLauncher", dir.forLauncher);
@@ -484,6 +495,7 @@ QList<FWatchedFolder> FDB::getWatchedFoldersList() {
     QSqlQuery folderqQueue;
 
     folderqQueue.exec("SELECT path, id, launcherID, forLauncher FROM watchedFolders ORDER BY path ASC");
+
     while (folderqQueue.next())
     {
         FWatchedFolder folder;

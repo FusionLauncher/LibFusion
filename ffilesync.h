@@ -1,13 +1,10 @@
 #ifndef FFILESYNC_H
 #define FFILESYNC_H
 
+#include <QDir>
 
-
-
- //class FDB;
 #include "fexception.h"
 
-#include <QDir>
 
 class FFileSync
 {
