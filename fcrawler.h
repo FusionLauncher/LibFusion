@@ -1,8 +1,6 @@
 /**
  * @class FCrawler
  *
- * @ingroup LibFusion
- *
  * @brief FCrawler is responsible for searching games in defined Folders
  *
  * This class searches given Folders for Games.
@@ -28,17 +26,17 @@ public:
     ~FCrawler();
 
     /**
-     * @brief scanAllFolders for new Games
+     * @fn scanAllFolders
+     * @brief Will Scan  all Folders for new Games
      *
      * Start Scans in Folders based on their detected Type.
      * Folders are defined in the DB, Table: watchedFolders
      */
     void scanAllFolders();
-private:
-    FDB db;
 
     /**
-     * @brief getType Tries to Detect the Type of given Directory
+     * @fn getType
+     * @brief Tries to Detect the Type of given Directory
      *
      * If it is from Steam, Origin, GOG or something else
      *
@@ -48,9 +46,12 @@ private:
      * Tries to get the Folder-Type, based on its content. Actually, only Steam is implemented
      */
     FGameType getType(FWatchedFolder folder);
+private:
+    FDB db;
 
     /**
-     * @brief getSteamGames Scans a Steam-Library for Games
+     * @fn getSteamGames
+     * @brief Scans a Steam-Library for Games
      *
      *
      * @param folder Folder to Check
@@ -60,7 +61,8 @@ private:
     void getSteamGames(FWatchedFolder folder);
 
     /**
-     * @brief  getOriginGames Scans the Origin Logfile for new Games and adds them
+     * @fn getOriginGames
+     * @brief Scans the Origin Logfile for new Games and adds them
      *
      * Reads the Logfile, located in "C:\\ProgramData\\Origin\\Logs\\Client_Log.txt"; for new Games
      * Adds them, if they are not found, in the Library.
@@ -71,7 +73,8 @@ private:
     void getOriginGames();
 
     /**
-     * @brief getGalaxyGames Scans the given Folder for GOG-Galaxy Games
+     * @fn getGalaxyGames
+     * @brief  Scans the given Folder for GOG-Galaxy Games
      *
      * This is done by Reading all the "goggame-*.info"-Files from the Subdirectories.
      * All found Games are inserted into the DB.
@@ -82,7 +85,8 @@ private:
     void getGalaxyGames(FWatchedFolder folder);
 
     /**
-     * @brief scanforLauncher Scans the given Folder for Files with specific File-Endings
+     * @fn scanforLauncher
+     * @brief Scans the given Folder for Files with specific File-Endings
      *
      * The File-Endings are determined by Reading the Launcher from the DB witht the folder as the Key.
      * All found Games are inserted into the DB.
@@ -92,7 +96,8 @@ private:
     void scanforLauncher(FWatchedFolder folder);
 
     /**
-     * @brief updateSteamDirs Get all the Steam-Gamedirectories
+     * @fn updateSteamDirs
+     * @brief Get all the Steam-Gamedirectories
      *
      * The directiries are read from the libraryfolders.vdf in the Steam-Dir.
      * The found directories are added to the WatchedFolder list.

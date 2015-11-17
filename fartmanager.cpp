@@ -26,7 +26,8 @@ FArtManager::FArtManager(FGame *g)
 
 
 
-void FArtManager::getGameData(FGame *g, QString platform = "pc") {
+void FArtManager::getGameData(FGame *g, QString platform = "pc")
+{
     game = g;
     QString gName = g->getName().replace("™", "");
     QString url = "http://thegamesdb.net/api/GetGame.php?platform="+platform+"&exactname=" + gName;
@@ -41,9 +42,6 @@ void FArtManager::getGameData(FGame *g, TheGameDBStorage *gameDBEntry)
 }
 
 
-
-
-
 void FArtManager::importArtwork(QFileInfo fi, QString destName)
 {
 
@@ -52,7 +50,8 @@ void FArtManager::importArtwork(QFileInfo fi, QString destName)
     QFileInfo destFile(dest);
 
 
-    if(!destFile.absoluteDir().exists()) {
+    if(!destFile.absoluteDir().exists())
+    {
         destFile.absoluteDir().mkpath(destFile.absoluteDir().absolutePath());
     }
 
@@ -65,13 +64,15 @@ void FArtManager::importArtwork(QFileInfo fi, QString destName)
 
 void FArtManager::dataReady(QNetworkReply *pReply)
 {
-    if(pReply->error() != QNetworkReply::NoError) {
+    if(pReply->error() != QNetworkReply::NoError)
+    {
         qWarning() << "QNetworkReply-Error: " << pReply->error();
         return;
     }
 
    QByteArray data=pReply->readAll();
-   if(data.size() == 0) {
+   if(data.size() == 0)
+   {
        qWarning() << "No data from ";
        return;
    }
@@ -90,7 +91,7 @@ void FArtManager::dataReady(QNetworkReply *pReply)
     }
 
       //Only one Found, assume its the right one
-      if(Games.length()==1)
+      if (Games.length() == 1)
       {
         if(Games[0]->clearartURL != NULL)
             downloadImage(Games[0]->clearartURL, FArtClearart);
@@ -103,24 +104,31 @@ void FArtManager::dataReady(QNetworkReply *pReply)
             downloadImage(Games[0]->bannerURL, FArtBanner);
 
 
-      } else if(Games.length()==0) {
-          if(!triedSearch) {
+      }
+      else if (Games.length() == 0)
+      {
+          if(!triedSearch)
+          {
               QString gName = game->getName().replace("™", "");
               QString url = "http://thegamesdb.net/api/GetGame.php?name=" + gName;
               m_manager->get(QNetworkRequest(QUrl(url)));
               triedSearch = true;
 
           }
-          else {
+          else
+          {
               emit finishedDownload();
           }
-      } else if (Games.length()>1) {
+      }
+      else if (Games.length() > 1)
+      {
           emit foundMultipleGames(Games);
       }
 }
 
 
-void FArtManager::downloadImage(QString imgUrl, FGameArt fa) {
+void FArtManager::downloadImage(QString imgUrl, FGameArt fa)
+{
     QDir artworkpath(game->getArtworkDir());
     QString baseImgUrl = "http://thegamesdb.net/banners/";
 
@@ -132,7 +140,8 @@ void FArtManager::downloadImage(QString imgUrl, FGameArt fa) {
 }
 
 
-void FArtManager::downloadFinished(QString src) {
+void FArtManager::downloadFinished(QString src)
+{
     emit finishedDownload();
 }
 
@@ -140,10 +149,11 @@ void FArtManager::processGame()
 {    
     TheGameDBStorage *gameDBStore = new TheGameDBStorage();
 
-    while(!xml->atEnd()) {
+    while (!xml->atEnd())
+    {
           xml->readNext();
 
-          if(xml->isStartElement())
+          if (xml->isStartElement())
           {
               QString name = xml->name().toString();
 
@@ -164,11 +174,12 @@ void FArtManager::processGame()
               else if (name=="Similar")
                   xml->skipCurrentElement();
           }
-          else if(xml->isEndElement())
+          else if (xml->isEndElement())
           {
               QString name = xml->name().toString();
-              if(name=="Game") {
-                   Games.append(gameDBStore);
+              if(name=="Game")
+              {
+                Games.append(gameDBStore);
                 return;
               }
           }

@@ -21,7 +21,8 @@ VersionCheckResult FClientUpdater::getCRClientVersion(QUrl versionFile)
     loop.exec();
 
     QNetworkReply::NetworkError err = reply->error();
-    if(err != QNetworkReply::NoError) {
+    if (err != QNetworkReply::NoError)
+    {
         vcr.error = reply->errorString();
         return vcr;
     }
@@ -30,7 +31,8 @@ VersionCheckResult FClientUpdater::getCRClientVersion(QUrl versionFile)
     reply->deleteLater();
     text.remove('"');
 
-    if ((text.isEmpty()) || (text.isNull())) {
+    if ((text.isEmpty()) || (text.isNull()))
+    {
         qDebug() << "[ERROR] Client version from API is empty or null. There may be no connection to the API.";;
     }
 
@@ -42,7 +44,8 @@ VersionCheckResult FClientUpdater::getCRClientVersion(QUrl versionFile)
     return vcr;
 }
 
-QString FClientUpdater::VersionToStr(FusionVersion v) {
+QString FClientUpdater::VersionToStr(FusionVersion v)
+{
     return QString::number(v.Major) + "." +  QString::number(v.Minor) + "." +  QString::number(v.Build);
 }
 
@@ -60,7 +63,8 @@ FusionVersion FClientUpdater::getDLClientVersion(QString filePath)
     }
 }
 
-FusionVersion FClientUpdater::strToVersion(QString VStr) {
+FusionVersion FClientUpdater::strToVersion(QString VStr)
+{
     FusionVersion v;
     v.Build = v.Minor = v.Major = 0;
     //Proper Version: 1.2.3
@@ -95,7 +99,7 @@ FusionVersion FClientUpdater::strToVersion(QString VStr) {
         return v;
 
     QString Name = tmp[1];
-    if(Name.length()<=0)
+    if(Name.length() <= 0)
         return v;
 
     v.Build = Build;
