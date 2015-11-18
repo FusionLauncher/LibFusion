@@ -228,12 +228,11 @@ void FClientUpdater::writeVersion(QString version, QString currentPath)
 QString FClientUpdater::readVersion(QString filePath)
 {
 
-    QFile oLogFile;
-    oLogFile.setFileName(filePath);
-    oLogFile.open(QIODevice::ReadOnly|QIODevice::Text);
-    QString fileContent = oLogFile.readAll();
-
-    oLogFile.close();
+    QFile File;
+    File.setFileName(filePath);
+    File.open(QIODevice::ReadOnly|QIODevice::Text);
+    QString fileContent = File.readAll();
+    File.close();
 
     return fileContent;
 }
@@ -241,15 +240,11 @@ QString FClientUpdater::readVersion(QString filePath)
 
 QString FClientUpdater::readPath()
 {
-    QString fileVersion;
+    QFile File;
+    File.setFileName(LibFusion::getWorkingDir().absolutePath() + "/FPath.txt");
+    File.open(QIODevice::ReadOnly|QIODevice::Text);
+    QString fileContent = File.readAll();
+    File.close();
 
-    QFile file(LibFusion::getWorkingDir().absolutePath() + "/FPath.txt");
-    file.open(QIODevice::ReadOnly);
-    QDataStream in(&file);
-
-    in >> fileVersion;
-    fileVersion = file.readAll();
-    file.close();
-
-    return fileVersion;
+    return fileContent;
 }
