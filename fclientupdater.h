@@ -65,6 +65,10 @@ struct FusionVersion {
         }
         return false;
     }
+
+    QString toString() {
+        return QString::number(Major) + "." +  QString::number(Minor) + "." +  QString::number(Build);
+    }
 };
 
 
