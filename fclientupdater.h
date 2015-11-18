@@ -14,8 +14,13 @@
 #include <QDataStream>
 #include <QDebug>
 
-
+#include "fdb.h"
 #include "libfusion_global.h"
+
+enum FUpdaterResult { UpToDate, ErrorOnChecking, StableAvailable, NightlyAvailable };
+enum FusionVersions { Stable, Beta, Nightly };
+enum FusionSources { srcStable, srcStable_Alt, srcNightly, srcNightly_Alt };
+
 
 struct FusionVersion {
     int Major = 0;
@@ -25,15 +30,50 @@ struct FusionVersion {
     bool initialized = false;
 
     bool operator==(FusionVersion a) {
-       return a.Build==Build && a.Minor==Minor && a.Major==Major;
+       return a.Build == Build && a.Minor == Minor && a.Major == Major;
+    }
+
+
+    bool operator>(FusionVersion a) {
+        if (Major > a.Major)
+            return true;
+         else
+         {
+            if(Minor > a.Minor )
+                return true;
+            else
+            {
+                if(Build > a.Build)
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    bool operator<(FusionVersion a) {
+        if (Major < a.Major)
+            return true;
+         else
+         {
+            if(Minor < a.Minor )
+                return true;
+            else
+            {
+                if(Build < a.Build)
+                    return true;
+            }
+        }
+        return false;
     }
 };
 
 
 struct VersionCheckResult {
     FusionVersion version;
+    FusionSources source;
     QString error;
 };
+
 
 class LIBFUSIONSHARED_EXPORT FClientUpdater : public QObject
 {
