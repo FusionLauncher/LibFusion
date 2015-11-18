@@ -43,7 +43,7 @@ public:
     VersionCheckResult getCRClientVersion(QUrl versionFile);
 
     //Get downloaded client version.
-    FusionVersion getDLClientVersion(QString filePath);
+    FusionVersion getInstalledVersion();
 
     bool fileExists(QString filePath);
 

@@ -123,40 +123,36 @@ bool FClientUpdater::fileExists(QString filePath)
 
 void FClientUpdater::writeVersion(QString version, QString currentPath)
 {
-    QFile file(LibFusion::getWorkingDir().absolutePath() + "/FVersion.txt");
+    QFile file(LibFusion::getWorkingDir().absolutePath() + "/" + QString(UPDATER_LOCAL_VERSIONFILE_NAME));
 
     if (!file.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate))
         return;
 
-    QDataStream out(&file);
-
-    out << version.toLatin1();
+    file.write(version.toLatin1(), version.length());
     file.close();
+
+
 
     QFile filePath(LibFusion::getWorkingDir().absolutePath() + "/FPath.txt");
 
     if (!filePath.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate))
             return;
 
-    QDataStream outP(&filePath);
-    outP << currentPath.toLatin1();
+    filePath.write(currentPath.toLatin1(), currentPath.length());
     filePath.close();
 }
 
 QString FClientUpdater::readVersion(QString filePath)
 {
-    QString fileVersion;
 
-    QFile file(filePath);
-    file.open(QIODevice::ReadOnly);
-    QDataStream in(&file);
+    QFile oLogFile;
+    oLogFile.setFileName(filePath);
+    oLogFile.open(QIODevice::ReadOnly|QIODevice::Text);
+    QString fileContent = oLogFile.readAll();
 
-    in >> fileVersion;
-    fileVersion = file.readAll();
+    oLogFile.close();
 
-    file.close();
-
-    return fileVersion;
+    return fileContent;
 }
 
 
