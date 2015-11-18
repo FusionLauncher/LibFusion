@@ -102,21 +102,33 @@ QString FClientUpdater::VersionToStr(FusionVersion v)
     return QString::number(v.Major) + "." +  QString::number(v.Minor) + "." +  QString::number(v.Build);
 }
 
-FUpdaterResult FClientUpdater::checkForUpdate()
+VersionCheckResult FClientUpdater::checkForUpdate()
 {
     bool useNightly = db.getBoolPref("useNightlyVersions", false);
 
-    FUpdaterResult result;
-    FusionVersion latestOnline;
+    VersionCheckResult result;
+    VersionCheckResult latestOnline;
     FusionVersion installedVersion = getInstalledVersion();
 
     if (useNightly)
-        latestOnline = getLatestVersion(FusionVersions::Nightly).version;
+        latestOnline = getLatestVersion(FusionVersions::Nightly);
     else
-        latestOnline = getLatestVersion(FusionVersions::Stable).version;
+        latestOnline = getLatestVersion(FusionVersions::Stable);
 
-    if(latestOnline>installedVersion)
-        result = FUpdaterResult::
+    if (latestOnline.version > installedVersion)
+    {
+        result = latestOnline;
+        if (latestOnline.source == FusionSources::srcStable || latestOnline.source == FusionSources::srcStable_Alt)
+            result.Status = FUpdaterResult::StableAvailable;
+        else
+            result.Status = FUpdaterResult::NightlyAvailable;
+    }
+    else
+    {
+        result.Status = FUpdaterResult::UpToDate;
+    }
+
+    return result;
 }
 
 //Gets downloaded client version from file.

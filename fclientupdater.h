@@ -71,6 +71,7 @@ struct FusionVersion {
 struct VersionCheckResult {
     FusionVersion version;
     FusionSources source;
+    FUpdaterResult Status;
     QString error;
 };
 
@@ -95,7 +96,7 @@ public:
     FusionVersion strToVersion(QString VStr);
     QString VersionToStr(FusionVersion v);
 
-    FUpdaterResult checkForUpdate();
+    VersionCheckResult checkForUpdate();
 private:
 
     QNetworkAccessManager *manager;
