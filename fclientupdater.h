@@ -80,7 +80,7 @@ class LIBFUSIONSHARED_EXPORT FClientUpdater : public QObject
     Q_OBJECT
 public:
     explicit FClientUpdater(QObject *parent = 0);
-    VersionCheckResult getCRClientVersion(QUrl versionFile);
+    VersionCheckResult getLatestVersion(FusionVersions version);
 
     //Get downloaded client version.
     FusionVersion getInstalledVersion();
@@ -94,11 +94,14 @@ public:
 
     FusionVersion strToVersion(QString VStr);
     QString VersionToStr(FusionVersion v);
+
+    FUpdaterResult checkForUpdate();
 private:
 
     QNetworkAccessManager *manager;
     QDir *qd = new QDir();
-
+    FDB db;
+    VersionCheckResult readOnlineVersionFile(QString URL);
 signals:
 
 public slots:

@@ -7,20 +7,73 @@ FClientUpdater::FClientUpdater(QObject *parent) : QObject(parent)
 }
 
 //Gets current client version from API.
-VersionCheckResult FClientUpdater::getCRClientVersion(QUrl versionFile)
+VersionCheckResult FClientUpdater::getLatestVersion(FusionVersions version)
 {
+    VersionCheckResult latestStable;
+    VersionCheckResult latestStable_alt;
+    VersionCheckResult latestNightly;
+    VersionCheckResult latestNightly_alt;
+    VersionCheckResult latestVersion;
+
+    FusionSources nightlySource = FusionSources::srcNightly;
+    FusionSources stableSource  = FusionSources::srcStable;
+
+    FusionSources latestSource;
+
+
+
+    //we check the Stable-Version anyway.
+    latestStable = readOnlineVersionFile(UPDATER_VERSION_STBL_FILE);
+    latestStable_alt = readOnlineVersionFile(UPDATER_VERSION_STBL_FILE_ALT);
+
+    if (latestStable_alt.version > latestStable.version)
+    {
+        latestStable = latestStable_alt;
+        stableSource = FusionSources::srcStable_Alt;
+    }
+
+    latestSource = stableSource;
+    latestVersion = latestStable;
+
+    if (version == FusionVersions::Nightly)
+    {
+        latestNightly = readOnlineVersionFile(UPDATER_VERSION_NIGHTLY_FILE);
+        latestNightly_alt = readOnlineVersionFile(UPDATER_VERSION_NIGHTLY_FILE_ALT);
+
+        if (latestNightly_alt.version > latestNightly.version)
+        {
+            latestNightly = latestNightly_alt;
+            nightlySource = FusionSources::srcNightly_Alt;
+        }
+
+        if (latestNightly.version > latestStable.version)
+        {
+            latestSource = nightlySource;
+            latestVersion = latestNightly;
+        }
+    }
+
+    latestVersion.source = latestSource;
+
+
+    return latestVersion;
+}
+
+VersionCheckResult FClientUpdater::readOnlineVersionFile(QString URL) {
+
     VersionCheckResult vcr;
     manager = new QNetworkAccessManager(this);
     QEventLoop loop;
     QObject::connect(manager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
 
-    QNetworkRequest request(versionFile);
+    QNetworkRequest request(URL);
     QNetworkReply *reply = manager->get(request);
     reply->ignoreSslErrors();
 
     loop.exec();
 
     QNetworkReply::NetworkError err = reply->error();
+
     if (err != QNetworkReply::NoError)
     {
         vcr.error = reply->errorString();
@@ -49,9 +102,27 @@ QString FClientUpdater::VersionToStr(FusionVersion v)
     return QString::number(v.Major) + "." +  QString::number(v.Minor) + "." +  QString::number(v.Build);
 }
 
-//Gets downloaded client version from file.
-FusionVersion FClientUpdater::getDLClientVersion(QString filePath)
+FUpdaterResult FClientUpdater::checkForUpdate()
 {
+    bool useNightly = db.getBoolPref("useNightlyVersions", false);
+
+    FUpdaterResult result;
+    FusionVersion latestOnline;
+    FusionVersion installedVersion = getInstalledVersion();
+
+    if (useNightly)
+        latestOnline = getLatestVersion(FusionVersions::Nightly).version;
+    else
+        latestOnline = getLatestVersion(FusionVersions::Stable).version;
+
+    if(latestOnline>installedVersion)
+        result = FUpdaterResult::
+}
+
+//Gets downloaded client version from file.
+FusionVersion FClientUpdater::getInstalledVersion()
+{
+    QString filePath = LibFusion::getWorkingDir().absolutePath() + "/" + QString(UPDATER_LOCAL_VERSIONFILE_NAME);
     if (fileExists(filePath))
     {
         return strToVersion(FClientUpdater::readVersion(filePath));
