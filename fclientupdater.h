@@ -14,8 +14,13 @@
 #include <QDataStream>
 #include <QDebug>
 
-
+#include "fdb.h"
 #include "libfusion_global.h"
+
+enum FUpdaterResult { UpToDate, ErrorOnCheckingOnline, ErrorOnCheckingLocal, StableAvailable, NightlyAvailable };
+enum FusionVersions { Stable, Beta, Nightly };
+enum FusionSources { srcStable, srcStable_Alt, srcNightly, srcNightly_Alt };
+
 
 struct FusionVersion {
     int Major = 0;
@@ -25,25 +30,66 @@ struct FusionVersion {
     bool initialized = false;
 
     bool operator==(FusionVersion a) {
-       return a.Build==Build && a.Minor==Minor && a.Major==Major;
+       return a.Build == Build && a.Minor == Minor && a.Major == Major;
+    }
+
+
+    bool operator>(FusionVersion a) {
+        if (Major > a.Major)
+            return true;
+         else
+         {
+            if(Minor > a.Minor )
+                return true;
+            else
+            {
+                if(Build > a.Build)
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    bool operator<(FusionVersion a) {
+        if (Major < a.Major)
+            return true;
+         else
+         {
+            if(Minor < a.Minor )
+                return true;
+            else
+            {
+                if(Build < a.Build)
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    QString toString() {
+        return QString::number(Major) + "." +  QString::number(Minor) + "." +  QString::number(Build);
     }
 };
 
 
 struct VersionCheckResult {
-    FusionVersion version;
-    QString error;
+    FusionVersion VersionOnline;
+    FusionVersion VersionLocal;
+    FusionSources Source;
+    FUpdaterResult Status;
+    QString Error;
 };
+
 
 class LIBFUSIONSHARED_EXPORT FClientUpdater : public QObject
 {
     Q_OBJECT
 public:
     explicit FClientUpdater(QObject *parent = 0);
-    VersionCheckResult getCRClientVersion(QUrl versionFile);
+    VersionCheckResult getLatestVersion(FusionVersions version);
 
     //Get downloaded client version.
-    FusionVersion getDLClientVersion(QString filePath);
+    FusionVersion getInstalledVersion();
 
     bool fileExists(QString filePath);
 
@@ -54,11 +100,14 @@ public:
 
     FusionVersion strToVersion(QString VStr);
     QString VersionToStr(FusionVersion v);
+
+    VersionCheckResult checkForUpdate(bool useNightly);
 private:
 
     QNetworkAccessManager *manager;
     QDir *qd = new QDir();
-
+    FDB db;
+    VersionCheckResult readOnlineVersionFile(QString URL);
 signals:
 
 public slots:
