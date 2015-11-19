@@ -17,7 +17,7 @@
 #include "fdb.h"
 #include "libfusion_global.h"
 
-enum FUpdaterResult { UpToDate, ErrorOnChecking, StableAvailable, NightlyAvailable };
+enum FUpdaterResult { UpToDate, ErrorOnCheckingOnline, ErrorOnCheckingLocal, StableAvailable, NightlyAvailable };
 enum FusionVersions { Stable, Beta, Nightly };
 enum FusionSources { srcStable, srcStable_Alt, srcNightly, srcNightly_Alt };
 
@@ -73,10 +73,11 @@ struct FusionVersion {
 
 
 struct VersionCheckResult {
-    FusionVersion version;
-    FusionSources source;
+    FusionVersion VersionOnline;
+    FusionVersion VersionLocal;
+    FusionSources Source;
     FUpdaterResult Status;
-    QString error;
+    QString Error;
 };
 
 
@@ -100,7 +101,7 @@ public:
     FusionVersion strToVersion(QString VStr);
     QString VersionToStr(FusionVersion v);
 
-    VersionCheckResult checkForUpdate();
+    VersionCheckResult checkForUpdate(bool useNightly);
 private:
 
     QNetworkAccessManager *manager;
