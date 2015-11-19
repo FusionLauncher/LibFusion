@@ -27,6 +27,9 @@
 #elif __linux
     #define UPDATER_LATES_STABLE "http://projfusion.com/files/Releases/latest/FusionClient_Linux.tar"
     #define UPDATER_LATES_STABLE_ALT "http://fsnupdt.florian-bury.de/latest/latest/FusionClient_Linux.tar"
+
+    #define UPDATER_LATES_NIGHTLY
+    #define UPDATER_LATES_NIGHTLY_ALT
 #endif
 
 
