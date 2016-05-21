@@ -24,8 +24,7 @@ SOURCES += libfusion.cpp \
     fwatchedfolder.cpp \
     ffilesync.cpp \
     flogger.cpp \
-    flogging.cpp \
-    ftest.cpp
+    flogging.cpp
 
 HEADERS += libfusion.h\
     libfusion_global.h \
@@ -43,8 +42,7 @@ HEADERS += libfusion.h\
     ffilesync.h \
     fexception.h \
     flogger.h \
-    flogging.h \
-    ftest.h
+    flogging.h
 
 unix {
     target.path = /usr/lib
