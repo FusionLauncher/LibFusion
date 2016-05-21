@@ -24,10 +24,10 @@ FusionVersion FClientUpdater::getCRClientVersion()
     text.remove('"');
 
     if ((text.isEmpty()) || (text.isNull())) {
-        qDebug() << "[ERROR] Client version from API is empty or null. There may be no connection to the API.";;
+        qCCritical(fLibUpdater) << "Client version from API is empty or null. There may be no connection to the API.";;
     }
 
-    qDebug() << "Current client version: " << text;
+    qCDebug(fLibUpdater) << "Current client version: " << text;
 
     FusionVersion v = strToVersion(text);
     return v;
@@ -46,7 +46,7 @@ FusionVersion FClientUpdater::getDLClientVersion(QString filePath)
     }
     else
     {
-        qDebug() << "Unable to find version file.";
+        qCWarning(fLibUpdater) << "Unable to find version file.";
         return strToVersion("");//Returns 0.0.0
     }
 }
@@ -102,7 +102,7 @@ FusionVersion FClientUpdater::strToVersion(QString VStr) {
 bool FClientUpdater::fileExists(QString filePath)
 {
 
- //   qDebug() << filePath << " exists: " << qd->exists(filePath);
+    qCDebug(fLibUpdater) << filePath << " exists: " << qd->exists(filePath);
     return qd->exists(filePath);
 }
 

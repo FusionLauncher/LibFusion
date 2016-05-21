@@ -1,8 +1,3 @@
-#ifndef QTCORE
-#include <QtCore>
-#endif
-
-
 #ifndef FGAME_H
 #define FGAME_H
 
@@ -16,6 +11,8 @@ enum FGameArt { FArtBox, FArtClearart, FArtBanner, FArtFanart};
 
 
 #include "libfusion_global.h"
+
+#include <QDateTime>
 class LIBFUSIONSHARED_EXPORT FGame
 {
 public:

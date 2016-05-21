@@ -6,7 +6,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include "flauncher.h"
-
+#include "flogging.h"
 #include "fgame.h"
 #include "fwatchedfolder.h"
 #include "libfusion_global.h"

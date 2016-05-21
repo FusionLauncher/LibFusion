@@ -13,6 +13,7 @@
 #include <QDir>
 #include <QFile>
 #include <QDataStream>
+#include "flogging.h"
 
 #include <QDebug>
 

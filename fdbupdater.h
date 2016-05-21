@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "fdb.h"
+#include "flogging.h"
 
 class FDBUpdater : public QObject
 {
