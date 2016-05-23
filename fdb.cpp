@@ -1,12 +1,12 @@
-#include "fdb.h"
-#include "fwatchedfolder.h"
-
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
-#include <fgame.h>
-#include <fdb.h>
-#include <libfusion.h>
+#include <QFile>
+
+#include "fdb.h"
+#include "fwatchedfolder.h"
+#include "fgame.h"
+#include "libfusion.h"
 #include "fdbupdater.h"
 #include <QFile>
 
@@ -17,7 +17,7 @@ FDB::FDB(QObject *parent)
 
 bool FDB::init()
 {
-    if(!LibFusion::makeSureWorkingDirExists())
+    if (!LibFusion::makeSureWorkingDirExists())
     {
         qCCritical(fLibDB) << ("Unable to create/access working Dir!");
 	    return false;
@@ -27,11 +27,12 @@ bool FDB::init()
     QFile dbFile(workingDir.absolutePath() + QDir::separator() + "fusion.db");
 
     bool createDB = false;
-    if(!dbFile.exists())
+    if (!dbFile.exists())
     {
         qCDebug(fLibDB) << ("Database will be created.");
         createDB = true;
     }
+
     bool initSuccessful = true;
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setHostName("localhost");
@@ -73,16 +74,14 @@ bool FDB::init()
         initSuccessful = updater.updateDB();
     }
 
-    return initSuccessful;
 }
 
 bool FDB::addGame(FGame game)
 {
     QSqlQuery gameQuery;
-    if(!launcherExists(game.getLauncher()))
-    {
+
+    if (!launcherExists(game.getLauncher()))
         addLauncher(game.getLauncher());
-    }
 
     gameQuery.prepare("INSERT INTO games(gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher) VALUES (:gameName, :gameType, :gameDirectory, :relExecutablePath, :gameCommand, :gameArgs, :gameLauncher)");
     gameQuery.bindValue(":gameName", game.getName());
@@ -92,13 +91,14 @@ bool FDB::addGame(FGame game)
     gameQuery.bindValue(":gameCommand", game.getCommand());
     gameQuery.bindValue(":gameArgs", game.getArgs());
 
-    if(game.doesUseLauncher())
+    if (game.doesUseLauncher())
         gameQuery.bindValue(":gameLauncher", game.getLauncher().getDbId());
     else
         gameQuery.bindValue(":gameLauncher", -1);
 
 
     qCDebug(fLibDB) << ("Game Added: " + game.getName().toLatin1());
+
     return tryExecute(&gameQuery);
 }
 
@@ -127,11 +127,13 @@ FGame* FDB::createGameFromQuery(QSqlQuery query)
 
     bool getLauncherOK;
     int launcherID = query.value(6).toInt(&getLauncherOK);
-    if(getLauncherOK && launcherID != -1)
+
+    if (getLauncherOK && launcherID != -1)
     {
         FLauncher launcher = getLauncher(launcherID);
         game->setLauncher(launcher);
     }
+
     game->setSavegameDir(query.value(8).toString());
     return game;
 }
@@ -143,10 +145,11 @@ FGame* FDB::getGame(int id)
     gameQuery.bindValue(":id", id);
     tryExecute(&gameQuery);
 
-    if(! gameQuery.next())
+    if (!gameQuery.next())
     {
         return NULL;
     }
+
     return createGameFromQuery(gameQuery);
 }
 
@@ -158,10 +161,12 @@ QList<FGame*> FDB::getGameList()
     FGame game;
     libraryQuery.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id, savegameDir, lastLaunched FROM games ORDER BY gameName ASC");
     tryExecute(&libraryQuery);
-    while(libraryQuery.next())
+
+    while (libraryQuery.next())
     {
         gameList.append(createGameFromQuery(libraryQuery));
     }
+
     return gameList;
 }
 
@@ -170,13 +175,14 @@ int FDB::getGameCount()
     QSqlQuery countQuery;
     countQuery.prepare("SELECT count() FROM games");
     tryExecute(&countQuery);
-    if(!countQuery.next())
+
+    if (!countQuery.next())
     {
         return 0;
     }
+
     qCDebug(fLibDB) << "Games found: " << countQuery.value(0).toString().toLatin1();
     return countQuery.value(0).toInt();
-
 }
 
 
@@ -187,7 +193,7 @@ QString FDB::getTextPref(QString pref, QString defaultValue)
 
     //"" not an optimal result for "not found".
     //have to find something better here, maybe add a exception
-    if(val != "" || defaultValue == "")
+    if (val != "" || defaultValue == "")
         return val;
      else
         addTextPref(pref, defaultValue);
@@ -201,7 +207,8 @@ QString FDB::getTextPref(QString pref)
     prefQuery.prepare("SELECT (text) FROM prefs WHERE key = :key AND valuetype = 1");
     prefQuery.bindValue(":key", pref);
     tryExecute(&prefQuery);
-    if(!prefQuery.next())
+
+    if (!prefQuery.next())
     {
         return QString();
     }
@@ -217,6 +224,7 @@ bool FDB::addTextPref(QString pref, QString value)
     prefQuery.prepare("INSERT INTO prefs(key, valuetype, number, text) VALUES (:key, 1, 0, :value)");
     prefQuery.bindValue(":key", pref);
     prefQuery.bindValue(":value", value);
+
     return tryExecute(&prefQuery);
 }
 
@@ -229,13 +237,15 @@ bool FDB::updateTextPref(QString pref, QString value)
     bool res = tryExecute(&prefQuery);
 
 
+	
     if(prefQuery.numRowsAffected() == 0) {
         qCDebug(fLibDB) << ("Added Text-Pref:" + pref);
         return addTextPref(pref, value);
-    } else {
+    }
+    else
+    {
         return res;
     }
-
 }
 
 bool FDB::deletePref(QString pref)
@@ -243,6 +253,7 @@ bool FDB::deletePref(QString pref)
     QSqlQuery delQuery;
     delQuery.prepare("DELETE FROM prefs WHERE key = :key");
     delQuery.bindValue(":key", pref);
+
     return tryExecute(&delQuery);
 }
 
@@ -253,7 +264,7 @@ int FDB::getIntPref(QString pref, int defaultValue)
 
     //-1 not an optimal result for "not found".
     //have to find something better here, maybe add a exception
-    if(val != -1 || defaultValue == -1)
+    if (val != -1 || defaultValue == -1)
         return val;
      else
         addIntPref(pref, defaultValue);
@@ -267,7 +278,8 @@ int FDB::getIntPref(QString pref)
     prefQuery.prepare("SELECT (number) FROM prefs WHERE key = :key AND valuetype = 2");
     prefQuery.bindValue(":key", pref);
     tryExecute(&prefQuery);
-    if(!prefQuery.next())
+
+    if (!prefQuery.next())
     {
         return -1;
     }
@@ -297,8 +309,11 @@ bool FDB::updateIntPref(QString pref, int value)
 
     if(prefQuery.numRowsAffected() == 0) {
         qCDebug(fLibDB) << ("Added Int-Pref:" + pref);
+
         return addIntPref(pref, value);
-    } else {
+    }
+    else
+    {
         return res;
     }
 }
@@ -308,12 +323,15 @@ bool FDB::updateIntPref(QString pref, int value)
 bool FDB::getBoolPref(QString pref, bool defaultValue)
 {
     bool val = defaultValue;
-    try  {
-          val = getBoolPref(pref);
-    } catch(int i) {
 
-            addBoolPref(pref, defaultValue);
+    try {
+          val = getBoolPref(pref);
+    }
+    catch(int i)
+    {
+         addBoolPref(pref, defaultValue);
             qCDebug(fLibDB) << ("added Pref: " + pref);
+
     }
 
     return val;
@@ -326,7 +344,8 @@ bool FDB::updateGame(FGame *g)
     q.bindValue(":gName", g->getName());
     q.bindValue(":gDir", g->getPath());
     q.bindValue(":exec", g->getExe());
-    if(g->doesUseLauncher())
+
+    if (g->doesUseLauncher())
     {
         q.bindValue(":gLauncher", g->getLauncher().getDbId());
     }
@@ -335,14 +354,16 @@ bool FDB::updateGame(FGame *g)
         q.bindValue(":gLauncher", QVariant(QVariant::String));
     }
 	
-	if(g->savegameSyncEndabled())
+
+    if (g->savegameSyncEndabled())
         q.bindValue(":gSavegameDir", g->getSavegameDir().absolutePath());
     else
         q.bindValue(":gSavegameDir", QVariant(QVariant::String));
 		
-    q.bindValue(":gID", g->dbId);
-    return tryExecute(&q);
 
+    q.bindValue(":gID", g->dbId);
+
+    return tryExecute(&q);
 }
 
 bool FDB::updateLastLaunched(FGame *g)
@@ -352,8 +373,8 @@ bool FDB::updateLastLaunched(FGame *g)
     q.prepare("UPDATE games SET lastLaunched = :dateTime WHERE id = :gID");
     q.bindValue(":gID", g->dbId);
     q.bindValue(":dateTime", currentDateTime);
-    return tryExecute(&q);
 
+    return tryExecute(&q);
 }
 
 QList<FGame *> FDB::getLatestLaunchedGames(int limit)
@@ -361,14 +382,17 @@ QList<FGame *> FDB::getLatestLaunchedGames(int limit)
     QList<FGame*> gameList;
     QSqlQuery q;
     FGame game;
+
     q.prepare("SELECT gameName, gameType, gameDirectory, relExecutablePath, gameCommand, gameArgs, gameLauncher, id, savegameDir, lastLaunched FROM games  ORDER BY lastLaunched DESC LIMIT :limit");
     q.bindValue(":limit", limit);
 
     tryExecute(&q);
-    while(q.next())
+
+    while (q.next())
     {
         gameList.append(createGameFromQuery(q));
     }
+
     return gameList;
 }
 
@@ -381,6 +405,7 @@ bool FDB::updateLauncher(FLauncher launcher)
     q.bindValue(":lArgs", launcher.getArgs());
     q.bindValue(":lId", launcher.getDbId());
     q.bindValue(":lSuffix", launcher.getFileEndings());
+
     return tryExecute(&q);
 }
 
@@ -392,7 +417,7 @@ bool FDB::getBoolPref(QString pref)
     prefQuery.bindValue(":key", pref);
     tryExecute(&prefQuery);
 
-    if(!prefQuery.next())
+    if (!prefQuery.next())
         throw 20;
     else
         return prefQuery.value(0).toBool();
@@ -404,6 +429,7 @@ bool FDB::addBoolPref(QString pref, bool value)
     prefQuery.prepare("INSERT INTO prefs(key, valuetype, number, text) VALUES (:key, 3, :value, '')");
     prefQuery.bindValue(":key", pref);
     prefQuery.bindValue(":value", value);
+
     return tryExecute(&prefQuery);
 }
 
@@ -418,8 +444,11 @@ bool FDB::updateBoolPref(QString pref, bool value)
 
     if(prefQuery.numRowsAffected() == 0) {
         qCDebug(fLibDB) << ("Added Int-Pref:" + pref);
+
         return addBoolPref(pref, value);
-    } else {
+    }
+    else
+    {
         return res;
     }
 }
@@ -434,7 +463,8 @@ bool FDB::updateWatchedFolders(QList<FWatchedFolder> data)
     QSqlQuery insertQuery;
     insertQuery.prepare("INSERT INTO watchedFolders (path, launcherID, forLauncher) VALUES(:folder, :launcherID, :forLauncher)");
 
-    for(FWatchedFolder dir : data) {
+    for (FWatchedFolder dir : data)
+    {
         insertQuery.bindValue(":folder", dir.getDirectory().absolutePath());
         insertQuery.bindValue(":launcherID", dir.getLauncherID());
         insertQuery.bindValue(":forLauncher", dir.forLauncher);
@@ -451,7 +481,8 @@ QList<FWatchedFolder> FDB::getWatchedFoldersList() {
     QSqlQuery folderqQueue;
 
     folderqQueue.exec("SELECT path, id, launcherID, forLauncher FROM watchedFolders ORDER BY path ASC");
-    while(folderqQueue.next())
+
+    while (folderqQueue.next())
     {
         FWatchedFolder folder;
         folder.setDirectory(QDir(folderqQueue.value(0).toString()));
@@ -464,8 +495,8 @@ QList<FWatchedFolder> FDB::getWatchedFoldersList() {
 
         result.append(folder);
     }
-    return result;
 
+    return result;
 }
 
 bool FDB::watchedFolderExists(FWatchedFolder *wf)
@@ -477,7 +508,8 @@ bool FDB::watchedFolderExists(FWatchedFolder *wf)
     q.bindValue(":wfforLauncher", wf->forLauncher);
     tryExecute(&q);
     q.next();
-    return q.value(0).toInt()>0;
+
+    return q.value(0).toInt() > 0;
 }
 
 bool FDB::addWatchedFolder(FWatchedFolder wf)
@@ -487,6 +519,7 @@ bool FDB::addWatchedFolder(FWatchedFolder wf)
     q.bindValue(":wfLauncherID", wf.getLauncherID());
     q.bindValue(":wfPath", wf.getDirectory().absolutePath());
     q.bindValue(":wfforLauncher", wf.forLauncher?1:0);
+
     return tryExecute(&q);
 }
 
@@ -494,13 +527,15 @@ bool FDB::addWatchedFolder(FWatchedFolder wf)
 bool FDB::tryExecute(QSqlQuery *q) {
     bool queryOK = q->exec();
 
-    if(!queryOK) {
+    if (!queryOK)
+    {
         QString queryStr = q->lastQuery();
         QSqlError e = q->lastError();
 
         QString boundValues;
         QMapIterator<QString, QVariant> i(q->boundValues());
-        while (i.hasNext()) {
+        while (i.hasNext())
+        {
             i.next();
             boundValues += i.key() + ": '" + i.value().toString() + "'; ";
         }
@@ -513,7 +548,6 @@ bool FDB::tryExecute(QSqlQuery *q) {
     }
 
     return queryOK;
-
 }
 
 //These two speed up mainly insert-queries, sice SQLite does not write to disk after every command, but after the endTransaction()
@@ -553,21 +587,24 @@ bool FDB::gameExists(FGame game)
     tryExecute(&query);
     query.next();
 
-    if(query.value(0).toInt()>0)
+    if (query.value(0).toInt() > 0)
         return true;
     else
         return false;
-
 }
 
 bool FDB::launcherExists(FLauncher launcher)
 {
     QSqlQuery query;
+
     query.prepare("SELECT count(*) FROM launchers WHERE id = :id");
     query.bindValue(":id", launcher.getDbId());
+
     tryExecute(&query);
+
     query.next();
-    return query.value(0).toInt()>0;
+
+    return query.value(0).toInt() > 0;
 }
 
 QDir FDB::getSavegameDir()
@@ -584,15 +621,19 @@ int FDB::addLauncher(FLauncher launcher)
     query.bindValue(":path", launcher.getPath());
     query.bindValue(":args", launcher.getArgs());
     query.bindValue(":suffix", launcher.getFileEndings());
+
     return tryExecute(&query);
 }
 
 bool FDB::updateLaunchers(QList<FLauncher> launchers)
 {
-    for(int i=0;i<launchers.length();++i) {
-        if(launchers[i].getDbId() == -1) { //we need to insert it
+    for (int i=0; i < launchers.length(); ++i) {
+        if (launchers[i].getDbId() == -1) //we need to insert it
+        {
             addLauncher(launchers[i]);
-        } else {
+        }
+        else
+        {
             updateLauncher(launchers[i]);
         }
     }
@@ -605,17 +646,21 @@ FLauncher FDB::getLauncher(int dbId)
     query.prepare("SELECT launcherName, launcherPath, launcherArgs, suffix FROM launchers WHERE id = :id");
     query.bindValue(":id", dbId);
     tryExecute(&query);
+
+	
     qCDebug(fLibDB) << ("Getting launcher" + dbId);
     if(!query.next())
     {
         qCCritical(fLibDB) << ("Didn't find the launcher..");
         return FLauncher();
     }
+
     launcher.setDbId(dbId);
     launcher.setName(query.value(0).toString());
     launcher.setPath(query.value(1).toString());
     launcher.setArgs(query.value(2).toString());
     launcher.setFileEndings(query.value(3).toString());
+
     return launcher;
 }
 
@@ -625,7 +670,8 @@ QList<FLauncher> FDB::getLaunchers()
     QSqlQuery query;
     query.prepare("SELECT launcherName, launcherPath, launcherArgs, id, suffix FROM launchers");
     tryExecute(&query);
-    while(query.next())
+
+    while (query.next())
     {
         FLauncher launcher;
         launcher.setName(query.value(0).toString());
@@ -635,5 +681,6 @@ QList<FLauncher> FDB::getLaunchers()
         launcher.setFileEndings(query.value(4).toString());
         list.append(launcher);
     }
+
     return list;
 }

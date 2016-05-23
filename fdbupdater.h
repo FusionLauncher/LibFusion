@@ -2,6 +2,7 @@
 #define FDBUPDATER_H
 
 #include <QObject>
+
 #include "fdb.h"
 #include "flogging.h"
 

@@ -14,7 +14,6 @@ OBJECTS_DIR = ../BUILD
 SOURCES += libfusion.cpp \
     fgame.cpp \
     fdb.cpp \
-    flibrary.cpp \
     fcrawler.cpp \
     fartmanager.cpp \
     ffiledownloader.cpp \
@@ -30,7 +29,6 @@ HEADERS += libfusion.h\
     libfusion_global.h \
     fgame.h \
     fdb.h \
-    flibrary.h \
     fcrawler.h \
     fartmanager.h \
     ffiledownloader.h \
@@ -42,7 +40,8 @@ HEADERS += libfusion.h\
     ffilesync.h \
     fexception.h \
     flogger.h \
-    flogging.h
+    flogging.h \
+    buildno.h
 
 unix {
     target.path = /usr/lib

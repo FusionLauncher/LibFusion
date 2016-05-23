@@ -7,7 +7,8 @@
 #include "flogging.h"
 
 
-FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args) {
+FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args)
+{
     this->gameName = gName;
     this->gameType = gType;
     this->gamePath = gDir;
@@ -24,85 +25,92 @@ FGame::FGame()
 }
 
 
-QString FGame::getName() {
+QString FGame::getName()
+{
     return this->gameName;
 }
 
 
-QString FGame::FGameArtToStr(FGameArt imgType ) {
-    switch (imgType) {
-    case FArtBanner:
-        return "Banner";
-        break;
-    case FArtBox:
-        return "Box";
-        break;
-    case FArtClearart:
-        return "Clearart";
-        break;
-    case FArtFanart:
-        return "Fanart";
-        break;
-    default:
-        return "";
-        break;
+QString FGame::FGameArtToStr(FGameArt imgType )
+{
+    switch (imgType)
+    {
+        case FArtBanner:
+            return "Banner";
+            break;
+        case FArtBox:
+            return "Box";
+            break;
+        case FArtClearart:
+            return "Clearart";
+            break;
+        case FArtFanart:
+            return "Fanart";
+            break;
+        default:
+            return "";
+            break;
     }
 }
 
 QString FGame::FGameTypeToStr(FGameType type)
 {
-    switch(type) {
-
-    case unknown:
-        return "Unknown";
-        break;
-    case Executable:
-        return "Executable";
-        break;
-    case Steam:
-        return "Steam";
-        break;
-    case Origin:
-        return "Origin";
-        break;
-    case Uplay:
-        return "Uplay";
-        break;
-    case Galaxy:
-        return "GOG Galaxy";
-        break;
-    default:
-        return "Unknown";
-        break;
+    switch(type)
+    {
+        case unknown:
+            return "Unknown";
+            break;
+        case Executable:
+            return "Executable";
+            break;
+        case Steam:
+            return "Steam";
+            break;
+        case Origin:
+            return "Origin";
+            break;
+        case Uplay:
+            return "Uplay";
+            break;
+        case Galaxy:
+            return "GOG Galaxy";
+            break;
+        default:
+            return "Unknown";
+            break;
     }
 }
 
-QString FGame::getArt(FGameArt imgType, bool fromCache, int size, FGameSizeConstrain fsc) {
+QString FGame::getArt(FGameArt imgType, bool fromCache, int size, FGameSizeConstrain fsc)
+{
 
-    if(fromCache) {
+    if (fromCache)
+    {
         return cachedImage(size, fsc, imgType);
     }
     else
     {
         QString ca = "";
 
-        if(QFile::exists(getArtworkDir()+ QDir::separator() + FGameArtToStr(imgType) + ".png"))
+        if (QFile::exists(getArtworkDir()+ QDir::separator() + FGameArtToStr(imgType) + ".png"))
             ca = getArtworkDir()+ QDir::separator() + FGameArtToStr(imgType) + ".png";
-        else if(QFile::exists(getArtworkDir()+ QDir::separator() + FGameArtToStr(imgType) + ".jpg"))
+        else if (QFile::exists(getArtworkDir()+ QDir::separator() + FGameArtToStr(imgType) + ".jpg"))
             ca =  getArtworkDir()+ QDir::separator() + FGameArtToStr(imgType) + ".jpg";
 
         QFile f(ca);
-        if(ca != "")
+
+        if (ca != "")
             return f.fileName();
         else
             return "";
     }
 }
 
-QString FGame::cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType ) {
+QString FGame::cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType )
+{
     QString fscI;
 
-    if(fsc == FWidth)
+    if (fsc == FWidth)
         fscI = "w_";
     else
         fscI = "h_";
@@ -110,16 +118,19 @@ QString FGame::cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType ) 
     QString fName(QString::number(dbId) + "_" + FGameArtToStr(imgType) + "_" + fscI + QString::number(size) + ".png");
     QString dir = getCacheDir();
     QString cached = dir + "/" + fName;
-    if(QFile(cached).exists())
+
+    if (QFile(cached).exists())
         return cached;
-    else {
+    else
+    {
         QString unCached = getArt(imgType);
-        if(unCached == "")
+        if (unCached == "")
             return unCached;
 
 
         QPixmap p(unCached);
-        if(fsc == FWidth)
+
+        if (fsc == FWidth)
             p= p.scaledToWidth(size, Qt::SmoothTransformation);
         else
             p = p.scaledToHeight(size, Qt::SmoothTransformation);
@@ -139,11 +150,13 @@ QString FGame::getExe()
     return this->gameExe;
 }
 
-FGameType FGame::getType() {
+FGameType FGame::getType()
+{
     return this->gameType;
 }
 
-void FGame::setType(FGameType val) {
+void FGame::setType(FGameType val)
+{
     this->gameType = val;
 }
 
@@ -299,28 +312,33 @@ bool FGame::execute()
         QProcess::startDetached("steam", args);
 #endif
 
-    } else if (gameType == FGameType::Origin) {
+    }
+    else if (gameType == FGameType::Origin)
+    {
         QString cmd("start origin://launchgame/" + gameExe);
         system(cmd.toStdString().c_str());
     }
-    else if (gameType == FGameType::Executable || gameType == FGameType::Galaxy || gameType == FGameType::ROM  )
+    else if (gameType == FGameType::Executable || gameType == FGameType::Galaxy || gameType == FGameType::ROM)
     {
-        if(gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists())
+        if (gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists())
         {
             qCDebug(fLibGame) << "gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists()";
             return false;
         }
-        if(launcherEnabled)
+
+        if (launcherEnabled)
         {
             qCDebug(fLibGame) << "Launcher:" << launcher.getName() << ", path:" << launcher.getPath() << ", args:" << launcher.getArgs() << ", id:" << launcher.getDbId();
             QProcess *process = new QProcess();
             process->setWorkingDirectory(gamePath);
-            if(!launcher.getArgs().isEmpty())
+
+            if (!launcher.getArgs().isEmpty())
             {
                 qCDebug(fLibGame) << "Found some arguments!";
                 QStringList argList = createStringListFromArguments(launcher.getArgs());
                 qCDebug(fLibGame) << "Launcher ArgList: " << argList;
                 QStringList::iterator i;
+
                 for(i = argList.begin(); i != argList.end(); i++)
                 {
                     i->replace("$GAMENAME", gameName);
@@ -346,7 +364,7 @@ bool FGame::execute()
                 QStringList newGameArgs = createStringListFromArguments(gameArgs.at(0));
                 qCDebug(fLibGame) << "Found a command!";
                 QStringList::iterator i;
-                for(i = newGameArgs.begin(); i != newGameArgs.end(); i++)
+                for (i = newGameArgs.begin(); i != newGameArgs.end(); i++)
                 {
                     i->replace("$GAMENAME", gameName);
                     i->replace("$GAMECOMMAND", gameCommand);

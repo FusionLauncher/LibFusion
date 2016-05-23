@@ -7,39 +7,146 @@ FClientUpdater::FClientUpdater(QObject *parent) : QObject(parent)
 }
 
 //Gets current client version from API.
-FusionVersion FClientUpdater::getCRClientVersion()
+VersionCheckResult FClientUpdater::getLatestVersion(FusionVersions version)
 {
+    VersionCheckResult latestStable;
+    VersionCheckResult latestStable_alt;
+    VersionCheckResult latestNightly;
+    VersionCheckResult latestNightly_alt;
+    VersionCheckResult latestVersion;
+
+    FusionSources nightlySource = FusionSources::srcNightly;
+    FusionSources stableSource  = FusionSources::srcStable;
+
+    FusionSources latestSource;
+
+
+
+    //we check the Stable-Version anyway.
+    latestStable = readOnlineVersionFile(UPDATER_VERSION_STBL_FILE);
+    latestStable_alt = readOnlineVersionFile(UPDATER_VERSION_STBL_FILE_ALT);
+
+    if (latestStable_alt.VersionOnline > latestStable.VersionOnline)
+    {
+        latestStable = latestStable_alt;
+        stableSource = FusionSources::srcStable_Alt;
+    }
+
+    latestSource = stableSource;
+    latestVersion = latestStable;
+
+    if (version == FusionVersions::Nightly)
+    {
+        latestNightly = readOnlineVersionFile(UPDATER_VERSION_NIGHTLY_FILE);
+        latestNightly_alt = readOnlineVersionFile(UPDATER_VERSION_NIGHTLY_FILE_ALT);
+
+        if (latestNightly_alt.VersionOnline > latestNightly.VersionOnline)
+        {
+            latestNightly = latestNightly_alt;
+            nightlySource = FusionSources::srcNightly_Alt;
+        }
+
+        if (latestNightly.VersionOnline > latestStable.VersionOnline)
+        {
+            latestSource = nightlySource;
+            latestVersion = latestNightly;
+        }
+    }
+
+    latestVersion.Source = latestSource;
+
+
+    return latestVersion;
+}
+
+VersionCheckResult FClientUpdater::readOnlineVersionFile(QString URL) {
+
+    VersionCheckResult vcr;
     manager = new QNetworkAccessManager(this);
     QEventLoop loop;
     QObject::connect(manager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
 
-    QNetworkRequest request(QUrl("http://projfusion.com/files/Releases/version.txt"));
+    QNetworkRequest request(URL);
     QNetworkReply *reply = manager->get(request);
     reply->ignoreSslErrors();
 
     loop.exec();
+
+    QNetworkReply::NetworkError err = reply->error();
+
+    if (err != QNetworkReply::NoError)
+    {
+        vcr.Error = reply->errorString();
+        return vcr;
+    }
 
     QString text = reply->readAll();
     reply->deleteLater();
     text.remove('"');
 
     if ((text.isEmpty()) || (text.isNull())) {
-        qCCritical(fLibUpdater) << "Client version from API is empty or null. There may be no connection to the API.";;
+        qCCritical(fLibUpdater) << "Client version from API is empty or null. There may be no connection to the API.";
     }
 
     qCDebug(fLibUpdater) << "Current client version: " << text;
 
     FusionVersion v = strToVersion(text);
-    return v;
+    vcr.VersionOnline = v;
+    vcr.Error = "NoError";
+    return vcr;
 }
 
-QString FClientUpdater::VersionToStr(FusionVersion v) {
+QString FClientUpdater::VersionToStr(FusionVersion v)
+{
     return QString::number(v.Major) + "." +  QString::number(v.Minor) + "." +  QString::number(v.Build);
 }
 
-//Gets downloaded client version from file.
-FusionVersion FClientUpdater::getDLClientVersion(QString filePath)
+VersionCheckResult FClientUpdater::checkForUpdate(bool useNightly)
 {
+    VersionCheckResult result;
+    VersionCheckResult latestOnline;
+    FusionVersion installedVersion = getInstalledVersion();
+
+    if (useNightly)
+        latestOnline = getLatestVersion(FusionVersions::Nightly);
+    else
+        latestOnline = getLatestVersion(FusionVersions::Stable);
+
+    result = latestOnline;
+
+    if (latestOnline.Error != "NoError")
+    {
+        result.Status = ErrorOnCheckingOnline;
+        return result;
+    }
+
+    if (!installedVersion.initialized)
+    {
+        result.Status = ErrorOnCheckingLocal;
+        return result;
+    }
+
+    if (latestOnline.VersionOnline > installedVersion)
+    {
+        result = latestOnline;
+        if (latestOnline.Source == FusionSources::srcStable || latestOnline.Source == FusionSources::srcStable_Alt)
+            result.Status = FUpdaterResult::StableAvailable;
+        else
+            result.Status = FUpdaterResult::NightlyAvailable;
+    }
+    else
+    {
+        result.Status = FUpdaterResult::UpToDate;
+    }
+
+    result.VersionLocal = installedVersion;
+    return result;
+}
+
+//Gets downloaded client version from file.
+FusionVersion FClientUpdater::getInstalledVersion()
+{
+    QString filePath = LibFusion::getWorkingDir().absolutePath() + "/" + QString(UPDATER_LOCAL_VERSIONFILE_NAME);
     if (fileExists(filePath))
     {
         return strToVersion(FClientUpdater::readVersion(filePath));
@@ -51,42 +158,47 @@ FusionVersion FClientUpdater::getDLClientVersion(QString filePath)
     }
 }
 
-FusionVersion FClientUpdater::strToVersion(QString VStr) {
+FusionVersion FClientUpdater::strToVersion(QString VStr)
+{
     FusionVersion v;
     v.Build = v.Minor = v.Major = 0;
     //Proper Version: 1.2.3
 
-    QStringList tmp = VStr.split("\n");
-    QString versionNo = tmp[0];
-    versionNo = versionNo.replace("\r", "");
+    QStringList tmp = VStr.split("\n", QString::SkipEmptyParts);
 
-    if(tmp.length()!=2)
+    if (tmp.length()!= 2)
         return v;
 
-    if(versionNo.length() != 5)
+
+    tmp[0] = QString(tmp.at(0)).replace("\r", "");
+
+    QStringList versionParts = tmp[0].split(".", QString::SkipEmptyParts);
+
+    if (versionParts.length() != 3)
         return v;
 
     bool convOK;
 
-    int Major = versionNo.left(1).toInt(&convOK);
+    int Major = versionParts[0].toInt(&convOK);
 
-    if(!convOK)
+    if (!convOK)
         return v;
 
 
-    int Minor = versionNo.mid(2,1).toInt(&convOK);
+    int Minor = versionParts[1].toInt(&convOK);
 
-    if(!convOK)
+    if (!convOK)
         return v;
 
 
-    int Build = versionNo.mid(4,1).toInt(&convOK);
+    int Build = versionParts[2].toInt(&convOK);
 
-    if(!convOK)
+    if (!convOK)
         return v;
 
     QString Name = tmp[1];
-    if(Name.length()<=0)
+
+    if (Name.length() <= 0)
         return v;
 
     v.Build = Build;
@@ -98,7 +210,6 @@ FusionVersion FClientUpdater::strToVersion(QString VStr) {
 }
 
 
-//Returns true if file exists
 bool FClientUpdater::fileExists(QString filePath)
 {
 
@@ -106,55 +217,48 @@ bool FClientUpdater::fileExists(QString filePath)
     return qd->exists(filePath);
 }
 
-//Write version info
+
 void FClientUpdater::writeVersion(QString version, QString currentPath)
 {
-    QFile file(LibFusion::getWorkingDir().absolutePath() + "/FVersion.txt");
+    QFile file(LibFusion::getWorkingDir().absolutePath() + "/" + QString(UPDATER_LOCAL_VERSIONFILE_NAME));
+
     if (!file.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate))
         return;
 
-    QDataStream out(&file);
-
-    out << version.toLatin1();
+    file.write(version.toLatin1(), version.length());
     file.close();
 
+
+
     QFile filePath(LibFusion::getWorkingDir().absolutePath() + "/FPath.txt");
+
     if (!filePath.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate))
             return;
 
-    QDataStream outP(&filePath);
-    outP << currentPath.toLatin1();
+    filePath.write(currentPath.toLatin1(), currentPath.length());
     filePath.close();
-
 }
 
 QString FClientUpdater::readVersion(QString filePath)
 {
-    QString fileVersion;
 
-    QFile file(filePath);
-    file.open(QIODevice::ReadOnly);
-    QDataStream in(&file);
+    QFile File;
+    File.setFileName(filePath);
+    File.open(QIODevice::ReadOnly|QIODevice::Text);
+    QString fileContent = File.readAll();
+    File.close();
 
-    in >> fileVersion;
-    fileVersion = file.readAll();
-
-    file.close();
-    return fileVersion;
+    return fileContent;
 }
 
 
 QString FClientUpdater::readPath()
 {
-    QString fileVersion;
+    QFile File;
+    File.setFileName(LibFusion::getWorkingDir().absolutePath() + "/FPath.txt");
+    File.open(QIODevice::ReadOnly|QIODevice::Text);
+    QString fileContent = File.readAll();
+    File.close();
 
-    QFile file(LibFusion::getWorkingDir().absolutePath() + "/FPath.txt");
-    file.open(QIODevice::ReadOnly);
-    QDataStream in(&file);
-
-    in >> fileVersion;
-    fileVersion = file.readAll();
-    file.close();
-    return fileVersion;
-
+    return fileContent;
 }
