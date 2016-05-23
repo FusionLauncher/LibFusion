@@ -22,6 +22,7 @@ bool FDB::init()
         qCCritical(fLibDB) << ("Unable to create/access working Dir!");
 	    return false;
     }
+
     QDir workingDir = LibFusion::getWorkingDir();
     QFile dbFile(workingDir.absolutePath() + QDir::separator() + "fusion.db");
 
