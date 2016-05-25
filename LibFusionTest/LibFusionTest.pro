@@ -26,7 +26,7 @@ SOURCES += tst_fusiontestsuit.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 LIBS += -lLibFusion
-LIBS += -L$$PWD/../BUILD -lLibFusion
+LIBS += -L$$PWD/../../OUT -lLibFusion
 
 INCLUDEPATH += $$PWD/../LibFusion
 DEPENDPATH += $$PWD/../LibFusion
