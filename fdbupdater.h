@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "fdb.h"
+#include "flogging.h"
 
 class FDBUpdater : public QObject
 {
@@ -13,7 +14,7 @@ public:
     bool checkForDBUpdate();
     bool updateDB();
     bool versionExists();
-    void initUpdater();
+    void initVersion();
 private:
     FDB *db;
     bool foundVersion;

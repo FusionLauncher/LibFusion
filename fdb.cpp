@@ -8,7 +8,7 @@
 #include "fgame.h"
 #include "libfusion.h"
 #include "fdbupdater.h"
-#include "f_dbg.h"
+#include <QFile>
 
 FDB::FDB(QObject *parent)
 {
@@ -19,7 +19,7 @@ bool FDB::init()
 {
     if (!LibFusion::makeSureWorkingDirExists())
     {
-        DBG_DB("Unable to create/access working Dir!");
+        qCCritical(fLibDB) << ("Unable to create/access working Dir!");
 	    return false;
     }
 
@@ -29,65 +29,50 @@ bool FDB::init()
     bool createDB = false;
     if (!dbFile.exists())
     {
-        DBG_DB("Database will be created.");
+        qCDebug(fLibDB) << ("Database will be created.");
         createDB = true;
     }
 
     bool initSuccessful = true;
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    connect(&db, QFileInfo(dbFile));
+    db.setHostName("localhost");
 
-
-
-    QSqlQuery query;
-    FDBUpdater updater(this, this);
-
-    if (createDB)
-        createDatabase();
-
-    if (!createDB && updater.checkForDBUpdate())
+    db.setDatabaseName(QFileInfo(dbFile).absoluteFilePath());
+    bool ok = db.open();
+    if(!ok)
     {
-        DBG_DB("Found an update, updating db!");
-        initSuccessful = updater.updateDB();
-    }
+        QSqlError e = db.lastError();
 
-    return initSuccessful;
-}
-
-bool FDB::connect(QSqlDatabase *database, QFileInfo dbFile) {
-
-    database->setHostName("localhost");
-    database->setDatabaseName(dbFile.absoluteFilePath());
-
-    bool ok = database->open();
-    if (!ok)
-    {
-        DBG_DB("Unable to open Database!");
-        QSqlError e = database->lastError();
-        DBG_DB(e.databaseText());
-        DBG_DB(e.driverText());
-        #if (QT_VERSION > QT_VERSION_CHECK(5, 0, 0))
-            DBG_DB(e.nativeErrorCode());
-        #endif
-        DBG_DB(QString::number(e.type()));
+        qCCritical(fLibDB) << ("Unable to open Database!");
+        qCCritical(fLibDB) << (e.databaseText());
+        qCCritical(fLibDB) << (e.driverText());
+        qCCritical(fLibDB) << (e.nativeErrorCode());
+        qCCritical(fLibDB) << (QString::number(e.type()));
         return false;
     }
 
-    return ok;
-}
-
-
-bool FDB::createDatabase() {
-    DBG_DB("Creating database.");
-    query.exec("CREATE TABLE IF NOT EXISTS prefs(key TINYTEXT NOT NULL, valuetype TINYINT NOT NULL, number TINYINT NOT NULL, text VARCHAR(255) NOT NULL)");
-    query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL, gameCommand TEXT, gameArgs TEXT, gameLauncher INTEGER, savegameDir TEXT, lastLaunched datetime DEFAULT NULL)");
-    query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255),forLauncher TINY INT DEFAULT '0', launcherID INT DEFAULT NULL );");
-    query.exec("CREATE TABLE IF NOT EXISTS launchers(id INTEGER PRIMARY KEY ASC, launcherName TEXT NOT NULL, launcherPath TEXT NOT NULL, launcherArgs TEXT NOT NULL, suffix TEXT)");
-
+    QSqlQuery query;
     FDBUpdater updater(this, this);
-    updater.initUpdater();
+    if(createDB)
+    {
+        qCDebug(fLibDB) << ("Creating database.");
+        query.exec("CREATE TABLE IF NOT EXISTS prefs(key TINYTEXT NOT NULL, valuetype TINYINT NOT NULL, number TINYINT NOT NULL, text VARCHAR(255) NOT NULL)");
+        //(later) if clientToken doesnt exists, show login and run registerClient(), if no account, //run register()
+        //(later) if lang is not set, set it to the default system language
+        query.exec("CREATE TABLE IF NOT EXISTS games(id INTEGER PRIMARY KEY ASC, gameName TEXT NOT NULL, gameType TINYINT NOT NULL , gameDirectory TEXT NOT NULL, relExecutablePath TEXT NOT NULL, gameCommand TEXT, gameArgs TEXT, gameLauncher INTEGER, savegameDir TEXT, lastLaunched datetime DEFAULT NULL)");
+        query.exec("CREATE TABLE IF NOT EXISTS watchedFolders ( `id` INTEGER PRIMARY KEY ASC, `path` VARCHAR(255),forLauncher TINY INT DEFAULT '0', launcherID INT DEFAULT NULL );");
+        query.exec("CREATE TABLE IF NOT EXISTS launchers(id INTEGER PRIMARY KEY ASC, launcherName TEXT NOT NULL, launcherPath TEXT NOT NULL, launcherArgs TEXT NOT NULL, suffix TEXT)");
 
-    DBG_DB("Database created.");
+
+        qCDebug(fLibDB) << ("Database created.");
+        updater.initVersion();
+    }
+
+    if(updater.checkForDBUpdate())
+    {
+        qCDebug(fLibDB) << ("Found an update, updating db!");
+        initSuccessful = updater.updateDB();
+    }
 
 }
 
@@ -111,7 +96,8 @@ bool FDB::addGame(FGame game)
     else
         gameQuery.bindValue(":gameLauncher", -1);
 
-    qDebug("Game Added: " + game.getName().toLatin1());
+
+    qCDebug(fLibDB) << ("Game Added: " + game.getName().toLatin1());
 
     return tryExecute(&gameQuery);
 }
@@ -195,8 +181,7 @@ int FDB::getGameCount()
         return 0;
     }
 
-    qDebug("Games found: "+countQuery.value(0).toString().toLatin1());
-
+    qCDebug(fLibDB) << "Games found: " << countQuery.value(0).toString().toLatin1();
     return countQuery.value(0).toInt();
 }
 
@@ -252,9 +237,9 @@ bool FDB::updateTextPref(QString pref, QString value)
     bool res = tryExecute(&prefQuery);
 
 
-    if (prefQuery.numRowsAffected() == 0)
-    {
-        DBG_DB("Added Text-Pref:" + pref);
+	
+    if(prefQuery.numRowsAffected() == 0) {
+        qCDebug(fLibDB) << ("Added Text-Pref:" + pref);
         return addTextPref(pref, value);
     }
     else
@@ -322,9 +307,9 @@ bool FDB::updateIntPref(QString pref, int value)
 
     bool res = tryExecute(&prefQuery);
 
-    if (prefQuery.numRowsAffected() == 0)
-    {
-        DBG_DB("Added Int-Pref:" + pref);
+    if(prefQuery.numRowsAffected() == 0) {
+        qCDebug(fLibDB) << ("Added Int-Pref:" + pref);
+
         return addIntPref(pref, value);
     }
     else
@@ -344,8 +329,9 @@ bool FDB::getBoolPref(QString pref, bool defaultValue)
     }
     catch(int i)
     {
-        addBoolPref(pref, defaultValue);
-        DBG_DB("added Pref: " + pref);
+         addBoolPref(pref, defaultValue);
+            qCDebug(fLibDB) << ("added Pref: " + pref);
+
     }
 
     return val;
@@ -456,9 +442,9 @@ bool FDB::updateBoolPref(QString pref, bool value)
 
     bool res = tryExecute(&prefQuery);
 
-    if (prefQuery.numRowsAffected() == 0)
-    {
-        DBG_DB("Added Int-Pref:" + pref);
+    if(prefQuery.numRowsAffected() == 0) {
+        qCDebug(fLibDB) << ("Added Int-Pref:" + pref);
+
         return addBoolPref(pref, value);
     }
     else
@@ -484,7 +470,7 @@ bool FDB::updateWatchedFolders(QList<FWatchedFolder> data)
         insertQuery.bindValue(":forLauncher", dir.forLauncher);
         tryExecute(&insertQuery);
         insertQuery.finish();
-        qDebug("Add Lib: " + dir.getDirectory().absolutePath().toLatin1());
+        qCDebug(fLibDB) << ("Add Lib: " + dir.getDirectory().absolutePath().toLatin1());
     }
 
     return true;
@@ -554,11 +540,11 @@ bool FDB::tryExecute(QSqlQuery *q) {
             boundValues += i.key() + ": '" + i.value().toString() + "'; ";
         }
 
-        DBG_DB("####################");
-        DBG_DB(e.databaseText());
-        DBG_DB(e.driverText());
-        DBG_DB(queryStr);
-        DBG_DB(boundValues);
+        qCWarning(fLibDB) << ("####################");
+        qCWarning(fLibDB) << (e.databaseText());
+        qCWarning(fLibDB) << (e.driverText());
+        qCWarning(fLibDB) << (queryStr);
+        qCWarning(fLibDB) << (boundValues);
     }
 
     return queryOK;
@@ -586,10 +572,10 @@ bool FDB::rollbackTransaction()
     return q.exec("ROLLBACK TRANSACTION;");
 }
 
+//TODO: Assume we can remove this
 bool FDB::runQuery(QSqlQuery q)
 {
     //return q.exec();
-    DBG_DB("RUN!");
     return false;
 }
 
@@ -660,11 +646,12 @@ FLauncher FDB::getLauncher(int dbId)
     query.prepare("SELECT launcherName, launcherPath, launcherArgs, suffix FROM launchers WHERE id = :id");
     query.bindValue(":id", dbId);
     tryExecute(&query);
-    DBG_DB("Getting launcher" + dbId);
 
-    if (!query.next())
+	
+    qCDebug(fLibDB) << ("Getting launcher" + dbId);
+    if(!query.next())
     {
-        DBG_DB("Didn't find the launcher..");
+        qCCritical(fLibDB) << ("Didn't find the launcher..");
         return FLauncher();
     }
 

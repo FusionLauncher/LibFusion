@@ -1,19 +1,15 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2015-04-30T23:12:49
-#
-#-------------------------------------------------
-
-QT       += gui
-QT       += core
-QT	 += sql
-QT       += network
+QT       += core sql network
 
 TARGET = LibFusion
 TEMPLATE = lib
 
-QMAKE_CXXFLAGS += -std=c++11
+CONFIG += c++11
+
 DEFINES += LIBFUSION_LIBRARY
+
+DESTDIR = ../OUT
+MOC_DIR = BUILD
+OBJECTS_DIR = BUILD
 
 SOURCES += libfusion.cpp \
     fgame.cpp \
@@ -26,7 +22,8 @@ SOURCES += libfusion.cpp \
     flauncher.cpp \
     fwatchedfolder.cpp \
     ffilesync.cpp \
-    flogger.cpp
+    flogger.cpp \
+    flogging.cpp
 
 HEADERS += libfusion.h\
     libfusion_global.h \
@@ -42,8 +39,8 @@ HEADERS += libfusion.h\
     fwatchedfolder.h \
     ffilesync.h \
     fexception.h \
-    f_dbg.h \
     flogger.h \
+    flogging.h \
     buildno.h
 
 unix {

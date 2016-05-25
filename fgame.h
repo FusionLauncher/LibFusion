@@ -1,10 +1,10 @@
 #ifndef FGAME_H
 #define FGAME_H
 
-#ifndef QTCORE
-    #include <QtCore>
-#endif
 
+#include <QDateTime>
+
+#include "libfusion_global.h"
 #include "flauncher.h"
 #include "ffilesync.h"
 
@@ -14,7 +14,6 @@ enum FGameArt { FArtBox, FArtClearart, FArtBanner, FArtFanart};
 
 
 
-#include "libfusion_global.h"
 class LIBFUSIONSHARED_EXPORT FGame
 {
 public:

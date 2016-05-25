@@ -4,7 +4,7 @@
 
 #include "fgame.h"
 #include "libfusion.h"
-
+#include "flogging.h"
 
 
 FGame::FGame (QString gName, FGameType gType, QString gDir, QString exePath, QStringList args)
@@ -139,7 +139,7 @@ QString FGame::cachedImage(int size, FGameSizeConstrain fsc, FGameArt imgType )
         file.open(QIODevice::WriteOnly);
         p.save(&file, "png", 90);
         file.close();
-        qDebug() << "Resized " << cached;
+        qCDebug(fLibGame) << "Resized " << cached;
         return cached;
     }
 }
@@ -301,17 +301,16 @@ bool FGame::execute()
 {
     syncData();
 
-    qDebug() << "Game type: " << gameType;
-    if (gameType == FGameType::Steam)
-    {
-        #ifdef _WIN32
-            QString cmd("start steam://rungameid/" + gameExe);
-            system(cmd.toStdString().c_str());
-        #else
-            QStringList args;
-            args << "-applaunch" << gameExe;
-            QProcess::startDetached("steam", args);
-        #endif
+    qCDebug(fLibGame) << "Game type: " << gameType;
+    if(gameType == FGameType::Steam) {
+#ifdef _WIN32
+        QString cmd("start steam://rungameid/" + gameExe);
+        system(cmd.toStdString().c_str());
+#else
+        QStringList args;
+        args << "-applaunch" << gameExe;
+        QProcess::startDetached("steam", args);
+#endif
 
     }
     else if (gameType == FGameType::Origin)
@@ -323,21 +322,21 @@ bool FGame::execute()
     {
         if (gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists())
         {
-            qDebug() << "gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists()";
+            qCDebug(fLibGame) << "gameExe.isEmpty() || gamePath.isEmpty() || !QFile(gamePath+'/'+gameExe).exists()";
             return false;
         }
 
         if (launcherEnabled)
         {
-            qDebug() << "Launcher:" << launcher.getName() << ", path:" << launcher.getPath() << ", args:" << launcher.getArgs() << ", id:" << launcher.getDbId();
+            qCDebug(fLibGame) << "Launcher:" << launcher.getName() << ", path:" << launcher.getPath() << ", args:" << launcher.getArgs() << ", id:" << launcher.getDbId();
             QProcess *process = new QProcess();
             process->setWorkingDirectory(gamePath);
 
             if (!launcher.getArgs().isEmpty())
             {
-                qDebug() << "Found some arguments!";
+                qCDebug(fLibGame) << "Found some arguments!";
                 QStringList argList = createStringListFromArguments(launcher.getArgs());
-                qDebug() << "Launcher ArgList: " << argList;
+                qCDebug(fLibGame) << "Launcher ArgList: " << argList;
                 QStringList::iterator i;
 
                 for(i = argList.begin(); i != argList.end(); i++)
@@ -351,7 +350,7 @@ bool FGame::execute()
             }
             else
             {
-                qDebug() << "Didn't find arguments.";
+                qCDebug(fLibGame) << "Didn't find arguments.";
                 process->start(launcher.getPath(), QStringList(gameExe));
             }
         }
@@ -359,12 +358,11 @@ bool FGame::execute()
         {
             QProcess *process = new QProcess();
             process->setWorkingDirectory(gamePath);
-            qDebug() << "Command: " << gameCommand;
-
-            if (!gameCommand.isEmpty())
+            qCDebug(fLibGame) << "Command: " << gameCommand;
+            if(!gameCommand.isEmpty())
             {
                 QStringList newGameArgs = createStringListFromArguments(gameArgs.at(0));
-                qDebug() << "Found a command!";
+                qCDebug(fLibGame) << "Found a command!";
                 QStringList::iterator i;
                 for (i = newGameArgs.begin(); i != newGameArgs.end(); i++)
                 {
@@ -377,7 +375,7 @@ bool FGame::execute()
             }
             else
             {
-                qDebug() << "Didn't find command, running executable";
+                qCDebug(fLibGame) << "Didn't find command, running executable";
                 process->start(gamePath+'/'+gameExe, gameArgs);
             }
         }

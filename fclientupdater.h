@@ -12,8 +12,9 @@
 #include <QDir>
 #include <QFile>
 #include <QDataStream>
-#include <QDebug>
+#include "flogging.h"
 
+#include <QDebug>
 #include "fdb.h"
 #include "libfusion_global.h"
 
