@@ -8,8 +8,8 @@ CONFIG += c++11
 DEFINES += LIBFUSION_LIBRARY
 
 DESTDIR = ../OUT
-MOC_DIR = ../BUILD
-OBJECTS_DIR = ../BUILD
+MOC_DIR = BUILD
+OBJECTS_DIR = BUILD
 
 SOURCES += libfusion.cpp \
     fgame.cpp \
