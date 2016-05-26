@@ -16,6 +16,7 @@ private:
 private Q_SLOTS:
     void dbCreate();
     void gameCreate();
+    void DatabasePrefs();
     void addGame();
 };
 
@@ -68,6 +69,18 @@ void FusionTestSuit::gameCreate()
 
     g.setArgs(QStringList() << "Check g.setArgs");
     QCOMPARE(g.getArgs(), QStringList() << "Check g.setArgs");
+}
+
+
+
+void FusionTestSuit::DatabasePrefs()
+{
+    QCOMPARE(db.getTextPref("nonExistent"), QString());
+    QCOMPARE(db.getTextPref("nonExistent", "defaultValue"), QString("defaultValue"));
+
+    QVERIFY(db.addTextPref("newPref", "newPrefs' value"));
+    QCOMPARE(db.getTextPref("newPref"), QString("newPrefs' value"));
+    QCOMPARE(db.getTextPref("newPref", "with defaultVal"), QString("newPrefs' value"));
 }
 
 void FusionTestSuit::addGame()
