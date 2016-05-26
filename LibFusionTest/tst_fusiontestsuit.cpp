@@ -21,7 +21,7 @@ private Q_SLOTS:
 
 FusionTestSuit::FusionTestSuit()
 {
-    QLoggingCategory::setFilterRules("*.debug=false\n");
+    QLoggingCategory::setFilterRules("*=false\n");
 }
 
 void FusionTestSuit::dbCreate()
