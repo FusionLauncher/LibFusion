@@ -1,9 +1,17 @@
 # LibFusion
 The Basic library needed to develop Fusion - Contains base classes.
-<br>
-FGame.cpp/h - Contains information for a particular game<br>
-FLibrary.cpp/h - Contains information for a library of games<br>
-FDB.cpp/h - Contains the database system<br>
 
-[![Build Status](https://semaphoreci.com/api/v1/projects/87d9015b-03f0-4d57-a899-c54e89623693/420085/badge.svg)](https://semaphoreci.com/kamnxt/libfusion)      
+# How to build:
+To Build the Library, QT > 5 is required.
+
+Its best to create a Fusion-Folder as root, and work in this directory.
+To build the project, do following steps:
+
+1. Create working directory and enter it:
+	`mkdir Fusion; cd Fusion;`
+2. get Lib Fusion Code
+	`git clone https://github.com/FusionLauncher/LibFusion.git`
+4. Build the Library
+    `cd LibFusion; qmake; make; cd ..;``
+6. Ready to go!
 
