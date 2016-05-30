@@ -119,7 +119,7 @@ void FusionTestSuit::DatabasePrefsInt()
 }
 
 
-void FusionTestuit::watchedFolders() {
+void FusionTestSuit::watchedFolders() {
 
 }
 
