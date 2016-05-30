@@ -16,7 +16,8 @@ private:
 private Q_SLOTS:
     void dbCreate();
     void gameCreate();
-    void DatabasePrefs();
+    void DatabasePrefsString();
+    void DatabasePrefsInt();
     void addGame();
 };
 
@@ -73,7 +74,7 @@ void FusionTestSuit::gameCreate()
 
 
 
-void FusionTestSuit::DatabasePrefs()
+void FusionTestSuit::DatabasePrefsString()
 {
     QCOMPARE(db.getTextPref("nonExistent"), QString());
     QCOMPARE(db.getTextPref(""), QString());
@@ -86,7 +87,11 @@ void FusionTestSuit::DatabasePrefs()
 //delete Pref, getPref should now return an empty string
     QVERIFY(db.deletePref("newPref"));
     QCOMPARE(db.getTextPref("newPref"), QString());
+}
 
+
+void FusionTestSuit::DatabasePrefsInt()
+{
    //#################
    //INT-PREFS
     QCOMPARE(db.getIntPref("nonExistent"), -1);
@@ -111,6 +116,8 @@ void FusionTestSuit::DatabasePrefs()
     QCOMPARE(db.getIntPref("newPref3"), 214356570); 
 
 }
+
+
 
 void FusionTestSuit::addGame()
 {
