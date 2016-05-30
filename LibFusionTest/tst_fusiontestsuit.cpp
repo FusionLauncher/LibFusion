@@ -18,6 +18,7 @@ private Q_SLOTS:
     void gameCreate();
     void DatabasePrefsString();
     void DatabasePrefsInt();
+    void watchedFolders();
     void addGame();
 };
 
@@ -118,6 +119,9 @@ void FusionTestSuit::DatabasePrefsInt()
 }
 
 
+void FusionTestuit::watchedFolders() {
+
+}
 
 void FusionTestSuit::addGame()
 {
